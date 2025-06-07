@@ -1,22 +1,145 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   Button,
-  useWindowDimensions,
   Image,
+  useWindowDimensions,
+  Pressable,
+  FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StickyHeaderScrollView, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
+import { useSharedValue } from "react-native-reanimated";
+import Carousel from "react-native-reanimated-carousel";
+import Header from '@/components/Header';
+import BalanceCard from '@/components/BalanceCard';
+import { images } from '@/constants';
+import { router } from 'expo-router';
+import GameCard from '@/components/GameCard';
+import LiveWinnerTicker from '@/components/LiveWinnerTicker'
 
-const PARALLAX_HEIGHT = 330;
-const SNAP_START_THRESHOLD = 10;
-const SNAP_STOP_THRESHOLD = 330;
+const sliderImages = [
+	images.card1,
+  images.card2,
+	images.card1,
+  images.card3
+];
+
+const featuredGames = [
+	images.featured,
+	images.featured,
+	images.featured,
+	images.featured,
+];
+
+const winnerMessages = [
+  {
+    phone: '+234********490',
+    amount: 7000,
+    timestamp: new Date(),
+  },
+  {
+    phone: '+234********123',
+    amount: 5000,
+    timestamp: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
+  },
+  {
+    phone: '+234********678',
+    amount: 10000,
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 24 hours ago
+  },
+];
+
+
+const games: any = [
+    {
+      id: "1",
+      title: "Weekend Allowee",
+      amount: 200,
+      expiryTime: "2025-06-08 14:30:00"
+    },
+    {
+      id: "1",
+      title: "BuzzyBall 45",
+      amount: 100,
+      expiryTime: "2025-06-09 14:30:00"
+    },
+    {
+      id: "1",
+      title: "Daily ChopChop",
+      amount: 1000,
+      expiryTime: "2025-06-10 14:30:00"
+    },
+    {
+      id: "1",
+      title: "Oil Money",
+      amount: 500,
+      expiryTime: "2025-06-11 14:30:00"
+    },
+     {
+      id: "1",
+      title: "Weekend Allowee",
+      amount: 200,
+      expiryTime: "2025-06-08 14:30:00"
+    },
+    {
+      id: "1",
+      title: "BuzzyBall 45",
+      amount: 100,
+      expiryTime: "2025-06-09 14:30:00"
+    },
+    {
+      id: "1",
+      title: "Daily ChopChop",
+      amount: 1000,
+      expiryTime: "2025-06-10 14:30:00"
+    },
+    {
+      id: "1",
+      title: "Oil Money",
+      amount: 500,
+      expiryTime: "2025-06-11 14:30:00"
+    },
+     {
+      id: "1",
+      title: "Weekend Allowee",
+      amount: 200,
+      expiryTime: "2025-06-08 14:30:00"
+    },
+    {
+      id: "1",
+      title: "BuzzyBall 45",
+      amount: 100,
+      expiryTime: "2025-06-09 14:30:00"
+    },
+    {
+      id: "1",
+      title: "Daily ChopChop",
+      amount: 1000,
+      expiryTime: "2025-06-10 14:30:00"
+    },
+    {
+      id: "1",
+      title: "Oil Money",
+      amount: 500,
+      expiryTime: "2025-06-11 14:30:00"
+    },
+  ]
 
 const HomeScreen = () => {
 
+  const [parallaxHeight, setParallaxHeight] = useState(290);
+  const SNAP_START_THRESHOLD = 10;
+  const headerMeasured = useRef(false);
+
+  const progress = useSharedValue<number>(0);
+  const screen = useWindowDimensions();
+  const width = screen.width - 32
+  const itemWidth = width * 0.85;  // 85% of screen width for item
+  
   const {
     onMomentumScrollEnd,
     onScroll,
@@ -25,16 +148,67 @@ const HomeScreen = () => {
     scrollValue,
     scrollViewRef,
   } = useStickyHeaderScrollProps<ScrollView>({
-    parallaxHeight: PARALLAX_HEIGHT,
+    parallaxHeight: parallaxHeight,
     snapStartThreshold: SNAP_START_THRESHOLD,
-    snapStopThreshold: SNAP_STOP_THRESHOLD,
+    snapStopThreshold: parallaxHeight,
     snapToEdge: true,
   });
+
+  const CarouselComponent = memo(() => {
+    return (
+      <Carousel
+        autoPlayInterval={5000}
+        data={sliderImages}
+        height={158}
+        autoPlay
+        loop
+        pagingEnabled
+        snapEnabled
+        width={width}
+        style={{ width }}
+        mode="parallax"
+        modeConfig={{
+          parallaxScrollingScale: 1,
+          parallaxScrollingOffset: 50,
+        }}
+        onProgressChange={progress}
+        renderItem={({ item }) => (
+          <Pressable
+            style={{
+              width: itemWidth,
+              height: 158,
+              alignSelf: 'center',
+              borderRadius: 12,
+              overflow: 'hidden',
+            }}
+            onPress={() => router.push("/(protected)/(tabs)/tickets")}
+          >
+            <Image
+              source={item}
+              style={{
+                width: '100%',
+                height: '100%',
+                resizeMode: 'cover',
+                borderRadius: 12,
+              }}
+            />
+          </Pressable>
+        )}
+      />
+    );
+  });
+
+  const renderGames = ({item, index}: {item: any, index: number}) => (
+    <GameCard item={item} index={index} handlePress={() => router.push({
+        pathname: "/(protected)/(tabs)/more",
+        params: { Recieptdata: JSON.stringify(item) },
+    })}/>
+  )
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1 bg-gray-100'>
       <View className='flex-1 px-4'>
-        
+        <Header/>
         <StickyHeaderScrollView
           ref={scrollViewRef}
           containerStyle={{ flex: 1 }}
@@ -42,41 +216,60 @@ const HomeScreen = () => {
           onMomentumScrollEnd={onMomentumScrollEnd}
           onScrollEndDrag={onScrollEndDrag}
           renderHeader={() => (
-            <View pointerEvents="box-none" style={{ height: scrollHeight }}>
+            <View pointerEvents="box-none" 
+              onLayout={(event) => {
+                if (!headerMeasured.current) {
+                  const { height } = event.nativeEvent.layout;
+                  setParallaxHeight(height);
+                  headerMeasured.current = true;
+                }
+              }}
+              // style={{ height: scrollHeight }}
+            >
+              
               {/* balance */}
               <View>
-                
+                <BalanceCard />
               </View>
 
-              {/* Promo Banner */}
-              <View style={{ backgroundColor: '#FFA500', marginTop: 16, padding: 16, borderRadius: 12 }}>
-                <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Turn your gameplay into a gateway to big rewards</Text>
-                <Button title="Play Now" onPress={() => {}} />
+              {/* first carousel */}
+              <View>
+                <CarouselComponent />
               </View>
-
-              {/* Featured Games */}
-              <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 16 }}>Featured Games</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View style={{ marginRight: 12, width: 120, height: 120, backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center', borderRadius: 8 }}>
-                  <Text>Spin 2 Win</Text>
-                </View>
-                <View style={{ marginRight: 12, width: 120, height: 120, backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center', borderRadius: 8 }}>
-                  <Text>Trivia Game</Text>
-                </View>
-              </ScrollView>
-
-              {/* Live Feed */}
-              <Text style={{ marginTop: 16, fontSize: 14, color: 'gray' }}>+234****490 just won ₦5,000.00 - 33mins ago</Text>
             </View>
           )}
 
           renderTabs={() => (
-            <View style={{ paddingHorizontal: 16 }}>
-              <View style={{ backgroundColor: '#000933', borderRadius: 16, padding: 20 }}>
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Weekend Allowee</Text>
-                <Text style={{ color: '#fff', fontSize: 24, marginVertical: 8 }}>04 : 21 : 06</Text>
-                <Button title="Play With ₦200.00" onPress={() => {}} color="#FF6600" />
+            <View className='bg-gray-100'>
+               {/* Featured Games */}
+              <View>
+                <Text className='text-sm font-mbold mt-2 mb-1'>Featured Games</Text>
+                <FlatList
+                  nestedScrollEnabled={true}
+                  horizontal
+                  scrollEnabled={true}
+                  data={featuredGames}
+                  showsHorizontalScrollIndicator={false}
+                  ItemSeparatorComponent={() => <View style={{ width: 6 }} />}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({item}) => (
+                    <Pressable style={{
+                        width: itemWidth - 26,
+                        height: 95,
+                        alignSelf: 'center',
+                        borderRadius: 8,
+                        overflow: 'hidden',
+                        
+                      }} onPress={() => router.push("/(protected)/(tabs)/tickets")}>
+                        <Image source={item} style={{ width: '100%', height: '100%', resizeMode: 'cover', borderRadius: 8}}
+                        />
+                    </Pressable>
+                  )}
+                  // contentContainerStyle={{ paddingBottom: 30 }}
+                  />
               </View>
+              {/* live game */}
+              <LiveWinnerTicker winnerMessages={winnerMessages}/>
             </View>
           )}
 
@@ -84,63 +277,26 @@ const HomeScreen = () => {
           style={{ flex: 1 }}
         >
           <View>
-            <Text>More content here...</Text>
-            <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-              <View style={{ backgroundColor: '#000933', borderRadius: 16, padding: 20 }}>
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Weekend Allowee</Text>
-                <Text style={{ color: '#fff', fontSize: 24, marginVertical: 8 }}>04 : 21 : 06</Text>
-                <Button title="Play With ₦200.00" onPress={() => {}} color="#FF6600" />
+            <FlatList
+              scrollEnabled={false}
+              data={games}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={renderGames}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={
+                games.length === 0
+                    ? { flexGrow: 1, justifyContent: 'center', paddingBottom: 100, alignItems: 'center' }
+                    : {paddingBottom: 100}
+              }
+              ListEmptyComponent={() => (
+              <View className='flex-1'>
+                  <View className="w-full items-center mx-auto justify-center my-6 max-w-64 flex-1">
+                      {/* <Image source={images.withdrawEmpty} className="mx-auto" resizeMode='contain'/> */}
+                      <Text className="text-2xl text-center text-blue mt-4 font-rbold">You have no transactions yet.</Text>
+                  </View>
               </View>
-            </View>
-            <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-              <View style={{ backgroundColor: '#000933', borderRadius: 16, padding: 20 }}>
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Weekend Allowee</Text>
-                <Text style={{ color: '#fff', fontSize: 24, marginVertical: 8 }}>04 : 21 : 06</Text>
-                <Button title="Play With ₦200.00" onPress={() => {}} color="#FF6600" />
-              </View>
-            </View>
-            <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-              <View style={{ backgroundColor: '#000933', borderRadius: 16, padding: 20 }}>
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Weekend Allowee</Text>
-                <Text style={{ color: '#fff', fontSize: 24, marginVertical: 8 }}>04 : 21 : 06</Text>
-                <Button title="Play With ₦200.00" onPress={() => {}} color="#FF6600" />
-              </View>
-            </View>
-            <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-              <View style={{ backgroundColor: '#000933', borderRadius: 16, padding: 20 }}>
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Weekend Allowee</Text>
-                <Text style={{ color: '#fff', fontSize: 24, marginVertical: 8 }}>04 : 21 : 06</Text>
-                <Button title="Play With ₦200.00" onPress={() => {}} color="#FF6600" />
-              </View>
-            </View>
-            <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-              <View style={{ backgroundColor: '#000933', borderRadius: 16, padding: 20 }}>
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Weekend Allowee</Text>
-                <Text style={{ color: '#fff', fontSize: 24, marginVertical: 8 }}>04 : 21 : 06</Text>
-                <Button title="Play With ₦200.00" onPress={() => {}} color="#FF6600" />
-              </View>
-            </View>
-            <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-              <View style={{ backgroundColor: '#000933', borderRadius: 16, padding: 20 }}>
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Weekend Allowee</Text>
-                <Text style={{ color: '#fff', fontSize: 24, marginVertical: 8 }}>04 : 21 : 06</Text>
-                <Button title="Play With ₦200.00" onPress={() => {}} color="#FF6600" />
-              </View>
-            </View>
-            <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-              <View style={{ backgroundColor: '#000933', borderRadius: 16, padding: 20 }}>
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Weekend Allowee</Text>
-                <Text style={{ color: '#fff', fontSize: 24, marginVertical: 8 }}>04 : 21 : 06</Text>
-                <Button title="Play With ₦200.00" onPress={() => {}} color="#FF6600" />
-              </View>
-            </View>
-            <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-              <View style={{ backgroundColor: '#000933', borderRadius: 16, padding: 20 }}>
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Weekend Allowee</Text>
-                <Text style={{ color: '#fff', fontSize: 24, marginVertical: 8 }}>04 : 21 : 06</Text>
-                <Button title="Play With ₦200.00" onPress={() => {}} color="#FF6600" />
-              </View>
-            </View>
+              )}
+          /> 
           </View>
         </StickyHeaderScrollView>
 
