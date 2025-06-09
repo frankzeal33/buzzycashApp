@@ -4,11 +4,11 @@ import EvilIcons from '@expo/vector-icons/EvilIcons';
 
 type headerProps = {
     title?: string;
-    icon?: any;
+    icon?: boolean;
     onpress?: () => void
 }
 
-export default function Header({title, icon, onpress}: headerProps) {
+export default function Header({title, icon = false, onpress}: headerProps) {
   return (
     <View className='py-2'>
         <View className='flex-row items-center justify-between gap-2'>
@@ -16,7 +16,7 @@ export default function Header({title, icon, onpress}: headerProps) {
             <Text className='text-orange font-mbold text-base'>OD</Text>
           </View>
           {icon ? (
-            <TouchableOpacity onPress={onpress}><AntDesign name="leftcircle" size={30} color="#C3C3C3"/></TouchableOpacity>
+            <TouchableOpacity onPress={onpress}><AntDesign name="arrowleft" size={30} color="#EF4734"/></TouchableOpacity>
           ) : (
             <Pressable className="relative rounded-full border border-orange size-9 items-center justify-center">
               <EvilIcons name="bell" size={20} color="#EF4734"/>
@@ -28,7 +28,7 @@ export default function Header({title, icon, onpress}: headerProps) {
         </View>
 
         {title && (
-          <Text className="text-2xl text-blue font-msbold mt-2 text-center">{title}</Text>
+          <Text className="text-xl text-blue font-msbold mt-1 text-center">{title}</Text>
         )}
     </View>
   )

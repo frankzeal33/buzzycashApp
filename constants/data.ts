@@ -1,8 +1,15 @@
-const IDType = [
-  { label: 'National ID', value: 'National_ID' },
-  { label: 'Drivers Lincense', value: 'Drivers_Lincense' },
-  { label: 'International Passport', value: 'International_Passport' },
-]
+const transactionType = [
+  {title: 'Game'},
+  {title: 'Ticket'},
+  {title: 'Cashout'},
+  {title: 'Deposit'}
+];
 
+const transactionRemark = [
+  { title: 'Successful' },
+  { title: 'Failed' },    
+  { title: 'Reversed' },
+  { title: 'Pending' }
+];
 
-export default { IDType }
+export default { transactionType, transactionRemark }

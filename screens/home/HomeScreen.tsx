@@ -57,7 +57,7 @@ const winnerMessages = [
 const games: any = [
     {
       id: "1",
-      title: "Weekend Allowee",
+      title: "Weekend Allawee",
       amount: 200,
       expiryTime: "2025-06-08 14:30:00"
     },
@@ -81,7 +81,7 @@ const games: any = [
     },
      {
       id: "1",
-      title: "Weekend Allowee",
+      title: "Weekend Allawee",
       amount: 200,
       expiryTime: "2025-06-08 14:30:00"
     },
@@ -105,7 +105,7 @@ const games: any = [
     },
      {
       id: "1",
-      title: "Weekend Allowee",
+      title: "Weekend Allawee",
       amount: 200,
       expiryTime: "2025-06-08 14:30:00"
     },
@@ -180,6 +180,7 @@ const HomeScreen = () => {
               alignSelf: 'center',
               borderRadius: 12,
               overflow: 'hidden',
+              backgroundColor: "#1F1F1F"
             }}
             onPress={() => router.push("/(protected)/(tabs)/tickets")}
           >
@@ -259,7 +260,7 @@ const HomeScreen = () => {
                         alignSelf: 'center',
                         borderRadius: 8,
                         overflow: 'hidden',
-                        
+                        backgroundColor: "#1F1F1F"
                       }} onPress={() => router.push("/(protected)/(tabs)/tickets")}>
                         <Image source={item} style={{ width: '100%', height: '100%', resizeMode: 'cover', borderRadius: 8}}
                         />
