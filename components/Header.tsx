@@ -60,7 +60,7 @@ export default function Header({title, icon = false, onpress}: headerProps) {
               </View>
               <Pressable onPress={() => {
                 setShowModal(false);
-                router.push("/(onboarding)/LogIn");
+                router.push("/(protected)/(routes)/Profile");
               }} className='w-full'>
                 <View className="w-full flex-row items-center gap-3 p-5">
                   <FontAwesome5 name="user" size={25} color="#EF9439" />
@@ -69,7 +69,7 @@ export default function Header({title, icon = false, onpress}: headerProps) {
               </Pressable>
               <Pressable onPress={() => {
                 setShowModal(false);
-                router.push("/(onboarding)/LogIn");
+                router.push("/(protected)/(routes)/Security2FA");
               }} className='w-full'>
                 <View className="w-full flex-row items-center gap-3 p-5">
                   <FontAwesome name="key" size={25} color="#EF9439" />

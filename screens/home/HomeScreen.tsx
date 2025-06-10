@@ -269,7 +269,7 @@ const HomeScreen = () => {
                         borderRadius: 8,
                         overflow: 'hidden',
                         backgroundColor: "#1F1F1F"
-                      }} onPress={() => router.push("/(protected)/(tabs)/tickets")}>
+                      }} onPress={() => router.push("/(protected)/(routes)/TicketDetails")}>
                         <Image source={item} style={{ width: '100%', height: '100%', resizeMode: 'cover', borderRadius: 8}}
                         />
                     </Pressable>

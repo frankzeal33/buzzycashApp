@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Pressable, Modal, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Pressable, Modal, TouchableWithoutFeedback, TextInput } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '@/components/FormField'
@@ -11,15 +11,22 @@ import { Link, router } from 'expo-router'
 import Checkbox from 'expo-checkbox';
 import OnboardModal from '@/components/OnboardModal'
 import { OtpInput } from "react-native-otp-entry";
+import { Entypo } from '@expo/vector-icons'
+import { CountryPicker } from 'react-native-country-codes-picker';
 
 const Register = () => {
 
+  const [isFocused, setIsFocused] = useState(false);
   const [isChecked, setChecked] = useState(false);
   const [confirmModal, setConfirmModal] = useState(false)
   const [showOTP, setShowOTP] = useState(false)
 
+  const [showCountry, setShowCountry] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<any>({});
+
   const [form, setForm] = useState({
     email: '',
+    phoneNumber: '',
     password: '',
     ConfirmPassword: ''
   })
@@ -56,8 +63,19 @@ const Register = () => {
                 <View className="flex-1 w-full justify-center items-center my-6">
                     <Text className="text-2xl mt-4 font-mbold">Sign Up</Text>
                     <Text className="mt-1 font-mmedium text-center px-6">Turn your dreams into reality, your path to wealth Begins Here</Text>
-                    <FormField value={form.email} placeholder="Country" handleChangeText={(e: any) => setForm({ ...form, email: e })} otherStyles="mt-7" keyboardType="email-address" labelStyle='text-white'/>
-                    <FormField value={form.email} placeholder="Phone Number" handleChangeText={(e: any) => setForm({ ...form, email: e })} otherStyles="mt-7" keyboardType="email-address" labelStyle='text-white'/>
+                    
+                    <TouchableOpacity onPress={() => setShowCountry(true)} className={`bg-gray-200 w-full h-16 px-4 mt-7 rounded-md items-center justify-between flex-row gap-1`}>
+                        <View className='flex-1'>
+                          <Text className='text-lg text-gray-500 font-mmedium' numberOfLines={1}>{selectedCountry?.name?.en ?? 'Country'}</Text>
+                        </View>
+                        <Entypo name='chevron-small-down' size={30} color="#979797" />
+                    </TouchableOpacity>
+
+                    <View className={`bg-gray-200 mt-7 ${isFocused && 'border-2 border-lightBlack'} h-16 pr-4 rounded-md items-center flex-row gap-1`}>
+                      <TextInput className={`bg-gray-300 rounded-l-md px-4 text-black font-mmedium text-base h-full`} value={selectedCountry?.dial_code ?? "+000"} placeholderTextColor="#979797" editable={false}/>
+                      <TextInput className={`bg-gray-200 flex-1 text-black font-mmedium text-base h-full pl-2`} value={form.phoneNumber} placeholder="Phone Number" placeholderTextColor="#979797" onChangeText={(e: any) => setForm({ ...form, phoneNumber: e })} keyboardType="phone-pad" onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}/>
+                    </View>
+                    
                     <FormField title="Password*" value={form.password} placeholder="Create Password" handleChangeText={(e: any) => setForm({ ...form, password: e })} otherStyles="mt-7" labelStyle='text-white'/>
                     <FormField title="Confirm Password*" value={form.ConfirmPassword} placeholder="Confirm Password" handleChangeText={(e: any) => setForm({ ...form, ConfirmPassword: e })} otherStyles="mt-7" labelStyle='text-white'/>
                     <View className='w-full flex-row items-start gap-2 my-5'>
@@ -121,6 +139,20 @@ const Register = () => {
             </View>
           )}
         </OnboardModal>
+
+        <CountryPicker
+          lang='en'
+          show={showCountry}
+          pickerButtonOnPress={(item) => {
+            setSelectedCountry(item);
+            setShowCountry(false);
+          }}
+          style={{
+            modal: {
+              height: '90%',
+            }
+          }}
+        />
 
         <StatusBar style='dark'/>
     </SafeAreaView>

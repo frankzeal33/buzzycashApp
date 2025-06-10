@@ -14,9 +14,10 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#1F1F1F"
+        "backgroundColor": "#111625"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.franklin93.bussycash"
     },
     "web": {
       "bundler": "metro",
@@ -28,15 +29,21 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/default-logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#1F1F1F"
+          "backgroundColor": "#111625"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f26e2b8a-ffb1-4c03-abde-2b1e556cd954"
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useState } from 'react'
 import Header from '@/components/Header'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -10,6 +10,7 @@ import { Entypo } from '@expo/vector-icons'
 
 const FundWalletScreen = () => {
     
+    const [isFocused, setIsFocused] = useState(false);
     const { bottom } = useSafeAreaInsets()
     const [showModal, setShowModal] = useState(false)
     const [gateway, setGateway] = useState("")
@@ -31,12 +32,17 @@ const FundWalletScreen = () => {
                 <View className='bg-white rounded-xl w-full p-6 mt-4 gap-5' style={{marginBottom: bottom + 16}}>
                     <View>
                         <Text className='text-lg text-lightBlack font-msbold'>Amount</Text>
-                        <FormField placeholder="Enter Amount" otherStyles="mt-1" keyboardType="number-pad" labelStyle='text-white'/>
+                        <View className={`bg-gray-200 mt-1 ${isFocused && 'border-2 border-lightBlack'} h-16 pr-4 rounded-md items-center flex-row gap-1`}>
+                            <TextInput className={`bg-gray-300 rounded-l-md px-4 text-black font-mmedium text-base h-full`} value={"NGN"} placeholderTextColor="#979797" editable={false}/>
+                            <TextInput className={`bg-gray-200 flex-1 text-black font-mmedium text-base h-full pl-2`} placeholder="Enter Amount" placeholderTextColor="#979797" onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}/>
+                        </View>
                     </View>
                     <View>
                         <Text className='text-lg text-lightBlack font-msbold'>Select Gateway</Text>
                         <Pressable onPress={() => setShowModal(true)} className={`bg-gray-200 w-full h-16 px-4 rounded-md items-center justify-between flex-row gap-1`}>
-                            <Text className='text-lg text-gray-500 font-mmedium'>{gateway ? gateway : "Payment gateway"}</Text>
+                            <View className='flex-1'>
+                                <Text className='text-lg text-gray-500 font-mmedium' numberOfLines={1}>{gateway ? gateway : "Payment gateway"}</Text>
+                            </View>
                             <Entypo name='chevron-small-down' size={30} color="#979797" />
                         </Pressable>
                     </View>

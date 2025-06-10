@@ -20,7 +20,7 @@ export default function MoreScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           <BalanceCard />
           <View className='mt-2 mb-4'>
-            <Pressable onPress={() => router.push("/(protected)/(tabs)/tickets")} className='border-b-2 w-full border-gray-100 bg-white'>
+            <Pressable onPress={() => router.push("/(protected)/(routes)/Profile")} className='border-b-2 w-full border-gray-100 bg-white'>
               <View className="w-full flex-row items-center gap-3 p-4">
                 <FontAwesome5 name="user" size={25} color="#EF9439" />
                 <Text className="font-mmedium text-xl">Profile</Text>
@@ -44,13 +44,13 @@ export default function MoreScreen() {
                 <Text className="font-mmedium text-xl">Transaction History</Text>
               </View>
             </Pressable>
-            <Pressable onPress={() => router.push("/(protected)/(tabs)/tickets")} className='border-b-2 w-full border-gray-100 bg-white'>
+            <Pressable onPress={() => router.push("/(protected)/(routes)/Referral")} className='border-b-2 w-full border-gray-100 bg-white'>
               <View className="w-full flex-row items-center gap-3 p-4">
                 <AntDesign name="addusergroup" size={27} color="#EF9439" />
                 <Text className="font-mmedium text-xl">My Referral</Text>
               </View>
             </Pressable>
-            <Pressable onPress={() => router.push("/(protected)/(tabs)/tickets")} className='border-b-2 w-full border-gray-100 bg-white'>
+            <Pressable onPress={() => router.push("/(protected)/(routes)/Security2FA")} className='border-b-2 w-full border-gray-100 bg-white'>
               <View className="w-full flex-row items-center gap-3 p-4">
                 <MaterialCommunityIcons name="cellphone-lock" size={26} color="#EF9439" />
                 <Text className="font-mmedium text-xl">2FA Security</Text>
@@ -62,7 +62,7 @@ export default function MoreScreen() {
                 <Text className="font-mmedium text-xl">Notification</Text>
               </View>
             </Pressable>
-            <Pressable onPress={() => router.push("/(protected)/(tabs)/tickets")} className='border-b-2 w-full border-gray-100 bg-white'>
+            <Pressable onPress={() => router.push("/(protected)/(routes)/Support")} className='border-b-2 w-full border-gray-100 bg-white'>
               <View className="w-full flex-row items-center gap-3 p-4">
                 <MaterialIcons name="support-agent" size={26} color="#EF9439" />
                 <Text className="font-mmedium text-xl">Support Chat</Text>

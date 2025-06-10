@@ -14,6 +14,9 @@ import featured from "../assets/images/featured.png";
 import gameCard from "../assets/images/gamecard-1.png";
 import loading from "../assets/images/loading.json";
 import homeAnimation from "../assets/images/home-animation.json";
+import darkLogo from "../assets/images/dark-logo.png";
+import check from "../assets/images/check.json";
+import info from "../assets/images/info.json";
 
 export default {
   splash,
@@ -31,5 +34,8 @@ export default {
   featured,
   gameCard,
   loading,
-  homeAnimation
+  homeAnimation,
+  darkLogo,
+  check,
+  info
 };

@@ -12,4 +12,9 @@ const transactionRemark = [
   { title: 'Pending' }
 ];
 
-export default { transactionType, transactionRemark }
+const GameTime = [
+  { title: 'Ongoing' },
+  { title: 'Expired' }
+];
+
+export default { transactionType, transactionRemark, GameTime }

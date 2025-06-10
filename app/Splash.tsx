@@ -49,6 +49,7 @@ export default function Splash() {
                 source={logoParts[currentIndex]}
                 entering={FadeIn.duration(300)}
                 exiting={FadeOut.duration(200)}
+                style={styles.logo}
                 resizeMode="contain"
               />
             )}
@@ -59,7 +60,7 @@ export default function Splash() {
                 <Animated.Image
                   source={images.logo}
                   entering={FadeIn.duration(200)}
-                  style={styles.finalLogo}
+                  style={styles.logo}
                   resizeMode="contain"
                 />
                 <Animated.Text
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  finalLogo: {
+  logo: {
     width: 160,
     height: 160,
   },

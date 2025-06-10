@@ -20,7 +20,7 @@ const NotificationCard = ({item, section, handlePress}: {item: any; section: any
           <Text className="font-mregular text-sm">
           {item.endsIn ? `Ends in: ${item.endsIn}` : '––'}
           </Text>
-          <Text className="font-mregular text-sm">{item.time} {moment(item?.createdAt).format('llll')}</Text>
+          <Text className="font-mregular text-sm">{item.time}</Text>
       </View>
   </Pressable>
   )
