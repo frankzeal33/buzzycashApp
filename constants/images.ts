@@ -12,6 +12,8 @@ import card2 from "../assets/images/card-2.png";
 import card3 from "../assets/images/card-3.png";
 import featured from "../assets/images/featured.png";
 import gameCard from "../assets/images/gamecard-1.png";
+import loading from "../assets/images/loading.json";
+import homeAnimation from "../assets/images/home-animation.json";
 
 export default {
   splash,
@@ -27,5 +29,7 @@ export default {
   card2,
   card3,
   featured,
-  gameCard
+  gameCard,
+  loading,
+  homeAnimation
 };

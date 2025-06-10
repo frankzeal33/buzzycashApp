@@ -11,6 +11,7 @@ import SelectDropdown from 'react-native-select-dropdown'
 import { StyleSheet } from 'react-native'
 import SearchInput from '@/components/SearchInput'
 import Entypo from '@expo/vector-icons/Entypo';
+import { router } from 'expo-router'
 
 type transactionsType = {
   id: string,
@@ -79,7 +80,7 @@ const TransactionScreen = () => {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 bg-gray-100 px-4'>
-      <Header title='Transaction History' icon/>
+      <Header title='Transaction History' icon onpress={() => router.back()}/>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
      
         <View className="bg-white mt-4 mb-2">
@@ -178,7 +179,7 @@ const TransactionScreen = () => {
 
         <Modal
           transparent={true}
-          animationType='slide'
+          // animationType='slide'
           visible={showModal}
           statusBarTranslucent={true}
           onRequestClose={() => setShowModal(false)}>

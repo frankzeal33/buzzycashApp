@@ -4,17 +4,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import '../global.css';
-// import { Provider} from 'react-redux'
-// import { store } from "@/redux/store"
-// import { ToastProvider } from 'react-native-toast-notifications'
-// import AntDesign from '@expo/vector-icons/AntDesign';
-// import Ionicons from '@expo/vector-icons/Ionicons';
-// import {
-//   BottomSheetModalProvider
-// } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
-// import { StripeProvider} from "@stripe/stripe-react-native"
 import * as Linking from 'expo-linking';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -65,35 +56,15 @@ export default function RootLayout() {
   }
 
   return (
-    // <Provider store={store}>
-    //   <StripeProvider publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!}>
-        <GestureHandlerRootView style={styles.container}>
-          {/* <BottomSheetModalProvider> */}
-            {/* <ToastProvider
-              placement="top"
-              animationType='slide-in'
-              successColor="#FFE1CC"
-              dangerColor="#FFE1CC"
-              warningColor="#FFE1CC"
-              normalColor="#FFE1CC"
-              textStyle={{ color: "#003366" }}
-              offset={70}
-              successIcon={<AntDesign name="checkcircle" size={16} color="#003366" />}
-              dangerIcon={<AntDesign name="closecircle" size={16} color="#003366" />}
-              warningIcon={<Ionicons name="warning" size={16} color="#003366" />}
-            > */}
-              <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="index"/>
-                  <Stack.Screen name="Splash"/>
-                  <Stack.Screen name="(onboarding)"/>
-                  <Stack.Screen name="(tabs)"/>
-                  <Stack.Screen name="(routes)"/>
-              </Stack>
-            {/* </ToastProvider> */}
-          {/* </BottomSheetModalProvider> */}
-        </GestureHandlerRootView>
-    //   </StripeProvider>
-    // </Provider>
+    <GestureHandlerRootView style={styles.container}>
+      <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index"/>
+          <Stack.Screen name="Splash"/>
+          <Stack.Screen name="(onboarding)"/>
+          <Stack.Screen name="(tabs)"/>
+          <Stack.Screen name="(routes)"/>
+      </Stack>
+    </GestureHandlerRootView>
   );
 }
 

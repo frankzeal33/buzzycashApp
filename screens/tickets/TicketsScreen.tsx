@@ -1,10 +1,12 @@
 import Header from '@/components/Header'
 import TicketCard from '@/components/TicketCard'
 import { StatusBar } from 'expo-status-bar'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FlatList, Modal, ScrollView, Text, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Pagination from '@cherry-soft/react-native-basic-pagination';
+import Loading from '@/components/Loading'
+import { router } from 'expo-router'
 
 type ticketsType = {
   id: string,
@@ -62,7 +64,14 @@ const tickets: ticketsType = [
 export default function TicketsScreen() {
 
   const [showModal, setShowModal] = useState(false)
+   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setTimeout(() => {
+        setLoading(false)
+    }, 4000)
+  })
 
   const handleModal = () => {
     setShowModal(true)
@@ -74,27 +83,33 @@ export default function TicketsScreen() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 bg-gray-100 px-4'>
-      <Header title='Purchased Tickets' icon/>
+      <Header title='Purchased Tickets' icon onpress={() => router.back()}/>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
      
-        <View className="bg-white my-4">
-          <FlatList
-            data={tickets}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={renderTickets}
-            scrollEnabled={false}
-            ListEmptyComponent={() => (  
-              <View className="items-center justify-center py-44">
-                <Text className="text-xl text-center font-msbold">No Tickets yet!</Text>
-                <Text className="text-sm text-center mt-1 font-mlight">
-                  All your purchased tickets will show here.
-                </Text>
-              </View>
-            )}
-          />
-        </View>
+        {loading ? (
+          <View className="bg-white my-4 py-52">
+            <Loading/>
+          </View>
+        ) : (
+          <View className="bg-white my-4">
+            <FlatList
+              data={tickets}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={renderTickets}
+              scrollEnabled={false}
+              ListEmptyComponent={() => (  
+                <View className="items-center justify-center py-52">
+                  <Text className="text-xl text-center font-msbold">No Tickets yet!</Text>
+                  <Text className="text-sm text-center mt-1 font-mlight">
+                    All your purchased tickets will show here.
+                  </Text>
+                </View>
+              )}
+            />
+          </View>
+        )}
 
-        {tickets.length > 0 && (
+        {tickets.length > 0 && !loading && (
           <View className="mb-6">
             <Pagination
               totalItems={100}

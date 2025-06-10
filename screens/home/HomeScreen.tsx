@@ -4,15 +4,14 @@ import {
   View,
   Text,
   ScrollView,
-  Button,
   Image,
   useWindowDimensions,
   Pressable,
   FlatList,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StickyHeaderScrollView, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
-import { useSharedValue } from "react-native-reanimated";
 import Carousel from "react-native-reanimated-carousel";
 import Header from '@/components/Header';
 import BalanceCard from '@/components/BalanceCard';
@@ -20,6 +19,7 @@ import { images } from '@/constants';
 import { router } from 'expo-router';
 import GameCard from '@/components/GameCard';
 import LiveWinnerTicker from '@/components/LiveWinnerTicker'
+import LottieView from 'lottie-react-native';
 
 const sliderImages = [
 	images.card1,
@@ -129,16 +129,69 @@ const games: any = [
     },
   ]
 
+  const CarouselComponent = memo(({ width, itemWidth }: { width: number; itemWidth: number }) => {
+  return (
+    <Carousel
+      autoPlayInterval={5000}
+      data={sliderImages}
+      height={158}
+      autoPlay
+      loop
+      pagingEnabled
+      snapEnabled
+      width={width}
+      style={{ width }}
+      mode="parallax"
+      modeConfig={{
+        parallaxScrollingScale: 1,
+        parallaxScrollingOffset: 50,
+      }}
+      renderItem={({ item }) => (
+        <Pressable
+          style={{
+            width: itemWidth,
+            height: 158,
+            alignSelf: 'center',
+            borderRadius: 12,
+            overflow: 'hidden',
+            backgroundColor: "#1F1F1F"
+          }}
+          onPress={() => router.push("/(protected)/(tabs)/tickets")}
+        >
+          <Image
+            source={item}
+            style={{
+              width: '100%',
+              height: '100%',
+              resizeMode: 'cover',
+              borderRadius: 12,
+            }}
+          />
+        </Pressable>
+      )}
+    />
+  );
+});
+
+
 const HomeScreen = () => {
 
+  const [showSplash, setShowSplash] = useState(true);
   const [parallaxHeight, setParallaxHeight] = useState(290);
   const SNAP_START_THRESHOLD = 10;
   const headerMeasured = useRef(false);
 
-  const progress = useSharedValue<number>(0);
   const screen = useWindowDimensions();
   const width = screen.width - 32
   const itemWidth = width * 0.85;  // 85% of screen width for item
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
   
   const {
     onMomentumScrollEnd,
@@ -154,55 +207,10 @@ const HomeScreen = () => {
     snapToEdge: true,
   });
 
-  const CarouselComponent = memo(() => {
-    return (
-      <Carousel
-        autoPlayInterval={5000}
-        data={sliderImages}
-        height={158}
-        autoPlay
-        loop
-        pagingEnabled
-        snapEnabled
-        width={width}
-        style={{ width }}
-        mode="parallax"
-        modeConfig={{
-          parallaxScrollingScale: 1,
-          parallaxScrollingOffset: 50,
-        }}
-        onProgressChange={progress}
-        renderItem={({ item }) => (
-          <Pressable
-            style={{
-              width: itemWidth,
-              height: 158,
-              alignSelf: 'center',
-              borderRadius: 12,
-              overflow: 'hidden',
-              backgroundColor: "#1F1F1F"
-            }}
-            onPress={() => router.push("/(protected)/(tabs)/tickets")}
-          >
-            <Image
-              source={item}
-              style={{
-                width: '100%',
-                height: '100%',
-                resizeMode: 'cover',
-                borderRadius: 12,
-              }}
-            />
-          </Pressable>
-        )}
-      />
-    );
-  });
-
   const renderGames = ({item, index}: {item: any, index: number}) => (
     <GameCard item={item} index={index} handlePress={() => router.push({
-        pathname: "/(protected)/(tabs)/more",
-        params: { Recieptdata: JSON.stringify(item) },
+        pathname: "/(protected)/(routes)/TicketDetails",
+        params: { ticketData: JSON.stringify(item) },
     })}/>
   )
 
@@ -235,7 +243,7 @@ const HomeScreen = () => {
 
               {/* first carousel */}
               <View>
-                <CarouselComponent />
+                <CarouselComponent width={width} itemWidth={itemWidth} />
               </View>
             </View>
           )}
@@ -300,6 +308,23 @@ const HomeScreen = () => {
           /> 
           </View>
         </StickyHeaderScrollView>
+
+        <Modal
+          transparent={true}
+          visible={showSplash}
+          statusBarTranslucent={true}
+          onRequestClose={() => setShowSplash(false)}>
+            <View className="flex-1 justify-center items-center px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+
+            <LottieView
+              source={images.homeAnimation}
+              autoPlay
+              speed={2}
+              loop
+              style={{ width: "95%", height: "100%" }}
+            />
+            </View>
+        </Modal>
 
         <StatusBar style="dark" backgroundColor=" #E9E9E9" />
       </View>
