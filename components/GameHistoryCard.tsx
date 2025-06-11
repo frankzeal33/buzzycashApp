@@ -13,7 +13,6 @@ const GameHistoryCard = ({item, index}: {item: any; index: number}) => {
   const isEven = index % 2 === 0;
   const bgClass = isEven ? 'bg-white' : 'bg-gray-200';
   const badgeBg = isEven ? 'bg-gray-200' : 'bg-white';
-
   return (
     <View className={`w-full ${bgClass} px-4 py-6`}>
       <View className='w-full mt-2'>

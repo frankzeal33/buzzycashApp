@@ -7,6 +7,7 @@ import FormField from '@/components/FormField'
 import GradientButton from '@/components/GradientButton'
 import { StatusBar } from 'expo-status-bar'
 import { Entypo } from '@expo/vector-icons'
+import DisablePartInput from '@/components/DisablePartInput'
 
 const FundWalletScreen = () => {
     
@@ -32,10 +33,7 @@ const FundWalletScreen = () => {
                 <View className='bg-white rounded-xl w-full p-6 mt-4 gap-5' style={{marginBottom: bottom + 16}}>
                     <View>
                         <Text className='text-lg text-lightBlack font-msbold'>Amount</Text>
-                        <View className={`bg-gray-200 mt-1 ${isFocused && 'border-2 border-lightBlack'} h-16 pr-4 rounded-md items-center flex-row gap-1`}>
-                            <TextInput className={`bg-gray-300 rounded-l-md px-4 text-black font-mmedium text-base h-full`} value={"NGN"} placeholderTextColor="#979797" editable={false}/>
-                            <TextInput className={`bg-gray-200 flex-1 text-black font-mmedium text-base h-full pl-2`} placeholder="Enter Amount" placeholderTextColor="#979797" onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}/>
-                        </View>
+                        <DisablePartInput disabledValue={"NGN"} placeholder="Enter Amount"/>
                     </View>
                     <View>
                         <Text className='text-lg text-lightBlack font-msbold'>Select Gateway</Text>

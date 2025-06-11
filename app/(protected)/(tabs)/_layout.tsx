@@ -2,6 +2,7 @@ import { View, Image } from 'react-native'
 import { Tabs } from 'expo-router'
 import { icons } from '../../../constants'
 import { AntDesign, Entypo, Feather, Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TabIcon = ({icon, focused}: {icon: any; focused: boolean}) => {
   return (
@@ -11,6 +12,8 @@ const TabIcon = ({icon, focused}: {icon: any; focused: boolean}) => {
   )
 }
 const TabsLayout = () => {
+  const { bottom } = useSafeAreaInsets();
+
   return (
     <>
       <Tabs screenOptions={({ route }) => {
@@ -40,12 +43,13 @@ const TabsLayout = () => {
           tabBarInactiveTintColor: "#3A3A3A",
           tabBarShowLabel: true,
           tabBarLabelStyle: {
-            fontSize: 11, 
+            fontSize: 10, 
             fontFamily: 'Montserrat-Bold',
           },
           headerShown: false, 
-          tabBarStyle: {backgroundColor: '#E9E9E9', borderTopWidth: 1, borderTopColor: '#111625', height: 75}
-        }}}>
+          tabBarStyle: {backgroundColor: '#E9E9E9', borderTopWidth: 1.5, borderTopColor: '#111625',  height: 60 + bottom,
+            paddingBottom: bottom,
+        }}}}>
         <Tabs.Screen name="home/index" options={{title: 'Home', headerShown: false}}/>
         <Tabs.Screen name="tickets/index" options={{title: 'Tickets', headerShown: false}}/>
         <Tabs.Screen name="transactions/index" options={{title: 'Transactions', headerShown: false}}/>

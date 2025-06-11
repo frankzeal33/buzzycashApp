@@ -9,6 +9,7 @@ import {
   Pressable,
   FlatList,
   Modal,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StickyHeaderScrollView, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
@@ -16,7 +17,7 @@ import Carousel from "react-native-reanimated-carousel";
 import Header from '@/components/Header';
 import BalanceCard from '@/components/BalanceCard';
 import { images } from '@/constants';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import GameCard from '@/components/GameCard';
 import LiveWinnerTicker from '@/components/LiveWinnerTicker'
 import LottieView from 'lottie-react-native';
@@ -59,19 +60,19 @@ const games: any = [
       id: "1",
       title: "Weekend Allawee",
       amount: 200,
-      expiryTime: "2025-06-08 14:30:00"
+      expiryTime: "2025-06-15 14:30:00"
     },
     {
       id: "1",
       title: "BuzzyBall 45",
       amount: 100,
-      expiryTime: "2025-06-09 14:30:00"
+      expiryTime: "2025-06-20 14:30:00"
     },
     {
       id: "1",
       title: "Daily ChopChop",
       amount: 1000,
-      expiryTime: "2025-06-10 14:30:00"
+      expiryTime: "2025-06-13 14:30:00"
     },
     {
       id: "1",
@@ -89,7 +90,7 @@ const games: any = [
       id: "1",
       title: "BuzzyBall 45",
       amount: 100,
-      expiryTime: "2025-06-09 14:30:00"
+      expiryTime: "2025-06-20 14:30:00"
     },
     {
       id: "1",
@@ -101,7 +102,7 @@ const games: any = [
       id: "1",
       title: "Oil Money",
       amount: 500,
-      expiryTime: "2025-06-11 14:30:00"
+      expiryTime: "2025-06-17 14:30:00"
     },
      {
       id: "1",
@@ -129,12 +130,12 @@ const games: any = [
     },
   ]
 
-  const CarouselComponent = memo(({ width, itemWidth }: { width: number; itemWidth: number }) => {
+  const CarouselComponent = memo(({ width, itemWidth, fullWidth }: { width: number; itemWidth: number, fullWidth: number }) => {
   return (
     <Carousel
       autoPlayInterval={5000}
       data={sliderImages}
-      height={158}
+      height={140}
       autoPlay
       loop
       pagingEnabled
@@ -144,19 +145,19 @@ const games: any = [
       mode="parallax"
       modeConfig={{
         parallaxScrollingScale: 1,
-        parallaxScrollingOffset: 50,
+        parallaxScrollingOffset: fullWidth > 350 ? 50 : 40,
       }}
       renderItem={({ item }) => (
         <Pressable
           style={{
             width: itemWidth,
-            height: 158,
+            height: 140,
             alignSelf: 'center',
-            borderRadius: 12,
+            borderRadius: 14,
             overflow: 'hidden',
             backgroundColor: "#1F1F1F"
           }}
-          onPress={() => router.push("/(protected)/(tabs)/tickets")}
+          onPress={() => router.push("/(protected)/(routes)/AllTickets")}
         >
           <Image
             source={item}
@@ -164,7 +165,7 @@ const games: any = [
               width: '100%',
               height: '100%',
               resizeMode: 'cover',
-              borderRadius: 12,
+              borderRadius: 14,
             }}
           />
         </Pressable>
@@ -177,12 +178,14 @@ const games: any = [
 const HomeScreen = () => {
 
   const [showSplash, setShowSplash] = useState(true);
-  const [parallaxHeight, setParallaxHeight] = useState(290);
+  const [parallaxHeight, setParallaxHeight] = useState(275);
   const SNAP_START_THRESHOLD = 10;
   const headerMeasured = useRef(false);
 
   const screen = useWindowDimensions();
-  const width = screen.width - 32
+  const fullWidth = screen.width
+  console.log("wiidth", screen.width)
+  const width = fullWidth - 32
   const itemWidth = width * 0.85;  // 85% of screen width for item
 
   useEffect(() => {
@@ -231,6 +234,7 @@ const HomeScreen = () => {
                   const { height } = event.nativeEvent.layout;
                   setParallaxHeight(height);
                   headerMeasured.current = true;
+                  console.log(height)
                 }
               }}
               // style={{ height: scrollHeight }}
@@ -243,7 +247,7 @@ const HomeScreen = () => {
 
               {/* first carousel */}
               <View>
-                <CarouselComponent width={width} itemWidth={itemWidth} />
+                <CarouselComponent width={width} itemWidth={itemWidth} fullWidth={fullWidth}/>
               </View>
             </View>
           )}
@@ -252,7 +256,12 @@ const HomeScreen = () => {
             <View className='bg-gray-100'>
                {/* Featured Games */}
               <View>
-                <Text className='text-sm font-mbold mt-2 mb-1'>Featured Games</Text>
+                <View className='w-full flex-row items-center justify-between mt-2 mb-1'>
+                  <Text className='text-sm font-mbold'>Featured Games</Text>
+                  <TouchableOpacity onPress={() => router.push("/(protected)/(routes)/AllTickets")}>
+                    <Text className='text-sm font-mbold mt-2 text-orange'>See All</Text>
+                  </TouchableOpacity>
+                </View>
                 <FlatList
                   nestedScrollEnabled={true}
                   horizontal

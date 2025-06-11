@@ -1,10 +1,10 @@
 import Header from '@/components/Header'
-import { StatusBar } from 'expo-status-bar'
 import { FlatList, Text, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import GameHistoryCard from '@/components/GameHistoryCard'
 import { router } from 'expo-router'
 import { useEffect, useState } from 'react'
+import { StatusBar } from 'expo-status-bar'
 
 type gameType = {
   id: string;
@@ -64,66 +64,66 @@ const gameHistory: gameType = [
      winningBalls: 30,
     createdAt: '2025-06-08 14:30:00'
   },
-   {
-    id: '7',
-    lottery: 'Zero Play',
-    price: 200,
-    status: "ONGOING",
-    winningBalls: 8,
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: '8',
-    lottery: 'Weekend Allowee',
-    price: 200,
-    status: "LOST",
-     winningBalls: null,
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: '9',
-    lottery: 'Weekend Allowee',
-    price: 200,
-    status: "WON",
-    winningBalls: null,
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: '10',
-    lottery: 'Weekend Allowee',
-    price: 200,
-    status: "ONGOING",
-    winningBalls: 8,
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: '11',
-    lottery: 'Weekend Allowee',
-    price: 200,
-    status: "LOST",
-     winningBalls: null,
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: '12',
-    lottery: 'Weekend Allowee',
-    price: 200,
-    status: "WON",
-     winningBalls: 30,
-    createdAt: '2025-06-08 14:30:00'
-  }
+  //  {
+  //   id: '7',
+  //   lottery: 'Zero Play',
+  //   price: 200,
+  //   status: "ONGOING",
+  //   winningBalls: 8,
+  //   createdAt: '2025-06-08 14:30:00'
+  // },
+  //   {
+  //   id: '8',
+  //   lottery: 'Weekend Allowee',
+  //   price: 200,
+  //   status: "LOST",
+  //    winningBalls: null,
+  //   createdAt: '2025-06-08 14:30:00'
+  // },
+  //   {
+  //   id: '9',
+  //   lottery: 'Weekend Allowee',
+  //   price: 200,
+  //   status: "WON",
+  //   winningBalls: null,
+  //   createdAt: '2025-06-08 14:30:00'
+  // },
+  //   {
+  //   id: '10',
+  //   lottery: 'Weekend Allowee',
+  //   price: 200,
+  //   status: "ONGOING",
+  //   winningBalls: 8,
+  //   createdAt: '2025-06-08 14:30:00'
+  // },
+  //   {
+  //   id: '11',
+  //   lottery: 'Weekend Allowee',
+  //   price: 200,
+  //   status: "LOST",
+  //    winningBalls: null,
+  //   createdAt: '2025-06-08 14:30:00'
+  // },
+  //   {
+  //   id: '12',
+  //   lottery: 'Weekend Allowee',
+  //   price: 200,
+  //   status: "WON",
+  //    winningBalls: 30,
+  //   createdAt: '2025-06-08 14:30:00'
+  // }
 ]
 
-export default function GameHistory() {
+export default function GameHistoryScreen() {
 
   const [games, setGames] = useState<gameType>([])
   const { bottom } = useSafeAreaInsets()
 
   useEffect(() => {
     setGames(gameHistory)
-  })
+  }, [])
 
-  const renderGames = ({item, index}: {item: any, index: number}) => (
+  const renderGamesHistory = ({item, index}: {item: any, index: number}) => (
     <GameHistoryCard item={item} index={index}/>
   )
 
@@ -135,7 +135,7 @@ export default function GameHistory() {
           <FlatList
             data={games}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={renderGames}
+            renderItem={renderGamesHistory}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{paddingBottom: bottom + 40}}
             ListEmptyComponent={() => (  

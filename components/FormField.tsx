@@ -1,6 +1,5 @@
-import { View, Text, TextInput, Image, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, Image, TouchableOpacity, KeyboardTypeOptions } from 'react-native'
 import { useState } from 'react'
-import { KeyboardTypeOptions } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 type formProps = {
