@@ -2,8 +2,12 @@ import { View, Text, Pressable } from 'react-native'
 import React from 'react'
 import moment from 'moment'
 import displayCurrency from '@/utils/displayCurrency';
+import { useThemeStore } from '@/store/ThemeStore';
 
 const TicketCard = ({item, handlePress, index}: {item: any; handlePress: () => void, index: number}) => {
+
+  const { theme } = useThemeStore();
+
   return (
     <Pressable onPress={handlePress} className='border-b-2 w-full border-gray-100 bg-white h-24'>
         <View className="flex-1 justify-between w-full flex-row items-start gap-3 bg-inputBg rounded-lg px-4 py-2 my-1">

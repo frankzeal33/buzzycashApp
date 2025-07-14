@@ -1,7 +1,9 @@
 import TicketsScreen from '@/screens/tickets/TicketsScreen'
 
-export default function index() {
+const Tickets = () => {
   return (
     <TicketsScreen/>
   )
 }
+
+export default Tickets

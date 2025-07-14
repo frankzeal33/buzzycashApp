@@ -65,7 +65,7 @@ export default function Splash() {
                 />
                 <Animated.Text
                   entering={FadeIn.duration(2000).delay(800).springify()}
-                  className="text-white font-mbold text-4xl mt-1"
+                  className="text-white font-mbold text-3xl mt-1"
                 >
                   Buzzycash
                 </Animated.Text>

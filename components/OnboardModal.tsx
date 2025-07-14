@@ -2,6 +2,7 @@ import { View, Text, Modal, TouchableWithoutFeedback, Pressable } from 'react-na
 import React from 'react'
 import GradientText from './GradientText'
 import GradientButton from './GradientButton'
+import { useThemeStore } from '@/store/ThemeStore'
 
 interface ModalProps {
   title: string
@@ -13,6 +14,9 @@ interface ModalProps {
 }
 
 const OnboardModal = ({ title, buttonTitle, buttonPress, visible, onClose, children }: ModalProps) => {
+
+  const { theme } = useThemeStore();
+
   return (
     <Modal
       transparent

@@ -5,6 +5,7 @@ import displayCurrency from '@/utils/displayCurrency';
 import moment from 'moment';
 import Loading from '@/components/Loading';
 import NotificationCard from '@/components/NotificationCard';
+import { useThemeStore } from '@/store/ThemeStore';
 
 type NotificationItem = {
   id: string;
@@ -52,6 +53,7 @@ const sections: NotificationSection[] = [
 
 const Transactions = () => {
     
+    const { theme } = useThemeStore();
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false)
 

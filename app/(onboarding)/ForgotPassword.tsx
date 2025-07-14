@@ -10,9 +10,11 @@ import { router } from 'expo-router'
 import CustomButton from '@/components/CustomButton'
 import OnboardModal from '@/components/OnboardModal'
 import { OtpInput } from 'react-native-otp-entry'
+import { useThemeStore } from '@/store/ThemeStore'
 
 const ForgotPassword = () => {
 
+const { theme } = useThemeStore();
   const [form, setForm] = useState({
     email: '',
     password: ''

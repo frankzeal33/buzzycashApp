@@ -1,5 +1,6 @@
 import { TouchableOpacity, Text} from 'react-native'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { useThemeStore } from '@/store/ThemeStore';
 
 type buttonProps = {
   title: string;
@@ -12,6 +13,9 @@ type buttonProps = {
 }
 
 const CustomButton = ({ title, handlePress, containerStyles, bgColor, textStyles, isLoading, disableButton }: buttonProps) => {
+  
+  const { theme } = useThemeStore();
+  
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.7} className={`${bgColor ? bgColor : "bg-blue"} rounded-md min-h-16 justify-center items-center ${containerStyles} ${isLoading || disableButton ? 'opacity-50' : ''}`} disabled={isLoading || disableButton}>
         {isLoading ? <FontAwesome5 name="circle-notch" size={20} color="white" className='animate-spin-fast'/> :

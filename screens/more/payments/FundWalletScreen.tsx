@@ -8,9 +8,11 @@ import GradientButton from '@/components/GradientButton'
 import { StatusBar } from 'expo-status-bar'
 import { Entypo } from '@expo/vector-icons'
 import DisablePartInput from '@/components/DisablePartInput'
+import { useThemeStore } from '@/store/ThemeStore'
 
 const FundWalletScreen = () => {
     
+    const { theme } = useThemeStore();
     const [isFocused, setIsFocused] = useState(false);
     const { bottom } = useSafeAreaInsets()
     const [showModal, setShowModal] = useState(false)
@@ -67,7 +69,6 @@ const FundWalletScreen = () => {
 
                 {/* Actual modal content */}
                 <View className="bg-white rounded-2xl max-h-[60%] px-4 w-full">
-                <ScrollView showsVerticalScrollIndicator={false}>
                     <View className='my-7 gap-2'>
                         <TouchableOpacity onPress={() => handleGateway("paystack")} className='flex-row gap-2 w-full items-center py-4 border-b-2 border-gray-100'>
                             <Text className='font-msbold text-xl'>PayStack</Text>
@@ -76,7 +77,6 @@ const FundWalletScreen = () => {
                             <Text className='font-msbold text-xl'>FlutterWave</Text>
                         </TouchableOpacity>
                     </View>
-                </ScrollView>
                 </View>
             </View>
         </Modal>

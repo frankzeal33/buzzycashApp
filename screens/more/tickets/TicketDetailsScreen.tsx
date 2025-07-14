@@ -12,9 +12,11 @@ import GradientButton from '@/components/GradientButton'
 import displayCurrency from '@/utils/displayCurrency'
 import TicketModal from '@/components/TicketModal'
 import LottieView from 'lottie-react-native'
+import { useThemeStore } from '@/store/ThemeStore'
 
 const TicketDetailsScreen = () => {
 
+    const { theme } = useThemeStore();
     const { top, bottom } = useSafeAreaInsets()
     const [showModal, setShowModal] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false)

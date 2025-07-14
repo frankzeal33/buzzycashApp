@@ -2,8 +2,12 @@ import { View, Text, Pressable } from 'react-native'
 import React from 'react'
 import moment from 'moment';
 import displayCurrency from '@/utils/displayCurrency';
+import { useThemeStore } from '@/store/ThemeStore';
 
 const NotificationCard = ({item, section, handlePress}: {item: any; section: any; handlePress: () => void}) => {
+
+  const { theme } = useThemeStore();
+
   return (
     <Pressable onPress={handlePress} className="bg-white px-4 py-4 border-b-2 border-gray-100 relative">
       {item.unread && <View className="w-3 h-3 bg-brown-500 rounded-full absolute top-1 left-1" />}

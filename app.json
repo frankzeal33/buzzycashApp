@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "bussycash",
-    "slug": "bussycash",
+    "name": "buzzycash",
+    "slug": "buzzycash",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "bussycash",
+    "scheme": "buzzycash",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -17,7 +17,7 @@
         "backgroundColor": "#111625"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.franklin93.bussycash"
+      "package": "com.franklin93.buzzycash"
     },
     "web": {
       "bundler": "metro",
@@ -42,7 +42,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "f26e2b8a-ffb1-4c03-abde-2b1e556cd954"
+        "projectId": "f83d3144-0a7f-4052-9c64-79ee67be8157"
       }
     }
   }

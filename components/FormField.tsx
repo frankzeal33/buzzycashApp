@@ -1,6 +1,7 @@
 import { View, Text, TextInput, Image, TouchableOpacity, KeyboardTypeOptions } from 'react-native'
 import { useState } from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useThemeStore } from '@/store/ThemeStore';
 
 type formProps = {
   title?: string; 
@@ -17,6 +18,7 @@ type formProps = {
 
 const FormField = ({ title, value, placeholder, inputBg, keyboardType, handleChangeText, disabled, labelStyle, otherStyles, ...props}: formProps) => {
     
+    const { theme } = useThemeStore();
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)

@@ -17,6 +17,31 @@ import homeAnimation from "../assets/images/home-animation.json";
 import darkLogo from "../assets/images/dark-logo.png";
 import check from "../assets/images/check.json";
 import info from "../assets/images/info.json";
+import user from "../assets/images/user.png";
+import referralBox from "../assets/images/referral-box.png";
+import inviteUser from "../assets/images/invite-user.png";
+import referralCoin from "../assets/images/referral-coin.png";
+import faq from "../assets/images/faq.png";
+import phone from "../assets/images/phone.png";
+import mail from "../assets/images/mail.png";
+import tip from "../assets/images/tip.png";
+import qrcode from "../assets/images/qr-code.png";
+import featuredGame from "../assets/images/featured-game.png";
+import ticketGame from "../assets/images/ticket-game.png";
+import triviaGame from "../assets/images/trivia-game.png";
+import lotteryGame from "../assets/images/lottery-game.png";
+import instantGame from "../assets/images/instant-game.png";
+import ticketBg from "../assets/images/ticket-bg.png";
+import lotteryBg from "../assets/images/lottery-bg.png";
+import instantBg from "../assets/images/instant-bg.png";
+import buzzyBalls from "../assets/images/buzzy-balls.png";
+import bingoPick from "../assets/images/bingo-pick.png";
+import luckyScratch from "../assets/images/lucky-scratch.png";
+import spinToWin from "../assets/images/spin-to-win.png";
+import aviator from "../assets/images/aviator.png";
+import starBg from "../assets/images/star-bg.png";
+import spin from "../assets/images/spin.png";
+import won from "../assets/images/won.json";
 
 export default {
   splash,
@@ -37,5 +62,30 @@ export default {
   homeAnimation,
   darkLogo,
   check,
-  info
+  info,
+  user,
+  referralBox,
+  referralCoin,
+  inviteUser,
+  faq,
+  phone,
+  mail,
+  tip,
+  qrcode,
+  featuredGame,
+  ticketGame,
+  triviaGame,
+  lotteryGame,
+  instantGame,
+  ticketBg,
+  lotteryBg,
+  instantBg,
+  buzzyBalls,
+  bingoPick,
+  luckyScratch,
+  spinToWin,
+  aviator,
+  starBg,
+  spin,
+  won
 };

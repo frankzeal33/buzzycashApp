@@ -8,9 +8,11 @@ import { Platform } from 'react-native'
 import GradientButton from '@/components/GradientButton'
 import { router } from 'expo-router'
 import CustomButton from '@/components/CustomButton'
+import { useThemeStore } from '@/store/ThemeStore'
 
 const NewForgotPassword = () => {
 
+    const { theme } = useThemeStore();
    const [form, setForm] = useState({
         password: '',
         ConfirmPassword: ''

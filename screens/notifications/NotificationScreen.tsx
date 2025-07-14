@@ -8,10 +8,12 @@ import { TabView, SceneMap } from 'react-native-tab-view';
 import Games from './Games'
 import All from './All'
 import Transactions from './Transactions'
+import { useThemeStore } from '@/store/ThemeStore'
 
 
 const NotificationScreen = () => {
 
+    const { theme } = useThemeStore();
     const layout = useWindowDimensions();
     const [index, setIndex] = useState(0);
 

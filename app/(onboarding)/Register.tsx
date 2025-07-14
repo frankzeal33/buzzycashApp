@@ -14,9 +14,11 @@ import { OtpInput } from "react-native-otp-entry";
 import { Entypo } from '@expo/vector-icons'
 import { CountryPicker } from 'react-native-country-codes-picker';
 import DisablePartInput from '@/components/DisablePartInput'
+import { useThemeStore } from '@/store/ThemeStore'
 
 const Register = () => {
 
+  const { theme } = useThemeStore();
   const [isFocused, setIsFocused] = useState(false);
   const [isChecked, setChecked] = useState(false);
   const [confirmModal, setConfirmModal] = useState(false)

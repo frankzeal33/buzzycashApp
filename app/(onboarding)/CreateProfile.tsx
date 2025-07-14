@@ -9,9 +9,11 @@ import GradientButton from '@/components/GradientButton'
 import { router } from 'expo-router'
 import { OtpInput } from 'react-native-otp-entry'
 import OnboardModal from '@/components/OnboardModal'
+import { useThemeStore } from '@/store/ThemeStore'
 
 const CreateProfile = () => {
 
+  const { theme } = useThemeStore();
   const [openModal, setOpenModal] = useState(false)
   const [form, setForm] = useState({
     fullname: '',
@@ -31,7 +33,7 @@ const CreateProfile = () => {
   
     const verify = async () => {
       setOpenModal(false)
-      router.replace("/(protected)/(tabs)/home")
+      router.replace("/(protected)/(routes)/Home")
     }
   
     const resendOTP = async () => {
@@ -39,7 +41,7 @@ const CreateProfile = () => {
     }
  
   return (
-    <SafeAreaView className='bg-gray-100 h-full flex-1'>
+    <SafeAreaView className='bg-gray-100 h-full flex-1' style={{ backgroundColor: theme.colors.background}}>
         <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} className='w-full px-8'>
                 <View className='flex-1 py-6'>

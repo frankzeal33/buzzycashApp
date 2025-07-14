@@ -3,8 +3,12 @@ import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '@/components/Header'
 import { router } from 'expo-router'
+import { useThemeStore } from '@/store/ThemeStore'
 
 const FundPaymentGatewayScreen = () => {
+
+  const { theme } = useThemeStore();
+
   return (
     <SafeAreaView className='h-full flex-1 bg-gray-100 px-4'>
       <Header title='Payment Gateway' icon onpress={() => router.back()}/>

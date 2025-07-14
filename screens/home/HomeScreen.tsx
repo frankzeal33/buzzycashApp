@@ -11,7 +11,7 @@ import {
   Modal,
   TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StickyHeaderScrollView, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
 import Carousel from "react-native-reanimated-carousel";
 import Header from '@/components/Header';
@@ -21,6 +21,8 @@ import { Link, router } from 'expo-router';
 import GameCard from '@/components/GameCard';
 import LiveWinnerTicker from '@/components/LiveWinnerTicker'
 import LottieView from 'lottie-react-native';
+import Menu from '@/components/Menu';
+import { useThemeStore } from '@/store/ThemeStore';
 
 const sliderImages = [
 	images.card1,
@@ -145,7 +147,7 @@ const games: any = [
       mode="parallax"
       modeConfig={{
         parallaxScrollingScale: 1,
-        parallaxScrollingOffset: fullWidth > 350 ? 50 : 40,
+        parallaxScrollingOffset: fullWidth > 350 ? 47 : 40,
       }}
       renderItem={({ item }) => (
         <Pressable
@@ -177,6 +179,10 @@ const games: any = [
 
 const HomeScreen = () => {
 
+  const { theme } = useThemeStore();
+  const { bottom } = useSafeAreaInsets()
+  const Bottom = bottom + 55;
+
   const [showSplash, setShowSplash] = useState(true);
   const [parallaxHeight, setParallaxHeight] = useState(275);
   const SNAP_START_THRESHOLD = 10;
@@ -184,14 +190,13 @@ const HomeScreen = () => {
 
   const screen = useWindowDimensions();
   const fullWidth = screen.width
-  console.log("wiidth", screen.width)
   const width = fullWidth - 32
   const itemWidth = width * 0.85;  // 85% of screen width for item
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 5000);
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -219,7 +224,7 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1 bg-gray-100'>
-      <View className='flex-1 px-4'>
+      <View className='flex-1 px-4' style={{paddingBottom: Bottom}}>
         <Header/>
         <StickyHeaderScrollView
           ref={scrollViewRef}
@@ -258,9 +263,6 @@ const HomeScreen = () => {
               <View>
                 <View className='w-full flex-row items-center justify-between mt-2 mb-1'>
                   <Text className='text-sm font-mbold'>Featured Games</Text>
-                  <TouchableOpacity onPress={() => router.push("/(protected)/(routes)/AllTickets")}>
-                    <Text className='text-sm font-mbold mt-2 text-orange'>See All</Text>
-                  </TouchableOpacity>
                 </View>
                 <FlatList
                   nestedScrollEnabled={true}
@@ -337,6 +339,7 @@ const HomeScreen = () => {
 
         <StatusBar style="dark" backgroundColor=" #E9E9E9" />
       </View>
+      <Menu/>
     </SafeAreaView>
   );
 };

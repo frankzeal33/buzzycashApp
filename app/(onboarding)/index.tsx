@@ -14,6 +14,7 @@ import { StatusBar } from 'expo-status-bar';
 import { images } from '@/constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import GradientButton from '@/components/GradientButton';
+import { useThemeStore } from '@/store/ThemeStore';
 
 const { width } = Dimensions.get('window');
 
@@ -80,6 +81,8 @@ const Slide = memo(({ item, statusBarHeight, statusBarBottom, onRegister, onLogi
 });
 
 const Onboarding = () => {
+  
+  const { theme } = useThemeStore();
   const insets = useSafeAreaInsets();
   const statusBarHeight = insets.top + 10;
   const statusBarBottom = insets.bottom + 5;

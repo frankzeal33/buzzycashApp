@@ -1,3 +1,4 @@
+import { useThemeStore } from '@/store/ThemeStore';
 import { DateLabels } from '@/utils/DateLabels';
 import displayCurrency from '@/utils/displayCurrency';
 import { memo, useEffect, useState } from 'react';
@@ -5,6 +6,8 @@ import { Text } from 'react-native';
 import { View } from 'react-native';
 
 const LiveWinnerTicker = memo(({winnerMessages}: {winnerMessages: any}) => {
+
+  const { theme } = useThemeStore();
   const [currentIndex, setCurrentIndex] = useState(0);
   
   useEffect(() => {

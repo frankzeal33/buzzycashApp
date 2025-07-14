@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Button } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '@/components/FormField'
@@ -7,20 +7,23 @@ import { KeyboardAvoidingView } from 'react-native'
 import { Platform } from 'react-native'
 import GradientButton from '@/components/GradientButton'
 import { router } from 'expo-router'
+import { useThemeStore } from '@/store/ThemeStore'
 
 const LogIn = () => {
 
+  const { theme } = useThemeStore();
   const [form, setForm] = useState({
     email: '',
     password: ''
   })
 
-  const submit = async () => [
-    router.replace("/(protected)/(tabs)/home")
-  ]
+  const submit = async () => {
+    router.replace("/(protected)/(routes)/Home")
+  }
+
  
   return (
-    <SafeAreaView className='bg-gray-100 h-full flex-1'>
+    <SafeAreaView className='h-full flex-1' style={{ backgroundColor: theme.colors.background}}>
         <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} className='w-full px-8'>
                 <View className='flex-1 py-6'>

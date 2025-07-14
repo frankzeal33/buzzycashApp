@@ -1,6 +1,7 @@
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native'
 import { useState } from 'react'
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useThemeStore } from '@/store/ThemeStore';
 
 type formProps = {
   value?: string;
@@ -14,6 +15,7 @@ type formProps = {
 
 const SearchInput = ({ value, placeholder, handleChangeText, labelStyle, disabled, otherStyles, ...props}: formProps) => {
   
+    const { theme } = useThemeStore();
     const [isFocused, setIsFocused] = useState(false);
 
     return (

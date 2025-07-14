@@ -1,3 +1,4 @@
+import { useThemeStore } from '@/store/ThemeStore'
 import { View, Text, Modal, TouchableWithoutFeedback, Pressable } from 'react-native'
 
 interface ModalProps {
@@ -8,6 +9,9 @@ interface ModalProps {
 }
 
 const TicketModal = ({ title, visible, onClose, children }: ModalProps) => {
+
+  const { theme } = useThemeStore();
+
   return (
     <Modal
       transparent

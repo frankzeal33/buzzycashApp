@@ -1,7 +1,9 @@
 import TransactionScreen from '@/screens/transactions/TransactionScreen'
 
-export default function index() {
+const Transactions = () => {
   return (
     <TransactionScreen/>
   )
 }
+
+export default Transactions

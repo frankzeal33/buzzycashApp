@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Pagination from '@cherry-soft/react-native-basic-pagination';
 import Loading from '@/components/Loading'
 import { router } from 'expo-router'
+import { useThemeStore } from '@/store/ThemeStore'
 
 type ticketsType = {
   id: string,
@@ -63,6 +64,7 @@ const tickets: ticketsType = [
 
 export default function TicketsScreen() {
 
+  const { theme } = useThemeStore();
   const [showModal, setShowModal] = useState(false)
    const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1);

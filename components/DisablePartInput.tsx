@@ -1,6 +1,7 @@
 import { View, Text, KeyboardTypeOptions } from 'react-native'
 import React, { useState } from 'react'
 import { TextInput } from 'react-native'
+import { useThemeStore } from '@/store/ThemeStore';
 
 type formProps = {
   title?: string; 
@@ -17,7 +18,9 @@ type formProps = {
 }
 
 const DisablePartInput = ({ title, value, placeholder, disabledValue, inputBg, keyboardType, handleChangeText, disabled, labelStyle, otherStyles, ...props}: formProps) => {
-    const [isFocused, setIsFocused] = useState(false);
+    
+  const { theme } = useThemeStore();
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <View className={`bg-gray-200 ${isFocused && 'border-2 border-lightBlack'} h-16 pr-4 rounded-md items-center flex-row gap-1 ${otherStyles}`}>

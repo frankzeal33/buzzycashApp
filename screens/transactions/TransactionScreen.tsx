@@ -12,6 +12,7 @@ import { StyleSheet } from 'react-native'
 import SearchInput from '@/components/SearchInput'
 import Entypo from '@expo/vector-icons/Entypo';
 import { router } from 'expo-router'
+import { useThemeStore } from '@/store/ThemeStore'
 
 type transactionsType = {
   id: string,
@@ -67,6 +68,7 @@ const transactions: transactionsType = [
 
 const TransactionScreen = () => {
 
+  const { theme } = useThemeStore();
   const [showModal, setShowModal] = useState(false)
   const [page, setPage] = useState(1);
 

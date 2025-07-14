@@ -5,6 +5,7 @@ import GameHistoryCard from '@/components/GameHistoryCard'
 import { router } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { StatusBar } from 'expo-status-bar'
+import { useThemeStore } from '@/store/ThemeStore'
 
 type gameType = {
   id: string;
@@ -116,6 +117,7 @@ const gameHistory: gameType = [
 
 export default function GameHistoryScreen() {
 
+  const { theme } = useThemeStore();
   const [games, setGames] = useState<gameType>([])
   const { bottom } = useSafeAreaInsets()
 

@@ -1,7 +1,11 @@
+import { useThemeStore } from '@/store/ThemeStore';
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 
 const _layout = () => {
+
+  const { theme } = useThemeStore();
+  
   return (
     <>
     <Stack screenOptions={{
