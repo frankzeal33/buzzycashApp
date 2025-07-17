@@ -59,40 +59,40 @@ const Register = () => {
 
  
   return (
-    <SafeAreaView className='bg-gray-100 h-full flex-1'>
+    <SafeAreaView className='h-full flex-1'  style={{ backgroundColor: theme.colors.background}}>
         <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} className='w-full px-8'>
               <View className='flex-1 py-6'>
                 <View className="flex-1 w-full justify-center items-center my-6">
-                    <Text className="text-2xl mt-4 font-mbold">Sign Up</Text>
-                    <Text className="mt-1 font-mmedium text-center px-6">Turn your dreams into reality, your path to wealth Begins Here</Text>
-                    
-                    <TouchableOpacity onPress={() => setShowCountry(true)} className={`bg-gray-200 w-full h-16 px-4 mt-7 rounded-md items-center justify-between flex-row gap-1`}>
-                      <View className='flex-1'>
-                        <Text className='text-lg text-gray-500 font-mmedium' numberOfLines={1}>{selectedCountry?.name?.en ?? 'Country'}</Text>
-                      </View>
-                      <Entypo name='chevron-small-down' size={30} color="#979797" />
-                    </TouchableOpacity>
+                  <Text className="text-2xl mt-4 font-mbold" style={{ color: theme.colors.text}}>Sign Up</Text>
+                  <Text className="mt-1 font-mmedium text-center px-6" style={{ color: theme.colors.text}}>Turn your dreams into reality, your path to wealth Begins Here</Text>
+                  
+                  <TouchableOpacity onPress={() => setShowCountry(true)} style={{ backgroundColor: theme.colors.inputBg}} className={`w-full h-16 px-4 mt-7 rounded-md items-center justify-between flex-row gap-1`}>
+                    <View className='flex-1'>
+                      <Text className='text-lg text-gray-500 font-mmedium' numberOfLines={1}>{selectedCountry?.name?.en ?? 'Country'}</Text>
+                    </View>
+                    <Entypo name='chevron-small-down' size={30} color="#979797" />
+                  </TouchableOpacity>
 
-                    <DisablePartInput value={form.phoneNumber} disabledValue={selectedCountry?.dial_code ?? "+000"} placeholder="Phone Number" handleChangeText={(e: any) => setForm({ ...form, phoneNumber: e })} otherStyles="mt-7" labelStyle='text-white'/>
-                    
-                    <FormField title="Password*" value={form.password} placeholder="Create Password" handleChangeText={(e: any) => setForm({ ...form, password: e })} otherStyles="mt-7" labelStyle='text-white'/>
-                    <FormField title="Confirm Password*" value={form.ConfirmPassword} placeholder="Confirm Password" handleChangeText={(e: any) => setForm({ ...form, ConfirmPassword: e })} otherStyles="mt-7" labelStyle='text-white'/>
-                    <View className='w-full flex-row items-start gap-2 my-5'>
-                      <Checkbox value={isChecked} onValueChange={setChecked} color='#1F1F1F' style={{borderRadius: 5}}/>
-                      <View className="flex-row flex-wrap flex-1 -mt-1">
-                        <Text className="font-rlight">I am 18+ and I agree with <Link href={"/(onboarding)/Terms"}><Text className="text-green font-mbold">Privacy Policy. Terms of Service. All Game Policy. Responsible Gaming. About Us.</Text></Link></Text>
-                      </View>
+                  <DisablePartInput value={form.phoneNumber} disabledValue={selectedCountry?.dial_code ?? "+000"} placeholder="Phone Number" handleChangeText={(e: any) => setForm({ ...form, phoneNumber: e })} otherStyles="mt-7" labelStyle='text-white'/>
+                  
+                  <FormField title="Password*" value={form.password} placeholder="Create Password" handleChangeText={(e: any) => setForm({ ...form, password: e })} otherStyles="mt-7" labelStyle='text-white'/>
+                  <FormField title="Confirm Password*" value={form.ConfirmPassword} placeholder="Confirm Password" handleChangeText={(e: any) => setForm({ ...form, ConfirmPassword: e })} otherStyles="mt-7" labelStyle='text-white'/>
+                  <View className='w-full flex-row items-start gap-2 my-5'>
+                    <Checkbox value={isChecked} onValueChange={setChecked} color='#EF4734' style={{borderRadius: 5}}/>
+                    <View className="flex-row flex-wrap flex-1 -mt-1">
+                      <Text className="font-rlight" style={{ color: theme.colors.text}}>I am 18+ and I agree with <Link href={"/(onboarding)/Terms"}><Text className="font-mbold">Privacy Policy. Terms of Service. All Game Policy. Responsible Gaming. About Us.</Text></Link></Text>
                     </View>
-                    <View className='w-full justify-center mb-7'>
-                      <GradientButton title="Register" handlePress={confirm} containerStyles="w-[80%] mx-auto" textStyles='text-white'/>
-                    </View>
-                    <View className="flex-row gap-1 items-center justify-center">
-                      <Text className="text-center font-msbold">Already have an account?</Text>
-                      <TouchableOpacity onPress={() => router.push("/(onboarding)/LogIn")}>
-                          <Text className="text-orange font-mbold">Log In</Text>
-                      </TouchableOpacity >
-                    </View>
+                  </View>
+                  <View className='w-full justify-center mb-7'>
+                    <GradientButton title="Register" handlePress={confirm} containerStyles="w-[80%] mx-auto" textStyles='text-white'/>
+                  </View>
+                  <View className="flex-row gap-1 items-center justify-center">
+                    <Text className="text-center font-msbold" style={{ color: theme.colors.text}}>Already have an account?</Text>
+                    <TouchableOpacity onPress={() => router.push("/(onboarding)/LogIn")}>
+                        <Text className="text-orange font-mbold">Log In</Text>
+                    </TouchableOpacity >
+                  </View>
                 </View>
               </View>
             </ScrollView>
@@ -154,7 +154,7 @@ const Register = () => {
           }}
         />
 
-        <StatusBar style='dark'/>
+        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

@@ -14,14 +14,14 @@ export default function MenuBalanceCard({showModal, setShowModal}: {showModal: b
   const { theme } = useThemeStore();
 
   return (
-    <View className='w-full bg-white rounded-2xl p-4'>
-      <Text className="font-mmedium text-sm text-black">AVAILABLE BALANCE</Text>
+    <View className='w-full rounded-2xl p-4' style={{backgroundColor: theme.colors.darkGray}}>
+      <Text className="font-mmedium text-sm" style={{ color: theme.colors.text}}>AVAILABLE BALANCE</Text>
       <View className='flex-row items-center justify-between mt-1'>
         <View>
-            <Text className="font-semibold text-xl">{displayCurrency(Number(756000), 'NGN')}</Text>
+            <Text className="font-semibold text-xl" style={{ color: theme.colors.text}}>{displayCurrency(Number(756000), 'NGN')}</Text>
         </View>
         <TouchableOpacity className='items-center flex-row gap-1'>
-            <Feather name="eye" size={20} color="#000000" />
+            <Feather name="eye" size={20} color={theme.colors.text} />
         </TouchableOpacity>
       </View>
       <View className='flex-row items-center justify-between gap-2 mt-3 w-full'>

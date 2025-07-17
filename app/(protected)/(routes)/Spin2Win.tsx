@@ -1,4 +1,4 @@
-import Spin2WinScreen from '@/screens/instant_games/Spin2WinScreen'
+import Spin2WinScreen from '@/screens/virtual_games/Spin2WinScreen'
 
 const Spin2Win = () => {
   return (

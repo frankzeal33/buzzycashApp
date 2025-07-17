@@ -10,11 +10,15 @@ import { router } from 'expo-router'
 import { OtpInput } from 'react-native-otp-entry'
 import OnboardModal from '@/components/OnboardModal'
 import { useThemeStore } from '@/store/ThemeStore'
+import RNPickerSelect from 'react-native-picker-select';
+import { data } from '@/constants'
+import { MaterialIcons } from '@expo/vector-icons'
 
 const CreateProfile = () => {
 
   const { theme } = useThemeStore();
   const [openModal, setOpenModal] = useState(false)
+  const [selectedGender, setSelectedGender] = useState();
   const [form, setForm] = useState({
     fullname: '',
     email: '',
@@ -41,15 +45,29 @@ const CreateProfile = () => {
     }
  
   return (
-    <SafeAreaView className='bg-gray-100 h-full flex-1' style={{ backgroundColor: theme.colors.background}}>
+    <SafeAreaView className='h-full flex-1' style={{ backgroundColor: theme.colors.background}}>
         <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} className='w-full px-8'>
                 <View className='flex-1 py-6'>
                     <View className="flex-1 w-full justify-center items-center my-6">
-                        <Text className="text-2xl mt-4 font-mbold">Create Your Profile</Text>
+                        <Text className="text-2xl mt-4 font-mbold" style={{color: theme.colors.text}}>Create Your Profile</Text>
                         <FormField value={form.fullname} placeholder="Fullname" handleChangeText={(e: any) => setForm({ ...form, fullname: e })} otherStyles="mt-7" labelStyle='text-white'/>
                         <FormField value={form.email} placeholder="Email" handleChangeText={(e: any) => setForm({ ...form, email: e })} otherStyles="mt-7" keyboardType="email-address" labelStyle='text-white'/>
                         <FormField value={form.gender} placeholder="Gender" handleChangeText={(e: any) => setForm({ ...form, gender: e })} otherStyles="mt-7" labelStyle='text-white'/>
+                        <View className='mt-7'>
+                          <Text className='text-base font-rbold pb-2 text-green'>Gender</Text>
+                          <RNPickerSelect
+                              onValueChange={(value) => setSelectedGender(value)}
+                              items={data.gender}
+                              value={selectedGender}
+                              placeholder={{ label: 'Select gender', value: null }}
+                              style={pickerSelectStyles}
+                              useNativeAndroidPickerStyle={false}
+                              Icon={() => {   
+                                  return <MaterialIcons name="arrow-drop-down" size={30} color="#C3C3C3" />;
+                              }}
+                          />
+                      </View>
                         <FormField value={form.username} placeholder="Username" handleChangeText={(e: any) => setForm({ ...form, username: e })} otherStyles="mt-7" labelStyle='text-white'/>
                         <View className='w-full justify-center my-7'>
                             <GradientButton title="Complete" handlePress={handleModal} containerStyles="w-[80%] mx-auto" textStyles='text-white'/>
@@ -89,7 +107,7 @@ const CreateProfile = () => {
             </View>
         </OnboardModal>
 
-        <StatusBar style='dark'/>
+        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }
@@ -132,4 +150,31 @@ const styles = StyleSheet.create({
   disabledPinCodeContainer: {
     backgroundColor: '#e0e0e0',
   },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    fontSize: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    color: 'black',
+    paddingRight: 30,
+    backgroundColor: '#F3F3F3',
+    height: 52,
+  },
+  inputAndroid: {
+    fontSize: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    color: 'black',
+    paddingRight: 30,
+    backgroundColor: '#F3F3F3',
+    height: 52
+  },
+  iconContainer: {
+    top: 10,
+    right: 10,
+  }
 });

@@ -77,7 +77,7 @@ const LotteryGamesScreen = () => {
                     <View>
                         <View className="w-full items-center mx-auto justify-center max-w-64">
                             {/* <Image source={images.InvestmentEmpty} className='mx-auto'/> */}
-                            <Text className="text-2xl text-center text-blue mt-4 font-rbold">Games have not been added yet</Text>
+                            <Text className="text-2xl text-white text-center mt-4 font-rbold">Games have not been added yet</Text>
                         </View>
                     </View>
                     )}

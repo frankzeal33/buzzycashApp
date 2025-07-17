@@ -71,7 +71,7 @@ const Games = () => {
     };
 
     const renderSectionHeader = ({ section: { title } }: any) => (
-        <Text className="font-msbold text-lg py-2 bg-gray-100">{title}</Text>
+        <Text className="font-msbold text-lg py-2" style={{ backgroundColor: theme.colors.background, color: theme.colors.text}}>{title}</Text>
     );
 
   return (
@@ -93,10 +93,10 @@ const Games = () => {
                                 <View className='flex-1'>
                                     <View className="w-full items-center mx-auto justify-center my-6 mt-16 max-w-64 flex-1">
                                         <View className='flex items-center justify-center size-16 rounded-full bg-green-lighter'>
-                                            <Octicons name="bell-fill" size={32} color="#218225" />
+                                            <Octicons name="bell-fill" size={32} color={theme.colors.text} />
                                         </View>
-                                        <Text className="text-2xl text-center text-blue mt-4 font-rbold">No notifications yet</Text>
-                                        <Text className="text-sm text-center text-blue mt-1 font-rlight">You don't have any games notification for now</Text>
+                                        <Text className="text-2xl text-center mt-4 font-rbold" style={{ color: theme.colors.text}}>No notifications yet</Text>
+                                        <Text className="text-sm text-center mt-1 font-rlight" style={{ color: theme.colors.text}}>You don't have any games notification for now</Text>
                                     </View>
                                 </View>
                             )}
@@ -110,10 +110,10 @@ const Games = () => {
         {sections.length > 0 && !loading &&(
             <View className="flex-row justify-between px-4 pb-2 pt-4">
                 <TouchableOpacity>
-                    <Text className="text-sm font-msbold">MARK AS READ</Text>
+                    <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>MARK AS READ</Text>
                 </TouchableOpacity>
                 <TouchableOpacity>
-                    <Text className="text-sm font-msbold">CLEAR ALL</Text>
+                    <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>CLEAR ALL</Text>
                 </TouchableOpacity>
             </View>
         )}
@@ -130,59 +130,55 @@ const Games = () => {
               </TouchableWithoutFeedback>
 
               {/* Actual modal content */}
-              <View className="bg-white rounded-2xl max-h-[60%] px-6 w-full">
+              <View className="rounded-2xl max-h-[60%] px-6 w-full" style={{backgroundColor: theme.colors.darkGray}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View className={`w-full py-6`}>
-                    <Text className="font-mbold text-lg text-center mb-3">Won</Text>
+                    <Text className="font-mbold text-lg text-center mb-3" style={{ color: theme.colors.text}}>Won</Text>
                     <View className='w-full mt-2'>
                         <View className="flex-1 justify-between w-full flex-row items-start gap-2">
-                        <View className='w-32'>
-                            <Text className="font-msbold text-base capitalize" numberOfLines={1}>Lottery</Text>
+                            <View className='w-32'>
+                                <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Lottery</Text>
+                            </View>
+                            <View className='items-end justify-end gap-2 flex-1'>
+                                <Text className="font-msbold text-base" style={{ color: theme.colors.text}}>Weekend Allawee</Text>
+                            </View>
                         </View>
-                        <View className='items-end justify-end gap-2 flex-1'>
-                            <Text className="font-msbold text-base">Weekend Allawee</Text>
-                        </View>
-                        </View>
-                        <View className='border border-dashed border-brown-200 mt-4'/>
                     </View>
                     {/* {item?.winningBalls && ( */}
                     <View className='w-full mt-2'>
                         <View className="flex-1 justify-between w-full flex-row items-center gap-2">
                             <View className='w-32'>
-                            <Text className="font-msbold text-base capitalize" numberOfLines={1}>Winning Balls</Text>
+                            <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Winning Balls</Text>
                             </View>
                             <View className='items-end justify-end gap-2 flex-1'>
-                            <View className={`bg-gray-200 rounded-full min-w-[30px] h-[30px] items-center justify-center px-[6px]`}>
-                                <Text className="text-base font-msbold">2</Text>
+                            <View className={`rounded-full min-w-[30px] h-[30px] items-center justify-center px-[6px]`} style={{ backgroundColor: theme.colors.inputBg}}>
+                                <Text className="text-base font-msbold" style={{ color: theme.colors.text}}>2</Text>
                             </View>
                             </View>
                         </View>
-                        <View className='border border-dashed border-brown-200 mt-4'/>
                     </View>
                     {/* )} */}
                     <View className='w-full mt-2'>
                         <View className="flex-1 justify-between w-full flex-row items-start gap-2">
                         <View className='w-32'>
-                            <Text className="font-msbold text-base capitalize" numberOfLines={1}>Price</Text>
+                            <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Price</Text>
                         </View>
                         <View className='items-end justify-end gap-2 flex-1'>
-                            <Text className="font-semibold text-base">{displayCurrency(Number(0), 'NGN')}</Text>
+                            <Text className="font-semibold text-base" style={{ color: theme.colors.text}}>{displayCurrency(Number(0), 'NGN')}</Text>
                         </View>
                         </View>
-                        <View className='border border-dashed border-brown-200 mt-4'/>
                     </View>
                     <View className='w-full mt-2'>
                         <View className="flex-1 justify-between w-full flex-row items-start gap-2">
                         <View className='w-32'>
-                            <Text className="font-msbold text-base capitalize" numberOfLines={1}>Status</Text>
+                            <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Status</Text>
                         </View>
                         <View className='items-end justify-end gap-2 flex-1'>
                             <Text className={`font-msbold text-base capitalize text-green-600`}>Won</Text>
                         </View>
                         </View>
-                        <View className='border border-dashed border-brown-200 mt-4'/>
                     </View>
-                    <Text className='text-right font-mregular text-sm mt-3'>{moment(0).format('llll')}</Text>
+                    <Text className='text-right font-mregular text-sm mt-3' style={{ color: theme.colors.text}}>{moment(0).format('llll')}</Text>
                     </View>
                 </ScrollView>
               </View>

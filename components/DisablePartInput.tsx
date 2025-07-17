@@ -23,9 +23,23 @@ const DisablePartInput = ({ title, value, placeholder, disabledValue, inputBg, k
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <View className={`bg-gray-200 ${isFocused && 'border-2 border-lightBlack'} h-16 pr-4 rounded-md items-center flex-row gap-1 ${otherStyles}`}>
-        <TextInput className={`bg-gray-300 rounded-l-md px-4 text-black font-mmedium text-base h-full`} value={disabledValue} placeholderTextColor="#979797" editable={false}/>
-        <TextInput className={`bg-gray-200 flex-1 text-black font-mmedium text-base h-full pl-2`} value={value} placeholder={placeholder} placeholderTextColor="#979797" onChangeText={handleChangeText} keyboardType="phone-pad" onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}/>
+    <View style={[
+          {
+            backgroundColor: theme.colors.inputBg,
+            borderColor: isFocused ? theme.colors.inputBorder : theme.colors.inputBg,
+          }
+        ]} className={`${isFocused && 'border'} h-16 pr-4 rounded-md items-center flex-row gap-1 ${otherStyles}`}>
+        <TextInput style={[
+            {
+              backgroundColor: theme.colors.gray
+            }
+          ]} className={`rounded-l-md px-4 font-mmedium text-base h-full`} value={disabledValue} placeholderTextColor="#979797" editable={false}/>
+        <TextInput style={[
+            {
+              backgroundColor: theme.colors.inputBg,
+              color: theme.colors.text
+            }
+          ]} className={`flex-1 font-mmedium text-base h-full pl-2`} value={value} placeholder={placeholder} placeholderTextColor="#979797" onChangeText={handleChangeText} keyboardType="phone-pad" onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}/>
     </View>
   )
 }

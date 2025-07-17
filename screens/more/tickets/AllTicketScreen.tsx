@@ -111,33 +111,36 @@ const AllTicketScreen = () => {
                 <Header titleColor="text-orange" title='Ticket Games' icon onpress={() => router.back()}/>
                   <View className='mt-2 mb-5 flex-row items-center justify-between gap-1'>
                     <View className='flex-row w-[60%]'>
-                        <SearchInput placeholder="Search Games..." otherStyles='w-full'/>
+                      <SearchInput placeholder="Search Games..." otherStyles='w-full'/>
                     </View>
 
                       <SelectDropdown
-                      data={data.GameTime}
-                      onSelect={(selectedItem, index) => {
-                          console.log(selectedItem, index);
-                      }}
-                      renderButton={(selectedItem, isOpened) => {
-                          return (
-                          <View style={styles.dropdownButtonStyle2}>
-                              <Text style={styles.dropdownButtonTxtStyle}>
-                              {(selectedItem && selectedItem.title) || 'Time'}
-                              </Text>
-                              <Entypo name={isOpened ? 'chevron-small-up' : 'chevron-small-down'} style={styles.dropdownButtonArrowStyle} size={30} color="#979797" />
-                          </View>
-                          );
-                      }}
-                      renderItem={(item, index, isSelected) => {
-                          return (
-                          <View key={index} style={{...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#E4FFE5'})}}>
-                            <Text style={styles.dropdownItemTxtStyle}>{item.title}</Text>
-                          </View>
-                          );
-                      }}
-                      showsVerticalScrollIndicator={false}
-                      dropdownStyle={styles.dropdownMenuStyle}
+                        data={data.GameTime}
+                        onSelect={(selectedItem, index) => {
+                            console.log(selectedItem, index);
+                        }}
+                        renderButton={(selectedItem, isOpened) => {
+                            return (
+                            <View style={[styles.dropdownButtonStyle2, {backgroundColor: theme.colors.darkGray}]}>
+                                <Text style={styles.dropdownButtonTxtStyle}>
+                                {(selectedItem && selectedItem.title) || 'Time'}
+                                </Text>
+                                <Entypo name={isOpened ? 'chevron-small-up' : 'chevron-small-down'} style={styles.dropdownButtonArrowStyle} size={30} color="#979797" />
+                            </View>
+                            );
+                        }}
+                        renderItem={(item, index, isSelected) => {
+                            return (
+                            <View key={index} style={{...styles.dropdownItemStyle,  backgroundColor: theme.colors.darkGray, ...(isSelected && {backgroundColor: '#C23525'})}}>
+                              <Text style={[styles.dropdownItemTxtStyle, {color: theme.colors.text}]}>{item.title}</Text>
+                            </View>
+                            );
+                        }}
+                        showsVerticalScrollIndicator={false}
+                        dropdownStyle={{
+                          backgroundColor: theme.colors.darkGray,
+                          borderRadius: 8,
+                        }}
                       />
                 </View>
                 <FlatList
@@ -185,7 +188,7 @@ const styles = StyleSheet.create({
   },
   dropdownButtonTxtStyle: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 16,
     color: '#979797',
     fontFamily: "Montserrat-Medium",
   },
@@ -195,10 +198,6 @@ const styles = StyleSheet.create({
   dropdownButtonIconStyle: {
     fontSize: 28,
     marginRight: 8,
-  },
-  dropdownMenuStyle: {
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
   },
   dropdownItemStyle: {
     width: '100%',

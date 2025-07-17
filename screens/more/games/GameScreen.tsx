@@ -35,10 +35,10 @@ const games: any = [
     },
     {
         id: "4",
-        title: "Instant Games",
+        title: "Virtual Games",
         image: images.instantGame,
         description: "Play for Immediate Reward",
-        route: "/(protected)/(routes)/InstantGames"
+        route: "/(protected)/(routes)/VirtualGames"
 
     }
 ]
@@ -95,7 +95,7 @@ const GameScreen = () => {
                     <View>
                         <View className="w-full items-center mx-auto justify-center max-w-64">
                             {/* <Image source={images.InvestmentEmpty} className='mx-auto'/> */}
-                            <Text className="text-2xl text-center text-blue mt-4 font-rbold">Games have not been added yet</Text>
+                            <Text className="text-2xl text-center text-white mt-4 font-rbold">Games have not been added yet</Text>
                         </View>
                     </View>
                     )}

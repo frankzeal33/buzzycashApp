@@ -84,16 +84,16 @@ export default function TicketsScreen() {
   )
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 bg-gray-100 px-4'>
+    <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 px-4' style={{ backgroundColor: theme.colors.background}}>
       <Header title='Purchased Tickets' icon onpress={() => router.back()}/>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
      
         {loading ? (
-          <View className="bg-white my-4 py-52">
+          <View className="my-4 py-52" style={{ backgroundColor: theme.colors.darkGray}}>
             <Loading/>
           </View>
         ) : (
-          <View className="bg-white my-4">
+          <View className="my-4" style={{ backgroundColor: theme.colors.darkGray}}>
             <FlatList
               data={tickets}
               keyExtractor={(item, index) => index.toString()}
@@ -101,8 +101,8 @@ export default function TicketsScreen() {
               scrollEnabled={false}
               ListEmptyComponent={() => (  
                 <View className="items-center justify-center py-52">
-                  <Text className="text-xl text-center font-msbold">No Tickets yet!</Text>
-                  <Text className="text-sm text-center mt-1 font-mlight">
+                  <Text className="text-xl text-center font-msbold" style={{ color: theme.colors.text}}>No Tickets yet!</Text>
+                  <Text className="text-sm text-center mt-1 font-mlight" style={{ color: theme.colors.text}}>
                     All your purchased tickets will show here.
                   </Text>
                 </View>
@@ -119,10 +119,10 @@ export default function TicketsScreen() {
               currentPage={page}
               onPageChange={setPage}
               showLastPagesButtons
-              btnStyle={{ backgroundColor: '#ffffff', borderWidth: 0, borderRadius: 5 }}
+              btnStyle={{ backgroundColor: theme.colors.lightDarkGray, borderWidth: 0, borderRadius: 5 }}
               textStyle={{ color: "#DF7844" }}
               activeBtnStyle={{ backgroundColor: '#DF7844' }}
-              activeTextStyle={{ color: '#ffffff' }}
+              activeTextStyle={{ color: theme.colors.background }}
             />
           </View>
         )}
@@ -139,16 +139,16 @@ export default function TicketsScreen() {
               </TouchableWithoutFeedback>
 
               {/* Actual modal content */}
-              <View className="bg-white rounded-2xl max-h-[60%] px-6 w-full">
+              <View className="rounded-2xl max-h-[60%] px-6 w-full" style={{backgroundColor: theme.colors.darkGray}}>
                 <FlatList
                   data={tickets}
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={() => (
                     <View className='flex-row items-center justify-between mt-7'>
-                      <Text className='font-msbold'>Ticket#3</Text>
-                      <Text className='font-msbold text-2xl'>:</Text>
-                      <View className="bg-gray-200 rounded-full min-w-[30px] h-[30px] items-center justify-center px-[6px]">
-                        <Text className="text-base font-msbold">0</Text>
+                      <Text className='font-msbold' style={{ color: theme.colors.text}}>Ticket#3</Text>
+                      <Text className='font-msbold text-2xl' style={{color: theme.colors.text}}>:</Text>
+                      <View className="rounded-full min-w-[30px] h-[30px] items-center justify-center px-[6px]" style={{backgroundColor: theme.colors.inputBg}}>
+                        <Text className="text-base font-msbold" style={{color: theme.colors.text}}>0</Text>
                       </View>
                     </View>
                   )}
@@ -159,7 +159,7 @@ export default function TicketsScreen() {
             </View>
         </Modal>
       </ScrollView>
-      <StatusBar backgroundColor="#E9E9E9" style='dark'/>
+      <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

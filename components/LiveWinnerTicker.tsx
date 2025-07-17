@@ -20,7 +20,7 @@ const LiveWinnerTicker = memo(({winnerMessages}: {winnerMessages: any}) => {
   const current = winnerMessages[currentIndex];
 
   return (
-    <View className='justify-center bg-gray-200 rounded-2xl px-4 py-2 h-16'>
+    <View className='justify-center rounded-2xl px-4 py-2 h-16' style={{ backgroundColor: theme.dark ? theme.colors.background : theme.colors.inputBg}}>
       <View className='flex-row items-center justify-between'>
         <Text className='text-orange font-msbold'>{current.phone}</Text>
         <Text className='text-orange font-mmedium text-sm'>{DateLabels(current.timestamp)}</Text>

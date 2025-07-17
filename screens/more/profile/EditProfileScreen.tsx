@@ -5,11 +5,12 @@ import { router } from 'expo-router'
 import Header from '@/components/Header'
 import EditProfileBox from '@/components/EditProfileBox'
 import { MaterialIcons } from '@expo/vector-icons'
-// import DatePicker from 'react-native-date-picker'
-// import RNPickerSelect from 'react-native-picker-select';
+import DatePicker from 'react-native-date-picker'
+import RNPickerSelect from 'react-native-picker-select';
 import { data } from '@/constants'
 import GradientButton from '@/components/GradientButton'
 import { useThemeStore } from '@/store/ThemeStore'
+import { StatusBar } from 'expo-status-bar'
 
 const EditProfileScreen = () => {
 
@@ -31,20 +32,20 @@ const EditProfileScreen = () => {
   }
 
   return (
-    <SafeAreaView className='h-full flex-1 bg-gray-100 px-4'>
+    <SafeAreaView className='h-full flex-1 px-4' style={{backgroundColor: theme.colors.background}}>
       <Header icon onpress={() => router.back()}/>
       <View className='flex-1 w-full items-center justify-center'>
         <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{flexGrow: 1, alignItems: 'center', justifyContent: 'center'}}>
             
             <View className='w-full gap-4 py-10'>
-              <Text className="text-xl text-blue font-msbold mb-5 text-center">Edit Profile</Text>
+              <Text className="text-xl font-msbold mb-5 text-center" style={{ color: theme.colors.text}}>Edit Profile</Text>
               <EditProfileBox title='Full Name' placeholder="Enter fullname here" value={form.fullname}/>
               <EditProfileBox title='Username' placeholder="Enter username here" value={form.username}/>
               <EditProfileBox title='Date of Birth' placeholder="Enter date of birth here" value={form.date_of_birth}/>
               <EditProfileBox title='Gender' placeholder="Enter gender here" value={form.gender}/>
 
-              {/* <View className='mt-7'>
+              <View className='mt-7'>
                   <Text className='text-base font-rbold pb-2 text-green'>Date of Birth</Text>
                   <TouchableOpacity className='w-full flex-row gap-2 bg-inputBg p-4 items-center justify-between h-[52px] rounded-md'  onPress={() => setOpen(true)}>
                       <Text className={`${hasPickedDate ? 'text-black' : 'text-[#ccc]'}`}>{hasPickedDate ? date.toISOString().split('T')[0] : 'Select Date'}</Text>
@@ -65,7 +66,7 @@ const EditProfileScreen = () => {
                           return <MaterialIcons name="arrow-drop-down" size={30} color="#C3C3C3" />;
                       }}
                   />
-              </View> */}
+              </View>
 
               <View className='w-full justify-center items-center my-7'>
                 <GradientButton title="Save Changes" handlePress={submit} containerStyles="w-[80%]" textStyles='text-white'/>
@@ -76,7 +77,7 @@ const EditProfileScreen = () => {
           </ScrollView>
         </KeyboardAvoidingView>
 
-        {/* <DatePicker
+        <DatePicker
             modal
             open={open}
             mode="date"
@@ -89,9 +90,10 @@ const EditProfileScreen = () => {
             onCancel={() => {
                 setOpen(false)
             }}
-        /> */}
+        />
 
       </View>
+      <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }
@@ -124,4 +126,4 @@ const pickerSelectStyles = StyleSheet.create({
     top: 10,
     right: 10,
   }
-  });
+});

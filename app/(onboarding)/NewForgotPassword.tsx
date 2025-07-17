@@ -23,13 +23,13 @@ const NewForgotPassword = () => {
     }
  
   return (
-    <SafeAreaView className='bg-gray-100 h-full flex-1'>
+    <SafeAreaView className='h-full flex-1' style={{ backgroundColor: theme.colors.background}}>
         <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} className='w-full px-8'>
                 <View className='flex-1 py-6'>
                     <View className="flex-1 w-full justify-center items-center my-6">
-                        <Text className="text-2xl mt-4 font-mbold">Reset Your Password</Text>
-                        <Text className="mt-1 font-mmedium text-center px-6">Enter Your New Password</Text>
+                        <Text className="text-2xl mt-4 font-mbold" style={{color: theme.colors.text}}>Reset Your Password</Text>
+                        <Text className="mt-1 font-mmedium text-center px-6" style={{color: theme.colors.text}}>Enter Your New Password</Text>
                         <FormField title="New Password*" value={form.password} placeholder="Enter Your New Password" handleChangeText={(e: any) => setForm({ ...form, password: e })} otherStyles="mt-7" labelStyle='text-white'/>
                         <FormField title="Confirm New Password*" value={form.ConfirmPassword} placeholder="Confirm New Password" handleChangeText={(e: any) => setForm({ ...form, ConfirmPassword: e })} otherStyles="mt-7" labelStyle='text-white'/>
                         <View className='w-full justify-center my-7'>
@@ -43,7 +43,7 @@ const NewForgotPassword = () => {
             </ScrollView>
         </KeyboardAvoidingView>
 
-        <StatusBar style='dark'/>
+        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

@@ -77,7 +77,7 @@ const All = () => {
     };
 
     const renderSectionHeader = ({ section: { title } }: any) => (
-        <Text className="font-msbold text-lg py-2 bg-gray-100">{title}</Text>
+        <Text className="font-msbold text-lg py-2 bg-gray-100" style={{ backgroundColor: theme.colors.background, color: theme.colors.text}}>{title}</Text>
     );
 
   return (
@@ -99,10 +99,10 @@ const All = () => {
                                 <View className='flex-1'>
                                     <View className="w-full items-center mx-auto justify-center my-6 mt-16 max-w-64 flex-1">
                                         <View className='flex items-center justify-center size-16 rounded-full bg-green-lighter'>
-                                            <Octicons name="bell-fill" size={32} color="#218225" />
+                                          <Octicons name="bell-fill" size={32} color={theme.colors.text} />
                                         </View>
-                                        <Text className="text-2xl text-center text-blue mt-4 font-rbold">No notifications yet</Text>
-                                        <Text className="text-sm text-center text-blue mt-1 font-rlight">You don't have any games notification for now</Text>
+                                        <Text className="text-2xl text-center text-blue mt-4 font-rbold" style={{ color: theme.colors.text}}>No notifications yet</Text>
+                                        <Text className="text-sm text-center text-blue mt-1 font-rlight" style={{ color: theme.colors.text}}>You don't have any games notification for now</Text>
                                     </View>
                                 </View>
                             )}
@@ -116,10 +116,10 @@ const All = () => {
         {sections.length > 0 && !loading &&(
             <View className="flex-row justify-between px-4 pb-2 pt-4">
                 <TouchableOpacity>
-                    <Text className="text-sm font-msbold">MARK AS READ</Text>
+                    <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>MARK AS READ</Text>
                 </TouchableOpacity>
                 <TouchableOpacity>
-                    <Text className="text-sm font-msbold">CLEAR ALL</Text>
+                    <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>CLEAR ALL</Text>
                 </TouchableOpacity>
             </View>
         )}
@@ -136,29 +136,29 @@ const All = () => {
               </TouchableWithoutFeedback>
 
               {/* Actual modal content */}
-              <View className="bg-white rounded-2xl max-h-[60%] px-4 w-full">
+              <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View className='my-7 gap-5'>
                     <View className='flex-row items-start justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
-                        <Text className='font-msbold text-lg'>Amount</Text>
-                        <Text className='font-msbold text-xl'>:</Text>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Amount</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1">{displayCurrency(Number(0), 'NGN')}</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(0), 'NGN')}</Text>
                     </View>
                     <View className='flex-row items-start justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
-                        <Text className='font-msbold text-lg'>Post Balance</Text>
-                        <Text className='font-msbold text-xl'>:</Text>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Post Balance</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1">{displayCurrency(Number(100), 'NGN')}</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(100), 'NGN')}</Text>
                     </View>
                     <View className='flex-row items-start justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
-                        <Text className='font-msbold text-lg'>Details</Text>
-                        <Text className='font-msbold text-xl'>:</Text>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Details</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1">Debit for purchased ticket</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>Debit for purchased ticket</Text>
                     </View>
                   </View>
                 </ScrollView>

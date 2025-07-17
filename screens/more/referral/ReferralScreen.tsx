@@ -31,7 +31,7 @@ const ReferralScreen = () => {
   // Render the custom tab bar
   const renderTabBar = (props: any) => {
     return (
-      <View className="flex-row gap-2 px-12 mt-2 border-b border-lightBlack">
+      <View className="flex-row gap-2 px-12 mt-2 border-b" style={{ borderColor: theme.colors.text}}>
         {props.navigationState.routes.map((route: any, i: number) => {
           const isFocused = props.navigationState.index === i;
   
@@ -45,6 +45,7 @@ const ReferralScreen = () => {
             >
               <Text
                 className={`text-sm font-msbold`}
+                style={{color: theme.colors.text}}
               >
                 {route.title}
               </Text>
@@ -56,7 +57,7 @@ const ReferralScreen = () => {
   };
 
   return (
-    <SafeAreaView className="bg-gray-100 h-full">
+    <SafeAreaView className="h-full" style={{ backgroundColor: theme.colors.background}}>
         <View className='px-4'>
           <Header title='My Referral' icon onpress={() => router.back()}/>
         </View>
@@ -67,7 +68,7 @@ const ReferralScreen = () => {
             renderTabBar={renderTabBar}
             initialLayout={{ width: layout.width }}
         />
-        <StatusBar backgroundColor="#ffffff" style='dark'/>
+        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

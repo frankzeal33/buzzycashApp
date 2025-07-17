@@ -7,13 +7,14 @@ import { images } from '@/constants'
 import { AntDesign, Entypo } from '@expo/vector-icons'
 import ProfileBox from '@/components/ProfileBox'
 import { useThemeStore } from '@/store/ThemeStore'
+import { StatusBar } from 'expo-status-bar'
 
 const ProfileScreen = () => {
 
   const { theme } = useThemeStore();
 
   return (
-    <SafeAreaView className='h-full flex-1 bg-gray-100 px-4'>
+    <SafeAreaView className='h-full flex-1 px-4' style={{ backgroundColor: theme.colors.background}}>
       <Header action='Edit' title='Profile' icon onpress={() => router.back()}/>
       <View className='flex-1 w-full'>
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -38,6 +39,8 @@ const ProfileScreen = () => {
           </View>
         </ScrollView>
       </View>
+
+      <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

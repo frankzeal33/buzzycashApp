@@ -19,10 +19,10 @@ const EditProfileBox = ({ title, value, placeholder, inputBg, keyboardType, hand
  
   const { theme } = useThemeStore();
   return (
-    <View className='w-full h-16 bg-gray-200 gap-4 rounded-md flex-row justify-between px-4 items-center'>
+    <View className='w-full h-16 gap-4 rounded-md flex-row justify-between px-4 items-center' style={{ backgroundColor: theme.colors.inputBg}}>
         <Text className='text-gray-500 font-mmedium'>{title}</Text>
         <View className="flex-1">
-            <TextInput className={`${inputBg ? inputBg : 'bg-gray-200'} flex-1 text-black font-msbold text-base h-full text-right`} value={value} placeholder={placeholder} placeholderTextColor="#979797" onChangeText={handleChangeText} keyboardType={keyboardType ? keyboardType: 'default'}/>
+          <TextInput className={`flex-1 font-msbold text-base h-full text-right`} style={{ backgroundColor: theme.colors.inputBg, color: theme.colors.text}}  value={value} placeholder={placeholder} placeholderTextColor="#979797" onChangeText={handleChangeText} keyboardType={keyboardType ? keyboardType: 'default'}/>
         </View>
     </View>
   )

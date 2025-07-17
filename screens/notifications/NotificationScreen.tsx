@@ -33,7 +33,7 @@ const NotificationScreen = () => {
   // Render the custom tab bar
   const renderTabBar = (props: any) => {
     return (
-      <View className="flex-row gap-2 px-8 mt-2 border-b border-lightBlack">
+      <View className="flex-row gap-2 px-8 mt-2 border-b" style={{ borderColor: theme.colors.text}}>
         {props.navigationState.routes.map((route: any, i: number) => {
           const isFocused = props.navigationState.index === i;
   
@@ -47,6 +47,7 @@ const NotificationScreen = () => {
             >
               <Text
                 className={`text-sm font-msbold`}
+                style={{color: theme.colors.text}}
               >
                 {route.title}
               </Text>
@@ -58,18 +59,18 @@ const NotificationScreen = () => {
   };
 
   return (
-    <SafeAreaView className="bg-gray-100 h-full">
+    <SafeAreaView className="h-full flex-1" style={{ backgroundColor: theme.colors.background}}>
         <View className='px-4'>
           <Header title='Notifications' icon onpress={() => router.back()}/>
         </View>
         <TabView
-            navigationState={{ index, routes }}
-            renderScene={renderScene}
-            onIndexChange={setIndex}
-            renderTabBar={renderTabBar}
-            initialLayout={{ width: layout.width }}
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          renderTabBar={renderTabBar}
+          initialLayout={{ width: layout.width }}
         />
-        <StatusBar backgroundColor="#ffffff" style='dark'/>
+        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

@@ -81,14 +81,14 @@ const TransactionScreen = () => {
   )
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 bg-gray-100 px-4'>
+    <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 px-4' style={{ backgroundColor: theme.colors.background}}>
       <Header title='Transaction History' icon onpress={() => router.back()}/>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
      
-        <View className="bg-white mt-4 mb-2">
+        <View className="mt-4 mb-2" style={{ backgroundColor: theme.colors.darkGray}}>
           <FlatList
             ListHeaderComponent={() => (
-              <View className='bg-gray-100'>
+              <View style={{ backgroundColor: theme.colors.background}}>
                 <View className='flex flex-row w-full'>
                   <SearchInput placeholder="Search Transactions..." otherStyles='w-full'/>
                 </View>
@@ -101,7 +101,7 @@ const TransactionScreen = () => {
                     }}
                     renderButton={(selectedItem, isOpened) => {
                       return (
-                        <View style={styles.dropdownButtonStyle2}>
+                        <View style={[styles.dropdownButtonStyle2, {backgroundColor: theme.colors.darkGray}]}>
                           <Text style={styles.dropdownButtonTxtStyle}>
                             {(selectedItem && selectedItem.title) || 'Type'}
                           </Text>
@@ -111,13 +111,16 @@ const TransactionScreen = () => {
                     }}
                     renderItem={(item, index, isSelected) => {
                       return (
-                        <View key={index} style={{...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#E4FFE5'})}}>
-                          <Text style={styles.dropdownItemTxtStyle}>{item.title}</Text>
+                        <View key={index} style={{...styles.dropdownItemStyle, backgroundColor: theme.colors.darkGray, ...(isSelected && {backgroundColor: '#C23525'})}}>
+                          <Text style={[styles.dropdownItemTxtStyle, {color: theme.colors.text}]}>{item.title}</Text>
                         </View>
                       );
                     }}
                     showsVerticalScrollIndicator={false}
-                    dropdownStyle={styles.dropdownMenuStyle}
+                    dropdownStyle={{
+                      backgroundColor: theme.colors.darkGray,
+                      borderRadius: 8,
+                    }}
                   />
 
                   <SelectDropdown
@@ -127,7 +130,7 @@ const TransactionScreen = () => {
                     }}
                     renderButton={(selectedItem, isOpened) => {
                       return (
-                        <View style={styles.dropdownButtonStyle1}>
+                        <View style={[styles.dropdownButtonStyle1, {backgroundColor: theme.colors.darkGray}]}>
                           <Text style={styles.dropdownButtonTxtStyle} numberOfLines={1}>
                             {(selectedItem && selectedItem.title) || 'Remark'}
                           </Text>
@@ -137,13 +140,16 @@ const TransactionScreen = () => {
                     }}
                     renderItem={(item, index, isSelected) => {
                       return (
-                        <View key={index} style={{...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#E4FFE5'})}}>
-                          <Text style={styles.dropdownItemTxtStyle}>{item.title}</Text>
+                        <View key={index} style={{...styles.dropdownItemStyle, backgroundColor: theme.colors.darkGray, ...(isSelected && {backgroundColor: '#C23525'})}}>
+                          <Text style={[styles.dropdownItemTxtStyle, {color: theme.colors.text}]}>{item.title}</Text>
                         </View>
                       );
                     }}
                     showsVerticalScrollIndicator={false}
-                    dropdownStyle={styles.dropdownMenuStyle}
+                    dropdownStyle={{
+                      backgroundColor: theme.colors.darkGray,
+                      borderRadius: 8,
+                    }}
                   />
                 </View>
               </View>
@@ -154,8 +160,8 @@ const TransactionScreen = () => {
             scrollEnabled={false}
             ListEmptyComponent={() => (  
               <View className="items-center justify-center py-44">
-                <Text className="text-xl text-center font-msbold">No Tickets yet!</Text>
-                <Text className="text-sm text-center mt-1 font-mlight">
+                <Text className="text-xl text-center font-msbold" style={{ color: theme.colors.text}}>No Tickets yet!</Text>
+                <Text className="text-sm text-center mt-1 font-mlight" style={{ color: theme.colors.text}}>
                   All your purchased tickets will show here.
                 </Text>
               </View>
@@ -171,10 +177,10 @@ const TransactionScreen = () => {
               currentPage={page}
               onPageChange={setPage}
               showLastPagesButtons
-              btnStyle={{ backgroundColor: '#ffffff', borderWidth: 0, borderRadius: 5 }}
+              btnStyle={{ backgroundColor: theme.colors.lightDarkGray, borderWidth: 0, borderRadius: 5 }}
               textStyle={{ color: "#DF7844" }}
               activeBtnStyle={{ backgroundColor: '#DF7844' }}
-              activeTextStyle={{ color: '#ffffff' }}
+              activeTextStyle={{ color: theme.colors.background }}
             />
           </View>
         )}
@@ -192,29 +198,29 @@ const TransactionScreen = () => {
               </TouchableWithoutFeedback>
 
               {/* Actual modal content */}
-              <View className="bg-white rounded-2xl max-h-[60%] px-4 w-full">
+              <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View className='my-7 gap-5'>
                     <View className='flex-row items-start justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
-                        <Text className='font-msbold text-lg'>Amount</Text>
-                        <Text className='font-msbold text-xl'>:</Text>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Amount</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1">{displayCurrency(Number(0), 'NGN')}</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(0), 'NGN')}</Text>
                     </View>
                     <View className='flex-row items-start justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
-                        <Text className='font-msbold text-lg'>Post Balance</Text>
-                        <Text className='font-msbold text-xl'>:</Text>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Post Balance</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1">{displayCurrency(Number(100), 'NGN')}</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(100), 'NGN')}</Text>
                     </View>
                     <View className='flex-row items-start justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
-                        <Text className='font-msbold text-lg'>Details</Text>
-                        <Text className='font-msbold text-xl'>:</Text>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Details</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1">Debit for purchased ticket</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>Debit for purchased ticket</Text>
                     </View>
                   </View>
                 </ScrollView>
@@ -222,7 +228,7 @@ const TransactionScreen = () => {
             </View>
         </Modal>
       </ScrollView>
-      <StatusBar backgroundColor="#E9E9E9" style='dark'/>
+      <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }
@@ -252,7 +258,7 @@ const styles = StyleSheet.create({
   },
   dropdownButtonTxtStyle: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 16,
     color: '#979797',
     fontFamily: "Montserrat-Medium",
   },
@@ -262,10 +268,6 @@ const styles = StyleSheet.create({
   dropdownButtonIconStyle: {
     fontSize: 28,
     marginRight: 8,
-  },
-  dropdownMenuStyle: {
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
   },
   dropdownItemStyle: {
     width: '100%',

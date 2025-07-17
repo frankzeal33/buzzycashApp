@@ -130,10 +130,10 @@ export default function GameHistoryScreen() {
   )
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 bg-gray-100 px-4'>
+    <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 px-4' style={{ backgroundColor: theme.colors.background}}>
       <Header title='Game History' icon onpress={() => router.back()}/>
      
-        <View className="mt-4 flex-1">
+        <View className="mt-4 flex-1 rounded-md border border-orange border-b-0 overflow-hidden pt-1">
           <FlatList
             data={games}
             keyExtractor={(item, index) => index.toString()}
@@ -142,8 +142,8 @@ export default function GameHistoryScreen() {
             contentContainerStyle={{paddingBottom: bottom + 40}}
             ListEmptyComponent={() => (  
               <View className="items-center justify-center py-44">
-                <Text className="text-xl text-center font-msbold">No Games Placed yet!</Text>
-                <Text className="text-sm text-center mt-1 font-mlight">
+                <Text className="text-xl text-center font-msbold" style={{ color: theme.colors.text}}>No Games Placed yet!</Text>
+                <Text className="text-sm text-center mt-1 font-mlight" style={{ color: theme.colors.text}}>
                   All your games status will show here.
                 </Text>
               </View>
@@ -151,7 +151,7 @@ export default function GameHistoryScreen() {
           />
         </View>
 
-      <StatusBar backgroundColor="#E9E9E9" style='dark'/>
+      <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

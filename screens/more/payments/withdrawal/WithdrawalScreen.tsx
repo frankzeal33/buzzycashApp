@@ -28,18 +28,18 @@ const WithdrawalScreen = () => {
     }
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 bg-gray-100 px-4'>
+    <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 px-4' style={{backgroundColor: theme.colors.background}}>
         <Header title='Withdraw Funds' icon onpress={() => router.back()}/>
         <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{flexGrow: 1, justifyContent: 'center', alignItems: 'center'}}>
-                <View className='bg-white rounded-xl w-full p-6 mt-4 gap-5' style={{marginBottom: bottom + 16}}>
+                <View className='rounded-xl w-full p-6 mt-4 gap-5' style={{backgroundColor: theme.colors.darkGray, marginBottom: bottom + 16}}>
                     <View>
-                        <Text className='text-lg text-lightBlack font-msbold'>Amount</Text>
+                        <Text className='text-lg font-msbold' style={{color: theme.colors.text}}>Amount</Text>
                         <DisablePartInput disabledValue={"NGN"} placeholder="Enter Amount"/>
                     </View>
                     <View>
-                        <Text className='text-lg text-lightBlack font-msbold'>Select Withdrawal Method</Text>
-                        <Pressable onPress={() => setShowModal(true)} className={`bg-gray-200 w-full h-16 px-4 rounded-md items-center justify-between flex-row gap-1`}>
+                        <Text className='text-lg font-msbold' style={{color: theme.colors.text}}>Select Withdrawal Method</Text>
+                        <Pressable onPress={() => setShowModal(true)} className={`w-full h-16 px-4 rounded-md items-center justify-between flex-row gap-1`} style={{ backgroundColor: theme.colors.inputBg}}>
                             <View className='flex-1'>
                                 <Text className='text-lg text-gray-500 font-mmedium' numberOfLines={1}>{gateway ? gateway : "Withdrawal Method"}</Text>
                             </View>
@@ -68,13 +68,13 @@ const WithdrawalScreen = () => {
                 </TouchableWithoutFeedback>
 
                 {/* Actual modal content */}
-                <View className="bg-white rounded-2xl max-h-[60%] px-4 w-full">
+                <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
                     <View className='my-7 gap-2'>
                         <TouchableOpacity onPress={() => handleGateway("bank")} className='flex-row gap-2 w-full items-center py-4 border-b-2 border-gray-100'>
-                            <Text className='font-msbold text-xl'>Bank</Text>
+                            <Text className='font-msbold text-xl' style={{color: theme.colors.text}}>Bank</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => handleGateway("wallet")} className='flex-row gap-2 w-full items-center py-4'>
-                            <Text className='font-msbold text-xl'>Wallet</Text>
+                            <Text className='font-msbold text-xl' style={{color: theme.colors.text}}>Wallet</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

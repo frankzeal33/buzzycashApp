@@ -44,20 +44,20 @@ const TicketDetailsScreen = () => {
                         </View>
                         <Text className="text-2xl text-brown-500 font-mbold mt-1 text-center">Play Weekend Allawee</Text>
                     </View>
-                    <View className='w-full rounded-xl bg-white'>
+                    <View className='w-full rounded-xl bg-white' style={{backgroundColor: theme.colors.darkGray}}>
                         <View className='w-full bg-brown-500 rounded-t-xl px-2 py-3'>
-                            <Text className="text-xl text-white font-mbold mt-1 text-center">Ticket Summary</Text>
+                            <Text className="text-xl font-mbold mt-1 text-center" style={{color: theme.colors.darkGray}}>Ticket Summary</Text>
                         </View>
                         <View className='m-4 gap-2 items-center justify-center'>
                             <Image source={images.darkLogo}/>
-                            <Text className="text-xl font-msbold mt-1 text-center">Weekend Allawee</Text>
+                            <Text className="text-xl font-msbold mt-1 text-center" style={{color: theme.colors.text}}>Weekend Allawee</Text>
                         </View>
                         <View className='items-center mx-2 mt-2 mb-5'>
                             {/* Custom Labels Row */}
                             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 1 }}>
                                 {['Days', 'Hours', 'Mins', 'Secs'].map((label, index) => (
                                     <View key={index} style={{ width: 45, alignItems: 'center', marginHorizontal: 4 }}>
-                                    <Text style={{ color: '#000', fontSize: 12 }}>{label}</Text>
+                                    <Text style={{ color: theme.colors.text, fontSize: 12 }}>{label}</Text>
                                     </View>
                                 ))}
                             </View>
@@ -74,17 +74,17 @@ const TicketDetailsScreen = () => {
                                     borderRadius: 6,
                                 }}
                                 digitTxtStyle={{
-                                    color: '#000',
+                                    color: theme.colors.text,
                                     fontSize: 18,
                                     fontWeight: 'bold',
                                 }}
-                                separatorStyle={{ color: '#000', fontSize: 30, fontWeight: 'bold', marginHorizontal: 5 }}
+                                separatorStyle={{ color: theme.colors.text, fontSize: 30, fontWeight: 'bold', marginHorizontal: 5 }}
                                 timeToShow={['D', 'H', 'M', 'S']}
                                 timeLabels={{}} // Hide default labels
                                 showSeparator
                             />
                         </View>
-                        <View className='flex-1 flex-row items-center bg-gray-200 mx-4 h-16 mb-6 rounded-lg'>
+                        <View className='flex-1 flex-row items-center mx-4 h-16 mb-6 rounded-lg' style={{backgroundColor: theme.colors.inputBg}}>
                             <TicketButton/>
                             <View className={`flex-1 flex-row gap-3 items-center justify-between`}>
                                 
@@ -93,7 +93,7 @@ const TicketDetailsScreen = () => {
                                 </TouchableOpacity>
                                 
                                 <TouchableOpacity>
-                                    <Text className='text-blue font-msbold text-xl'>1</Text>
+                                    <Text className='text-blue font-msbold text-xl' style={{color: theme.colors.text}}>1</Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity className='px-4'>
@@ -102,30 +102,30 @@ const TicketDetailsScreen = () => {
                             </View>
                         </View>
                     </View>
-                    <View className='w-full mt-6 rounded-xl bg-white'>
+                    <View className='w-full mt-6 rounded-xl' style={{backgroundColor: theme.colors.darkGray}}>
                         <View className='w-full bg-brown-500 rounded-t-xl px-2 py-3'>
-                            <Text className="text-xl text-white font-mbold mt-1 text-center">Purchase Summary</Text>
+                            <Text className="text-xl font-mbold mt-1 text-center" style={{color: theme.colors.darkGray}}>Purchase Summary</Text>
                         </View>
                         <View className='my-4 mx-4 gap-5'>
                             <View className='w-full flex-row items-start justify-between gap-3'>
                                 <View>
-                                    <Text className='font-mmedium text-xl'>Total Tickets</Text>
+                                    <Text className='font-mmedium text-xl' style={{color: theme.colors.text}}>Total Tickets</Text>
                                 </View>
-                                <Text className="text-xl font-mmedium items-end">1</Text>
+                                <Text className="text-xl font-mmedium items-end" style={{color: theme.colors.text}}>1</Text>
                             </View>
                             <View className='w-full flex-row items-start justify-between gap-3'>
                                 <View>
-                                    <Text className='font-mmedium text-xl'>Ticket Price</Text>
-                                    <Text className='font-mmedium text-xl'>(2 x 200)</Text>
+                                    <Text className='font-mmedium text-xl' style={{color: theme.colors.text}}>Ticket Price</Text>
+                                    <Text className='font-mmedium text-xl' style={{color: theme.colors.text}}>(2 x 200)</Text>
                                 </View>
-                                <Text className="text-xl font-mmedium items-end">{displayCurrency(Number(400), 'NGN')}</Text>
+                                <Text className="text-xl font-mmedium items-end" style={{color: theme.colors.text}}>{displayCurrency(Number(400), 'NGN')}</Text>
                             </View>
                             <View className='border border-brown-200'/>
                             <View className='w-full flex-row items-start justify-between gap-3'>
                                 <View>
-                                    <Text className='font-mbold text-xl'>Total Amount</Text>
+                                    <Text className='font-mbold text-xl' style={{color: theme.colors.text}}>Total Amount</Text>
                                 </View>
-                                <Text className="text-xl font-mbold items-end">{displayCurrency(Number(400), 'NGN')}</Text>
+                                <Text className="text-xl font-mbold items-end" style={{color: theme.colors.text}}>{displayCurrency(Number(400), 'NGN')}</Text>
                             </View>
                             <GradientButton
                                 title="Purchase Tickets"
@@ -153,7 +153,7 @@ const TicketDetailsScreen = () => {
                                 source={images.check}
                             />
                         </View>
-                         <Text className="font-mmedium text-center my-6">
+                         <Text className="font-mmedium text-center my-6" style={{color: theme.colors.text}}>
                             You are one step closer to your big win. Take more risk to gain more.
                         </Text>
                     </View>

@@ -44,13 +44,13 @@ const { theme } = useThemeStore();
     }
  
   return (
-    <SafeAreaView className='bg-gray-100 h-full flex-1'>
+    <SafeAreaView className='h-full flex-1' style={{ backgroundColor: theme.colors.background}}>
         <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} className='w-full px-8'>
                 <View className='flex-1 py-6'>
                     <View className="flex-1 w-full justify-center items-center my-6">
-                        <Text className="text-2xl mt-4 font-mbold">Forgot Password</Text>
-                        <Text className="mt-1 font-mmedium text-center px-6">{`Enter Your ${switchToEmail ? 'Email Address' : 'Phone Number'} to reset password`}</Text>
+                        <Text className="text-2xl mt-4 font-mbold" style={{color: theme.colors.text}}>Forgot Password</Text>
+                        <Text className="mt-1 font-mmedium text-center px-6" style={{color: theme.colors.text}}>{`Enter Your ${switchToEmail ? 'Email Address' : 'Phone Number'} to reset password`}</Text>
                         {switchToEmail ? (
                                 <FormField placeholder="Email" handleChangeText={(e: any) => setForm({ ...form, email: e })} otherStyles="mt-7" labelStyle='text-white'/>
                             ) : (
@@ -65,7 +65,7 @@ const { theme } = useThemeStore();
                             <GradientButton title="Continue" handlePress={verify} containerStyles="w-[80%] mx-auto" textStyles='text-white'/>
                         </View>
                          <View className='w-full justify-center mb-7'>
-                            <CustomButton title="Cancel" handlePress={() => router.back()} containerStyles="w-[80%] mx-auto" textStyles='text-white'/>
+                            <CustomButton title="Cancel" handlePress={() => router.back()} containerStyles="w-[80%] mx-auto"/>
                         </View>
                     </View>
                 </View>
@@ -107,7 +107,7 @@ const { theme } = useThemeStore();
                 </View>
             </View>
         </OnboardModal>
-        <StatusBar style='dark'/>
+        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

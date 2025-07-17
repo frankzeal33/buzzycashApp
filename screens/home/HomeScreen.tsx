@@ -10,6 +10,7 @@ import {
   FlatList,
   Modal,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StickyHeaderScrollView, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
@@ -223,7 +224,7 @@ const HomeScreen = () => {
   )
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className='flex-1 bg-gray-100'>
+    <SafeAreaView edges={['top', 'left', 'right']} className='flex-1' style={{ backgroundColor: theme.colors.background}}>
       <View className='flex-1 px-4' style={{paddingBottom: Bottom}}>
         <Header/>
         <StickyHeaderScrollView
@@ -258,11 +259,11 @@ const HomeScreen = () => {
           )}
 
           renderTabs={() => (
-            <View className='bg-gray-100'>
+            <View style={{ backgroundColor: theme.colors.background}}>
                {/* Featured Games */}
               <View>
                 <View className='w-full flex-row items-center justify-between mt-2 mb-1'>
-                  <Text className='text-sm font-mbold'>Featured Games</Text>
+                  <Text className='text-sm font-mbold' style={{ color: theme.colors.text}}>Featured Games</Text>
                 </View>
                 <FlatList
                   nestedScrollEnabled={true}
@@ -325,19 +326,20 @@ const HomeScreen = () => {
           visible={showSplash}
           statusBarTranslucent={true}
           onRequestClose={() => setShowSplash(false)}>
-            <View className="flex-1 justify-center items-center px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
-
-            <LottieView
-              source={images.homeAnimation}
-              autoPlay
-              speed={2}
-              loop
-              style={{ width: "95%", height: "100%" }}
-            />
-            </View>
+            <TouchableWithoutFeedback onPress={() => setShowSplash(false)}>
+              <View className="flex-1 justify-center items-center px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+                <LottieView
+                  source={images.homeAnimation}
+                  autoPlay
+                  speed={2}
+                  loop
+                  style={{ width: "95%", height: "100%" }}
+                />
+              </View>
+            </TouchableWithoutFeedback>
         </Modal>
 
-        <StatusBar style="dark" backgroundColor=" #E9E9E9" />
+        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
       </View>
       <Menu/>
     </SafeAreaView>

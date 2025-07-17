@@ -8,15 +8,15 @@ const _layout = () => {
   
   return (
     <>
-    <Stack screenOptions={{
-        headerShown: false
-      }}>
-      <Stack.Screen name='index'/>
-      <Stack.Screen name='Register'/>
-      <Stack.Screen name='LogIn'/>
-    </Stack>
+      <Stack screenOptions={{
+          headerShown: false
+        }}>
+        <Stack.Screen name='index'/>
+        <Stack.Screen name='Register'/>
+        <Stack.Screen name='LogIn'/>
+      </Stack>
 
-    <StatusBar backgroundColor='#161622' style='light'/>
+      <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </>
   )
 }

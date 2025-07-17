@@ -10,7 +10,7 @@ const FundPaymentGatewayScreen = () => {
   const { theme } = useThemeStore();
 
   return (
-    <SafeAreaView className='h-full flex-1 bg-gray-100 px-4'>
+    <SafeAreaView className='h-full flex-1 px-4' style={{backgroundColor: theme.colors.background}}>
       <Header title='Payment Gateway' icon onpress={() => router.back()}/>
     </SafeAreaView>
   )

@@ -6,6 +6,7 @@ import Header from '@/components/Header'
 import FormField from '@/components/FormField'
 import GradientButton from '@/components/GradientButton'
 import { useThemeStore } from '@/store/ThemeStore'
+import { StatusBar } from 'expo-status-bar'
 
 const ChangePasswordScreen = () => {
 
@@ -21,14 +22,14 @@ const ChangePasswordScreen = () => {
   } 
 
   return (
-    <SafeAreaView className='h-full flex-1 bg-gray-100 px-4'>
+    <SafeAreaView className='h-full flex-1 px-4' style={{backgroundColor: theme.colors.background}}>
       <Header icon onpress={() => router.back()}/>
       <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
           <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} className='w-full px-4'>
             <View className='flex-1 py-6'>
               <View className="flex-1 w-full justify-center items-center my-6">
-                <Text className="text-2xl mt-4 font-mbold">Change Password</Text>
-                <Text className="mt-1 font-mmedium text-center px-6">Create New Password</Text>
+                <Text className="text-2xl mt-4 font-mbold" style={{color: theme.colors.text}}>Change Password</Text>
+                <Text className="mt-1 font-mmedium text-center px-6" style={{color: theme.colors.text}}>Create New Password</Text>
 
                 
                 <FormField title="Current Password*" value={form.password} placeholder="Current Password" handleChangeText={(e: any) => setForm({ ...form, password: e })} otherStyles="mt-7" labelStyle='text-white'/>
@@ -42,6 +43,7 @@ const ChangePasswordScreen = () => {
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
+        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

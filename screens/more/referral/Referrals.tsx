@@ -18,18 +18,18 @@ const Referrals = () => {
                         <View className='size-[20px]'>
                             <Image source={images.referralCoin} width={20} height={20} resizeMode='cover' className='w-full h-full'/>
                         </View>
-                        <Text className="text-lg font-mbold">Total Earned</Text>
+                        <Text className="text-lg font-mbold" style={{color: theme.colors.text}}>Total Earned</Text>
                     </View>
-                    <Text className="text-lg font-mmedium">{displayCurrency(Number(500), 'NGN')}</Text>
+                    <Text className="text-lg font-mmedium" style={{color: theme.colors.text}}>{displayCurrency(Number(500), 'NGN')}</Text>
                 </View>
                 <View className='gap-1 w-[40%]'>
                     <View className='flex-row items-center gap-1'>
                         <View className='size-[20px]'>
                             <Image source={images.inviteUser} width={20} height={20} resizeMode='cover' className='w-full h-full'/>
                         </View>
-                        <Text className="text-lg font-mbold">Invites</Text>
+                        <Text className="text-lg font-mbold" style={{color: theme.colors.text}}>Invites</Text>
                     </View>
-                    <Text className="text-lg font-mmedium">2</Text>
+                    <Text className="text-lg font-mmedium" style={{color: theme.colors.text}}>2</Text>
                 </View>
             </View>
         </View>

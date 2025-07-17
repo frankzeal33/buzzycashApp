@@ -76,7 +76,7 @@ const Spin2WinScreen = () => {
                             source={images.won}
                         />
                     </View>
-                    <Text className="font-mmedium text-center mb-6">
+                    <Text className="font-mmedium text-center mb-6" style={{color: theme.colors.text}}>
                         You are one of the luckiest in the world.
                     </Text>
                     <GradientButton

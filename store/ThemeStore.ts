@@ -7,6 +7,14 @@ const LightTheme = {
   colors: {
     background: '#E9E9E9',
     text: '#000000',
+    textOpposite: "#ffffff",
+    gray: "#C7C7C7",
+    inputBg: "#D9D9D9",
+    inputBorder: "#1F1F1F",
+    menuIcon: "#111625",
+    darkGray: "#ffffff",
+    lightDarkGray: "#ffffff",
+    transparentBg: "rgba(233, 233, 233, 0.6)"
   },
 };
 
@@ -15,6 +23,14 @@ const DarkTheme = {
   colors: {
     background: '#001524',
     text: '#ffffff',
+    textOpposite: "#000000",
+    gray: "#979797",
+    inputBg: "#43494D",
+    inputBorder: "#D9D9D9",
+    menuIcon: "#D9D9D9",
+    darkGray: "#23292D",
+    lightDarkGray: "#23292D",
+    transparentBg: "rgba(0, 21, 36, 0.6)"
   },
 };
 

@@ -28,8 +28,18 @@ const FormField = ({ title, value, placeholder, inputBg, keyboardType, handleCha
   
     return (
     <View className={`space-y-2 ${otherStyles}`}>
-      <View className={`${inputBg ? inputBg : 'bg-gray-200'} border-2 ${isFocused ? 'border-lightBlack' : 'border-gray-200'} w-full h-16 px-4 rounded-md items-center flex-row gap-1`}>
-        <TextInput className={`${inputBg ? inputBg : 'bg-gray-200'} flex-1 text-black font-mmedium text-base h-full`} value={value} placeholder={placeholder} placeholderTextColor="#979797" onChangeText={handleChangeText} secureTextEntry={title === "Password*" ? !showPassword : title === "Confirm Password*" ? !showConfirmPassword : title === "Current Password*" ? !showCurrentPassword : title === "New Password*" ? !showNewPassword : title === "Confirm New Password*" ? !showConfirmNewPassword : false} keyboardType={keyboardType ? keyboardType: 'default'} editable={disabled} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}/>
+      <View style={[
+            {
+                backgroundColor: inputBg ? inputBg : theme.colors.inputBg,
+                borderColor: isFocused ? theme.colors.inputBorder : theme.colors.inputBg,
+            }
+        ]} className={`border w-full h-16 px-4 rounded-md items-center flex-row gap-1`}>
+            <TextInput style={[
+                    {
+                        backgroundColor: inputBg ? inputBg : theme.colors.inputBg,
+                        color: theme.colors.text
+                    }
+                ]} className={`flex-1 font-mmedium text-base h-full`} value={value} placeholder={placeholder} placeholderTextColor="#979797" onChangeText={handleChangeText} secureTextEntry={title === "Password*" ? !showPassword : title === "Confirm Password*" ? !showConfirmPassword : title === "Current Password*" ? !showCurrentPassword : title === "New Password*" ? !showNewPassword : title === "Confirm New Password*" ? !showConfirmNewPassword : false} keyboardType={keyboardType ? keyboardType: 'default'} editable={disabled} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}/>
         {title === 'Password*' && (
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                 <Ionicons name={!showPassword ? "eye" : "eye-off"} size={26} color="#A0A0A0" />

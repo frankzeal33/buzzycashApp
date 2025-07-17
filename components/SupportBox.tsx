@@ -7,14 +7,14 @@ const SupportBox = ({image, label, value}: {image: ImageSourcePropType, label: s
   const { theme } = useThemeStore();
 
   return (
-    <View className='w-full h-24 bg-gray-200 gap-4 rounded-md flex-row px-4 items-center'>
+    <View className='w-full h-24 bg-gray-200 gap-4 rounded-md flex-row px-4 items-center' style={{backgroundColor: theme.colors.inputBg}}>
       <View className='size-[40px]'>
         <Image source={image} width={40} height={40} resizeMode='cover' className='w-full h-full'/>
       </View>
       <View className='flex-1'>
-        <Text className='text-xl font-msbold'>{label}</Text>
+        <Text className='text-xl font-msbold' style={{color: theme.colors.text}}>{label}</Text>
         {value && (
-          <Text className='font-lg font-mmedium' numberOfLines={2}>{value}</Text>
+          <Text className='font-lg font-mmedium' numberOfLines={2} style={{color: theme.colors.text}}>{value}</Text>
         )}
       </View>
     </View>

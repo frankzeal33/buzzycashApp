@@ -17,9 +17,9 @@ const CustomButton = ({ title, handlePress, containerStyles, bgColor, textStyles
   const { theme } = useThemeStore();
   
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.7} className={`${bgColor ? bgColor : "bg-blue"} rounded-md min-h-16 justify-center items-center ${containerStyles} ${isLoading || disableButton ? 'opacity-50' : ''}`} disabled={isLoading || disableButton}>
+    <TouchableOpacity onPress={handlePress} activeOpacity={0.7} className={`rounded-md min-h-16 justify-center items-center ${containerStyles} ${isLoading || disableButton ? 'opacity-50' : ''}`} style={{backgroundColor: theme.colors.text}} disabled={isLoading || disableButton}>
         {isLoading ? <FontAwesome5 name="circle-notch" size={20} color="white" className='animate-spin-fast'/> :
-         <Text className={`font-mbold text-lg ${textStyles}`}>{title}</Text>
+         <Text className={`font-mbold text-lg ${textStyles}`} style={{color: theme.colors.background}}>{title}</Text>
          }
     </TouchableOpacity>
   )

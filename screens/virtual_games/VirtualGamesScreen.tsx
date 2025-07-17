@@ -31,7 +31,7 @@ const games: any = [
     }
 ]
 
-const InstantGamesScreen = () => {
+const VirtualGamesScreen = () => {
 
     const { theme } = useThemeStore();
     const { top, bottom } = useSafeAreaInsets()
@@ -65,7 +65,7 @@ const InstantGamesScreen = () => {
                 <Header icon onpress={() => router.back()}/>
                 <FlatList
                     ListHeaderComponent={() => (
-                        <GameTitleBox title='Instant Games'/>
+                        <GameTitleBox title='Virtual Games'/>
                     )}
                     nestedScrollEnabled={true}
                     data={games}
@@ -99,4 +99,4 @@ const InstantGamesScreen = () => {
   )
 }
 
-export default InstantGamesScreen
+export default VirtualGamesScreen

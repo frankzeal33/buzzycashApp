@@ -26,8 +26,8 @@ const TicketModal = ({ title, visible, onClose, children }: ModalProps) => {
         </TouchableWithoutFeedback>
 
         {/* Actual modal content */}
-        <View className="bg-white rounded-xl items-center px-5 py-8 w-full">
-          <Text className="text-2xl font-mbold mt-1 text-center">{title}</Text>
+        <View className="rounded-xl items-center px-5 py-8 w-full" style={{backgroundColor: theme.colors.darkGray}}>
+          <Text className="text-2xl font-mbold mt-1 text-center" style={{color: theme.colors.text}}>{title}</Text>
           {children}
         </View>
       </View>

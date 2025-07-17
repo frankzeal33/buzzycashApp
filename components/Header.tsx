@@ -22,7 +22,7 @@ export default function Header({title, titleColor, action, icon = false, onpress
         <View className='flex-row items-center justify-between gap-2'>
           {action ? (
             <Pressable onPress={() => router.push("/(protected)/(routes)/EditProfile")}>
-              <Text className="text-lg font-msbold">{action}</Text>
+              <Text className="text-lg font-msbold" style={{ color: theme.colors.text}}>{action}</Text>
             </Pressable>
           ) : (
             <Pressable onPress={() => router.push("/(protected)/(routes)/Profile")} className='rounded-full items-center justify-center border border-orange size-9'>
@@ -42,7 +42,7 @@ export default function Header({title, titleColor, action, icon = false, onpress
         </View>
 
         {title && (
-          <Text className={`text-xl ${titleColor ? titleColor : "text-blue"} font-msbold mt-1 text-center`}>{title}</Text>
+          <Text className={`text-xl font-msbold mt-1 text-center`} style={{ color: theme.colors.text}}>{title}</Text>
         )}
       </View>
      

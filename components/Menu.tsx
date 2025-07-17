@@ -36,8 +36,8 @@ const Menu = () => {
   return (
     <>
       {/* Floating Menu Button */}
-      <View style={[styles.menu, { bottom: bottom + 5 }]} className='p-1 bg-gray-100 rounded-full'>
-        <TouchableOpacity onPress={() => setShowModal(!showModal)} className="bg-blue h-12 w-20 rounded-full items-center justify-center">
+      <View style={[styles.menu, { bottom: bottom + 5, backgroundColor: theme.colors.background }]} className='p-1 rounded-full'>
+        <TouchableOpacity onPress={() => setShowModal(!showModal)} className="h-12 w-20 rounded-full items-center justify-center" style={{ backgroundColor: theme.colors.menuIcon}}>
           <Entypo name="menu" size={35} color="#EF4734" />
         </TouchableOpacity>
       </View>
@@ -63,54 +63,54 @@ const Menu = () => {
             </TouchableWithoutFeedback>
 
             {/* Actual modal content */}
-            <View className="bg-gray-100 rounded-2xl overflow-hidden w-full" style={{ backgroundColor: theme.colors.background, marginTop: top + 10, marginBottom: bottom + 10, maxHeight: maxHeight}}>
+            <View className="rounded-2xl overflow-hidden w-full" style={{ backgroundColor: theme.colors.background, marginTop: top + 10, marginBottom: bottom + 10, maxHeight: maxHeight}}>
               <View className='items-center justify-center p-4'>
                 <View className='size-[50px] rounded-full border border-gray-200 z-10'>
                     <Image source={images.user} width={50} height={50} resizeMode='cover' className='w-full h-full overflow-hidden'/>
                 </View>
                 <View className='pb-2'>
                     <Text className="font-mbold text-xl text-center pt-2 text-orange" numberOfLines={1}>Selvin Kendrick</Text>
-                    <Text className="font-msbold text-lg text-center pt-1" numberOfLines={1}>@Ken-Drick</Text>
+                    <Text className="font-msbold text-lg text-center pt-1" numberOfLines={1} style={{ color: theme.colors.text}}>@Ken-Drick</Text>
                 </View>
               </View>
               <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
                 <MenuBalanceCard showModal={showModal} setShowModal={setShowModal}/>
-                <View className='bg-white mt-3 rounded-xl'>
+                <View className='mt-3 rounded-xl' style={{backgroundColor: theme.colors.darkGray}}>
                     <View className='mt-2 mb-2'>
-                        <Pressable onPress={() => goTo("/(protected)/(routes)/Profile")} className='border-b-2 w-full border-gray-100 bg-white'>
+                        <Pressable onPress={() => goTo("/(protected)/(routes)/Profile")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <FontAwesome5 name="user" size={25} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">Profile</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Profile</Text>
                           </View>
                         </Pressable>
-                        <Pressable onPress={() => goTo("/(protected)/(routes)/Tickets")} className='border-b-2 w-full border-gray-100 bg-white'>
+                        <Pressable onPress={() => goTo("/(protected)/(routes)/Tickets")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <Ionicons name="ticket-outline" size={25} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">Ticket History</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Ticket History</Text>
                           </View>
                         </Pressable>
-                        <Pressable onPress={() => goTo("/(protected)/(routes)/GameHistory")} className='border-b-2 w-full border-gray-100 bg-white'>
+                        <Pressable onPress={() => goTo("/(protected)/(routes)/GameHistory")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <AntDesign name="book" size={26} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">Game History</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Game History</Text>
                           </View>
                         </Pressable>
-                        <Pressable onPress={() => goTo("/(protected)/(routes)/Transactions")} className='border-b-2 w-full border-gray-100 bg-white'>
+                        <Pressable onPress={() => goTo("/(protected)/(routes)/Transactions")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <Ionicons name="cash-outline" size={26} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">Transaction History</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Transaction History</Text>
                           </View>
                         </Pressable>
-                        <Pressable onPress={() => goTo("/(protected)/(routes)/Notifications")} className='border-b-2 w-full border-gray-100 bg-white'>
+                        <Pressable onPress={() => goTo("/(protected)/(routes)/Notifications")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <FontAwesome name="bell-o" size={25} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">Notification</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Notification</Text>
                           </View>
                         </Pressable>
-                        <Pressable onPress={() => goTo("/(protected)/(routes)/kyc")} className='border-b-2 w-full border-gray-100 bg-white'>
+                        <Pressable onPress={() => goTo("/(protected)/(routes)/kyc")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <AntDesign name="idcard" size={25} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">KYC Update</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>KYC Update</Text>
                           </View>
                         </Pressable>
                         <SelectDropdown
@@ -120,10 +120,10 @@ const Menu = () => {
                           }}
                           renderButton={(selectedItem, isOpened) => {
                             return (
-                              <Pressable className='border-b-2 w-full border-gray-100 bg-white'>
+                              <Pressable className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                                 <View className="w-full flex-row items-center gap-3 px-4 py-3">
                                   <MaterialCommunityIcons name="theme-light-dark" size={27} color="#EF9439" />
-                                  <Text className="font-mmedium text-lg">Theme</Text>
+                                  <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Theme</Text>
                                 </View>
                               </Pressable>
                             );
@@ -136,41 +136,45 @@ const Menu = () => {
                                 <View className='size-6 items-center justify-center border-2 border-brown-500 rounded-full'>
                                   <View className={`size-4 rounded-full ${isSelected ? 'bg-brown-500' : ''}`} />
                                 </View>
-                                <Text className="font-mmedium text-lg flex-1">{item.title}</Text>
+                                <Text className="font-mmedium text-lg flex-1" style={{color: theme.colors.text}}>{item.title}</Text>
                               </View>
                             );
                           }}
                           showsVerticalScrollIndicator={false}
-                          dropdownStyle={styles.dropdownMenuStyle}
+                          dropdownStyle={{
+                            backgroundColor: theme.colors.darkGray,
+                            borderRadius: 8,
+                            maxWidth: 200
+                          }}
                         />
-                        <Pressable onPress={() => goTo("/(protected)/(routes)/Referral")} className='border-b-2 w-full border-gray-100 bg-white'>
+                        <Pressable onPress={() => goTo("/(protected)/(routes)/Referral")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <AntDesign name="addusergroup" size={27} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">My Referral</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>My Referral</Text>
                           </View>
                         </Pressable>
-                        <Pressable onPress={() => goTo("/(protected)/(routes)/Security2FA")} className='border-b-2 w-full border-gray-100 bg-white'>
+                        <Pressable onPress={() => goTo("/(protected)/(routes)/Security2FA")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <MaterialCommunityIcons name="cellphone-lock" size={26} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">2FA Security</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>2FA Security</Text>
                           </View>
                         </Pressable>
-                        <Pressable onPress={() => goTo("/(protected)/(routes)/Support")} className='border-b-2 w-full border-gray-100 bg-white'>
+                        <Pressable onPress={() => goTo("/(protected)/(routes)/Support")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <MaterialIcons name="support-agent" size={26} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">Support Chat</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Support Chat</Text>
                           </View>
                         </Pressable>
-                        <Pressable onPress={() => goTo("/(protected)/(routes)/ChangePassword")} className='border-b-2 w-full border-gray-100 bg-white'>
+                        <Pressable onPress={() => goTo("/(protected)/(routes)/ChangePassword")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <FontAwesome name="key" size={25} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">Change Password</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Change Password</Text>
                           </View>
                         </Pressable>
-                        <Pressable onPress={() => goTo("/(onboarding)/LogIn")} className='w-full bg-white'>
+                        <Pressable onPress={() => goTo("/(onboarding)/LogIn")} className='w-full'>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <AntDesign name="logout" size={24} color="#EF9439" />
-                            <Text className="font-mmedium text-lg">Logout</Text>
+                            <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Logout</Text>
                           </View>
                         </Pressable>
                     </View>
@@ -226,11 +230,6 @@ const styles = StyleSheet.create({
   dropdownButtonIconStyle: {
     fontSize: 28,
     marginRight: 8,
-  },
-  dropdownMenuStyle: {
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    maxWidth: 200
   },
   dropdownItemStyle: {
     width: '100%',
