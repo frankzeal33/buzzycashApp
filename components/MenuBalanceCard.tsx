@@ -26,7 +26,7 @@ export default function MenuBalanceCard({showModal, setShowModal}: {showModal: b
       </View>
       <View className='flex-row items-center justify-between gap-2 mt-3 w-full'>
         <IconButton title='DEPOSIT' handlePress={() => { router.push("/(protected)/(routes)/FundWallet"); setShowModal(!showModal) }} textStyles='text-white' icon={<Fontisto name="wallet" size={14} color="white" />} containerStyles='bg-brown-500 w-[40%] px-2'/>
-        <IconButton title='WITHDRAWAL' handlePress={() => { router.push("/(protected)/(routes)/Withdrawal"); setShowModal(!showModal) }} textStyles='text-white' icon={<Ionicons name="cash" size={18} color="white" />} containerStyles='bg-blue w-[56%] px-2'/>
+        <IconButton title='WITHDRAWAL' handlePress={() => { router.push("/(protected)/(routes)/Withdrawal"); setShowModal(!showModal) }} textStyles='text-white' icon={<Ionicons name="cash" size={18} color="white" />} containerStyles='bg-blue w-[56%] px-2' border/>
       </View>
     </View>
   )

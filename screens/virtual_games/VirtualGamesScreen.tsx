@@ -62,7 +62,7 @@ const VirtualGamesScreen = () => {
         <SafeAreaView edges={['left', 'right']} className='bg-blue flex-1'>
         <ImageBackground source={images.lotteryBg} resizeMode="cover" className='flex-1' style={{paddingTop: top, paddingBottom: Bottom}}>
             <View className='flex-1 px-4'>
-                <Header icon onpress={() => router.back()}/>
+                <Header icon home onpress={() => router.back()}/>
                 <FlatList
                     ListHeaderComponent={() => (
                         <GameTitleBox title='Virtual Games'/>

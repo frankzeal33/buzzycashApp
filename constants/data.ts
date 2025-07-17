@@ -35,4 +35,19 @@ const IDType = [
   { label: 'International Passport', value: 'International_Passport' },
 ]
 
-export default { transactionType, transactionRemark, GameTime, Theme, gender, IDType }
+const countries = [
+  {
+    name: { en: "Nigeria" },
+    dial_code: "+234",
+    code: "NG",
+    flag: "🇳🇬"
+  },
+  {
+    name: { en: "Ghana" },
+    dial_code: "+233",
+    code: "GH",
+    flag: "🇬🇭"
+  }
+];
+
+export default { transactionType, transactionRemark, GameTime, Theme, gender, IDType, countries }

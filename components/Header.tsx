@@ -6,13 +6,14 @@ import { useThemeStore } from '@/store/ThemeStore';
 
 type headerProps = {
   title?: string;
-  titleColor?: string;
   icon?: boolean;
   action?: string;
+  home?: boolean;
+  profile?: boolean;
   onpress?: () => void
 }
 
-export default function Header({title, titleColor, action, icon = false, onpress}: headerProps) {
+export default function Header({title, home, profile, action, icon = false, onpress}: headerProps) {
 
   const { theme } = useThemeStore();
 
@@ -24,17 +25,23 @@ export default function Header({title, titleColor, action, icon = false, onpress
             <Pressable onPress={() => router.push("/(protected)/(routes)/EditProfile")}>
               <Text className="text-lg font-msbold" style={{ color: theme.colors.text}}>{action}</Text>
             </Pressable>
-          ) : (
-            <Pressable onPress={() => router.push("/(protected)/(routes)/Profile")} className='rounded-full items-center justify-center border border-orange size-9'>
-              <Text className='text-orange font-mbold text-base'>OD</Text>
+          ) : home ? (
+            <Pressable onPress={() => router.replace("/(protected)/(routes)/Home")}>
+              <AntDesign name="home" size={28} color="#EF9439" />
             </Pressable>
+          ) : profile ? (
+            <Pressable onPress={() => router.push("/(protected)/(routes)/Profile")} className='rounded-full items-center justify-center border border-brown-500 size-9'>
+              <Text className='text-brown-500 font-mbold text-base'>OD</Text>
+            </Pressable>
+          ) : (
+            <View className='w-7'/>
           )}
           {icon ? (
-            <TouchableOpacity onPress={onpress}><AntDesign name="arrowleft" size={28} color="#EF4734"/></TouchableOpacity>
+            <TouchableOpacity onPress={onpress}><AntDesign name="arrowleft" size={28} color="#EF9439"/></TouchableOpacity>
           ) : (
-            <Pressable onPress={() => router.push("/(protected)/(routes)/Notifications")} className="relative rounded-full border border-orange size-9 items-center justify-center">
-              <EvilIcons name="bell" size={20} color="#EF4734"/>
-              <View className="absolute -top-1 -right-1 bg-orange rounded-full min-w-[14px] h-[14px] items-center justify-center px-[4px]">
+            <Pressable onPress={() => router.push("/(protected)/(routes)/Notifications")} className="relative rounded-full border border-brown-500 size-9 items-center justify-center">
+              <EvilIcons name="bell" size={20} color="#EF9439"/>
+              <View className="absolute -top-1 -right-1 bg-brown-500 rounded-full min-w-[14px] h-[14px] items-center justify-center px-[4px]">
                 <Text className="text-white text-[8px] font-mbold">3</Text>
               </View>
             </Pressable>

@@ -81,7 +81,7 @@ const FundWalletScreen = () => {
             </View>
         </Modal>
 
-        <StatusBar style="dark" backgroundColor=" #E9E9E9" />
+        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

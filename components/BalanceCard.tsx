@@ -13,7 +13,7 @@ export default function BalanceCard() {
   const { theme } = useThemeStore();
 
   return (
-    <View className='w-full rounded-xl mb-3 p-4' style={{ backgroundColor: theme.colors.darkGray}}>
+    <View className='w-full rounded-xl mb-3 p-4' style={{ backgroundColor: theme.colors.darkGray, borderWidth: theme.dark ? 1 : 0, borderColor: theme.dark ? theme.colors.inputBg : undefined,}}>
       <Text className="font-mmedium" style={{ color: theme.colors.text}}>AVAILABLE BALANCE</Text>
       <View className='flex-row items-center justify-between mt-1'>
         <View>
@@ -25,7 +25,7 @@ export default function BalanceCard() {
       </View>
       <View className='flex-row items-center justify-between gap-2 mt-3 w-full'>
         <IconButton title='DEPOSIT' handlePress={() => router.push("/(protected)/(routes)/FundWallet")} textStyles='text-white' icon={<Fontisto name="wallet" size={14} color="white" />} containerStyles='bg-brown-500 w-[38%] px-2'/>
-        <IconButton title='PURCHASE TICKET' handlePress={() => router.push("/(protected)/(routes)/Games")} textStyles='text-white' icon={<MaterialCommunityIcons name="ticket-outline" size={18} color="white" />} containerStyles='bg-blue w-[58%] px-2'/>
+        <IconButton title='PURCHASE TICKET' handlePress={() => router.push("/(protected)/(routes)/Games")} textStyles='text-white' icon={<MaterialCommunityIcons name="ticket-outline" size={18} color="white" />} containerStyles='bg-blue w-[58%] px-2' border/>
       </View>
     </View>
   )

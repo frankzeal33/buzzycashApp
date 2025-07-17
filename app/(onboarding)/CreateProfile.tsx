@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '@/components/FormField'
@@ -10,15 +10,15 @@ import { router } from 'expo-router'
 import { OtpInput } from 'react-native-otp-entry'
 import OnboardModal from '@/components/OnboardModal'
 import { useThemeStore } from '@/store/ThemeStore'
-import RNPickerSelect from 'react-native-picker-select';
 import { data } from '@/constants'
-import { MaterialIcons } from '@expo/vector-icons'
+import { Entypo } from '@expo/vector-icons'
 
 const CreateProfile = () => {
 
   const { theme } = useThemeStore();
   const [openModal, setOpenModal] = useState(false)
-  const [selectedGender, setSelectedGender] = useState();
+  const [selectedGender, setSelectedGender] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState({
     fullname: '',
     email: '',
@@ -26,6 +26,10 @@ const CreateProfile = () => {
     username: ''
   })
 
+  const handleGender = (gender: string) => {
+    setSelectedGender(gender)
+    setShowModal(false)
+  }
   
     const handleModal = () => {
       setOpenModal(true)
@@ -53,21 +57,12 @@ const CreateProfile = () => {
                         <Text className="text-2xl mt-4 font-mbold" style={{color: theme.colors.text}}>Create Your Profile</Text>
                         <FormField value={form.fullname} placeholder="Fullname" handleChangeText={(e: any) => setForm({ ...form, fullname: e })} otherStyles="mt-7" labelStyle='text-white'/>
                         <FormField value={form.email} placeholder="Email" handleChangeText={(e: any) => setForm({ ...form, email: e })} otherStyles="mt-7" keyboardType="email-address" labelStyle='text-white'/>
-                        <FormField value={form.gender} placeholder="Gender" handleChangeText={(e: any) => setForm({ ...form, gender: e })} otherStyles="mt-7" labelStyle='text-white'/>
-                        <View className='mt-7'>
-                          <Text className='text-base font-rbold pb-2 text-green'>Gender</Text>
-                          <RNPickerSelect
-                              onValueChange={(value) => setSelectedGender(value)}
-                              items={data.gender}
-                              value={selectedGender}
-                              placeholder={{ label: 'Select gender', value: null }}
-                              style={pickerSelectStyles}
-                              useNativeAndroidPickerStyle={false}
-                              Icon={() => {   
-                                  return <MaterialIcons name="arrow-drop-down" size={30} color="#C3C3C3" />;
-                              }}
-                          />
-                      </View>
+                        <TouchableOpacity onPress={() => setShowModal(true)} activeOpacity={0.8} style={{ backgroundColor: theme.colors.inputBg}} className={`w-full h-16 px-4 mt-7 rounded-md items-center justify-between flex-row gap-1`}>
+                          <View className='flex-1'>
+                            <Text className='text-lg text-gray-500 font-mmedium capitalize' numberOfLines={1}>{(selectedGender ?? 'gender').toLowerCase()}</Text>
+                          </View>
+                          <Entypo name='chevron-small-down' size={30} color="#979797" />
+                        </TouchableOpacity>
                         <FormField value={form.username} placeholder="Username" handleChangeText={(e: any) => setForm({ ...form, username: e })} otherStyles="mt-7" labelStyle='text-white'/>
                         <View className='w-full justify-center my-7'>
                             <GradientButton title="Complete" handlePress={handleModal} containerStyles="w-[80%] mx-auto" textStyles='text-white'/>
@@ -107,7 +102,31 @@ const CreateProfile = () => {
             </View>
         </OnboardModal>
 
-        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
+        <Modal
+          transparent={true}
+          visible={showModal}
+          statusBarTranslucent={true}
+          onRequestClose={() => setShowModal(false)}>
+          <View className="flex-1 justify-center items-center px-7" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              {/* TouchableWithoutFeedback only around the background */}
+              <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+              <View className="absolute top-0 left-0 right-0 bottom-0" />
+              </TouchableWithoutFeedback>
+
+              {/* Actual modal content */}
+              <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
+                  <View className='my-7 gap-2'>
+                    {data.gender.map((sex, index) => (
+                      <TouchableOpacity key={index} onPress={() => handleGender(sex.value)} className={`flex-row gap-2 w-full items-center py-4 ${index < 2 && 'border-b border-gray-100'}`}>
+                        <Text className='font-msbold text-xl' style={{color: theme.colors.text}}>{sex.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+              </View>
+          </View>
+      </Modal>
+
+      <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }
@@ -150,31 +169,4 @@ const styles = StyleSheet.create({
   disabledPinCodeContainer: {
     backgroundColor: '#e0e0e0',
   },
-});
-
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-    color: 'black',
-    paddingRight: 30,
-    backgroundColor: '#F3F3F3',
-    height: 52,
-  },
-  inputAndroid: {
-    fontSize: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-    color: 'black',
-    paddingRight: 30,
-    backgroundColor: '#F3F3F3',
-    height: 52
-  },
-  iconContainer: {
-    top: 10,
-    right: 10,
-  }
 });

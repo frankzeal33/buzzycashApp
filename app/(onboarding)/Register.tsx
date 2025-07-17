@@ -12,20 +12,26 @@ import Checkbox from 'expo-checkbox';
 import OnboardModal from '@/components/OnboardModal'
 import { OtpInput } from "react-native-otp-entry";
 import { Entypo } from '@expo/vector-icons'
-import { CountryPicker } from 'react-native-country-codes-picker';
 import DisablePartInput from '@/components/DisablePartInput'
 import { useThemeStore } from '@/store/ThemeStore'
+import { data } from '@/constants'
+
+type countryType =  {
+  name: { en: string },
+  dial_code: string,
+  code: string,
+  flag: string,
+}
 
 const Register = () => {
 
   const { theme } = useThemeStore();
-  const [isFocused, setIsFocused] = useState(false);
   const [isChecked, setChecked] = useState(false);
   const [confirmModal, setConfirmModal] = useState(false)
   const [showOTP, setShowOTP] = useState(false)
+  const [showModal, setShowModal] = useState(false)
 
-  const [showCountry, setShowCountry] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<any>({});
+  const [selectedCountry, setSelectedCountry] = useState<countryType | null>(null);
 
   const [form, setForm] = useState({
     email: '',
@@ -33,6 +39,11 @@ const Register = () => {
     password: '',
     ConfirmPassword: ''
   })
+
+  const handleCountry = (country: countryType) => {
+    setSelectedCountry(country)
+    setShowModal(false)
+  }
 
   const confirm = () => {
     setConfirmModal(true)
@@ -67,7 +78,7 @@ const Register = () => {
                   <Text className="text-2xl mt-4 font-mbold" style={{ color: theme.colors.text}}>Sign Up</Text>
                   <Text className="mt-1 font-mmedium text-center px-6" style={{ color: theme.colors.text}}>Turn your dreams into reality, your path to wealth Begins Here</Text>
                   
-                  <TouchableOpacity onPress={() => setShowCountry(true)} style={{ backgroundColor: theme.colors.inputBg}} className={`w-full h-16 px-4 mt-7 rounded-md items-center justify-between flex-row gap-1`}>
+                  <TouchableOpacity onPress={() => setShowModal(true)} activeOpacity={0.8} style={{ backgroundColor: theme.colors.inputBg}} className={`w-full h-16 px-4 mt-7 rounded-md items-center justify-between flex-row gap-1`}>
                     <View className='flex-1'>
                       <Text className='text-lg text-gray-500 font-mmedium' numberOfLines={1}>{selectedCountry?.name?.en ?? 'Country'}</Text>
                     </View>
@@ -140,19 +151,32 @@ const Register = () => {
           )}
         </OnboardModal>
 
-        <CountryPicker
-          lang='en'
-          show={showCountry}
-          pickerButtonOnPress={(item) => {
-            setSelectedCountry(item);
-            setShowCountry(false);
-          }}
-          style={{
-            modal: {
-              height: '90%',
-            }
-          }}
-        />
+         <Modal
+            transparent={true}
+            visible={showModal}
+            statusBarTranslucent={true}
+            onRequestClose={() => setShowModal(false)}>
+            <View className="flex-1 justify-center items-center px-7" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                {/* TouchableWithoutFeedback only around the background */}
+                <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+                <View className="absolute top-0 left-0 right-0 bottom-0" />
+                </TouchableWithoutFeedback>
+
+                {/* Actual modal content */}
+                <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
+                    <View className='my-7 gap-2'>
+                      {data.countries.map((country, index) => (
+                        <TouchableOpacity key={index} onPress={() => handleCountry(country)} className={`flex-row gap-2 w-full items-center py-4 ${index === 0 && 'border-b border-gray-100'}`}>
+                          <View className='flex-row gap-2 items-center'>
+                            <Text className='font-msbold text-2xl'>{country.flag}</Text>
+                            <Text className='font-msbold text-xl' style={{color: theme.colors.text}}>{country.name.en}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                </View>
+            </View>
+        </Modal>
 
         <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>

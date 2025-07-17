@@ -14,6 +14,7 @@ import TicketModal from '@/components/TicketModal'
 import LottieView from 'lottie-react-native'
 import SpinGradientButton from '@/components/SpinGradientButton'
 import { useThemeStore } from '@/store/ThemeStore'
+import Header from '@/components/Header'
 
 const Spin2WinScreen = () => {
 
@@ -36,10 +37,7 @@ const Spin2WinScreen = () => {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{flexGrow: 1}}>
                 <View>
                     <View className='pt-2 py-4'>
-                        <View className='flex-row items-center justify-between gap-2'>
-                            <View/>
-                            <TouchableOpacity onPress={() => router.back()}><AntDesign name="arrowleft" size={28} color="#EF9439"/></TouchableOpacity>
-                        </View>
+                        <Header icon home onpress={() => router.back()}/>
                         <Text className="text-2xl text-brown-500 font-mbold mt-1 text-center">Spin 2 Win</Text>
                     </View>
                     <SpinGradientButton

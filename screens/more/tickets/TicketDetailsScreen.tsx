@@ -13,6 +13,7 @@ import displayCurrency from '@/utils/displayCurrency'
 import TicketModal from '@/components/TicketModal'
 import LottieView from 'lottie-react-native'
 import { useThemeStore } from '@/store/ThemeStore'
+import Header from '@/components/Header'
 
 const TicketDetailsScreen = () => {
 
@@ -38,10 +39,7 @@ const TicketDetailsScreen = () => {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{flexGrow: 1}}>
                 <View className='flex-1'>
                     <View className='pt-2 py-4'>
-                        <View className='flex-row items-center justify-between gap-2'>
-                            <View/>
-                            <TouchableOpacity onPress={() => router.back()}><AntDesign name="arrowleft" size={28} color="#EF9439"/></TouchableOpacity>
-                        </View>
+                        <Header icon home onpress={() => router.back()}/>
                         <Text className="text-2xl text-brown-500 font-mbold mt-1 text-center">Play Weekend Allawee</Text>
                     </View>
                     <View className='w-full rounded-xl bg-white' style={{backgroundColor: theme.colors.darkGray}}>

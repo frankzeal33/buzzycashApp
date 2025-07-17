@@ -133,7 +133,7 @@ const games: any = [
     },
   ]
 
-  const CarouselComponent = memo(({ width, itemWidth, fullWidth }: { width: number; itemWidth: number, fullWidth: number }) => {
+  const CarouselComponent = memo(({ width, itemWidth, fullWidth, theme }: { width: number; itemWidth: number, fullWidth: number, theme: any }) => {
   return (
     <Carousel
       autoPlayInterval={5000}
@@ -158,7 +158,9 @@ const games: any = [
             alignSelf: 'center',
             borderRadius: 14,
             overflow: 'hidden',
-            backgroundColor: "#1F1F1F"
+            backgroundColor: theme.dark ? theme.colors.inputBg : "#1F1F1F",
+            borderWidth: theme.dark ? 1 : 0,
+            borderColor: theme.dark ? theme.colors.inputBg : undefined
           }}
           onPress={() => router.push("/(protected)/(routes)/AllTickets")}
         >
@@ -226,7 +228,7 @@ const HomeScreen = () => {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1' style={{ backgroundColor: theme.colors.background}}>
       <View className='flex-1 px-4' style={{paddingBottom: Bottom}}>
-        <Header/>
+        <Header profile/>
         <StickyHeaderScrollView
           ref={scrollViewRef}
           containerStyle={{ flex: 1 }}
@@ -253,7 +255,7 @@ const HomeScreen = () => {
 
               {/* first carousel */}
               <View>
-                <CarouselComponent width={width} itemWidth={itemWidth} fullWidth={fullWidth}/>
+                <CarouselComponent width={width} itemWidth={itemWidth} fullWidth={fullWidth} theme={theme}/>
               </View>
             </View>
           )}
@@ -280,7 +282,11 @@ const HomeScreen = () => {
                         alignSelf: 'center',
                         borderRadius: 8,
                         overflow: 'hidden',
-                        backgroundColor: "#1F1F1F"
+                        backgroundColor: theme.dark ? theme.colors.inputBg : "#1F1F1F",
+                        borderWidth: theme.dark ? 1 : 0,
+                        borderColor: theme.dark ? theme.colors.inputBg : undefined,
+                        marginBottom: theme.dark ? 2 : 0,
+
                       }} onPress={() => router.push("/(protected)/(routes)/TicketDetails")}>
                         <Image source={item} style={{ width: '100%', height: '100%', resizeMode: 'cover', borderRadius: 8}}
                         />
@@ -306,14 +312,14 @@ const HomeScreen = () => {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={
                 games.length === 0
-                    ? { flexGrow: 1, justifyContent: 'center', paddingBottom: 100, alignItems: 'center' }
-                    : {paddingBottom: 100}
+                    ? { flexGrow: 1, justifyContent: 'center', paddingBottom: 50, alignItems: 'center' }
+                    : {paddingBottom: 50}
               }
               ListEmptyComponent={() => (
               <View className='flex-1'>
                   <View className="w-full items-center mx-auto justify-center my-6 max-w-64 flex-1">
                       {/* <Image source={images.withdrawEmpty} className="mx-auto" resizeMode='contain'/> */}
-                      <Text className="text-2xl text-center text-blue mt-4 font-rbold">You have no transactions yet.</Text>
+                      <Text className="text-2xl text-center mt-4 font-rbold" style={{color: theme.colors.text}}>You have no transactions yet.</Text>
                   </View>
               </View>
               )}

@@ -37,7 +37,7 @@ const Menu = () => {
     <>
       {/* Floating Menu Button */}
       <View style={[styles.menu, { bottom: bottom + 5, backgroundColor: theme.colors.background }]} className='p-1 rounded-full'>
-        <TouchableOpacity onPress={() => setShowModal(!showModal)} className="h-12 w-20 rounded-full items-center justify-center" style={{ backgroundColor: theme.colors.menuIcon}}>
+        <TouchableOpacity onPress={() => setShowModal(!showModal)} activeOpacity={0.8} className="h-12 w-20 rounded-full items-center justify-center" style={{ backgroundColor: theme.colors.menuIcon}}>
           <Entypo name="menu" size={35} color="#EF4734" />
         </TouchableOpacity>
       </View>
