@@ -40,7 +40,15 @@ module.exports = {
         },
         animation: {
           'spin-fast': 'spin 0.5s linear infinite',
-        }
+          none: 'none',
+          blink: 'blink 1s ease-in-out infinite',
+        },
+        keyframes: {
+          blink: {
+            '0%, 80%, 100%': { opacity: '1' },  // visible most of the time
+            '85%, 95%': { opacity: '0' },       // brief hidden moment
+          },
+        },
       },
     },
     plugins: [],

@@ -11,9 +11,10 @@ interface ModalProps {
   visible: boolean
   onClose: () => void
   children: React.ReactNode
+  loading?: boolean
 }
 
-const OnboardModal = ({ title, buttonTitle, buttonPress, visible, onClose, children }: ModalProps) => {
+const OnboardModal = ({ title, buttonTitle, buttonPress, visible, onClose, loading, children }: ModalProps) => {
 
   const { theme } = useThemeStore();
 
@@ -35,6 +36,7 @@ const OnboardModal = ({ title, buttonTitle, buttonPress, visible, onClose, child
           <GradientText text={title} style={{ fontSize: 24, fontWeight: 'bold' }} />
           {children}
           <GradientButton
+            isLoading={loading}
             title={buttonTitle}
             handlePress={buttonPress}
             containerStyles="w-[70%] mx-auto"

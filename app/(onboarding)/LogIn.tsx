@@ -8,17 +8,168 @@ import { Platform } from 'react-native'
 import GradientButton from '@/components/GradientButton'
 import { router } from 'expo-router'
 import { useThemeStore } from '@/store/ThemeStore'
+import { axiosClient } from '@/globalApi'
+import Toast from 'react-native-toast-message'
+import { z } from 'zod';
+import FullScreenLoader from '@/components/FullScreenLoader'
+import ManualPartInput from '@/components/ManualPartInput'
+import { Modal } from 'react-native'
+import { TouchableWithoutFeedback } from 'react-native'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
+import { useProfileStore } from '@/store/ProfileStore'
+import { useAuthStore } from '@/store/AuthStore'
+import { data } from '@/constants'
+
+type countryType =  {
+  name: { en: string },
+  dial_code: string,
+  code: string,
+  flag: string,
+}
+
+const loginSchema = z
+.object({
+  email: z
+    .email("Invalid email")
+    .toLowerCase()
+    .trim()
+    .optional()
+    .or(z.literal('')),
+  phoneNumber: z
+    .string()
+    .max(11, "Phone number is greater than 11 digits")
+    .regex(/^\d+$/, "Phone number must contain only digits")
+    .optional().or(z.literal('')),
+  password: z.string(),
+})
+.refine(
+    (data) => data.email || data.phoneNumber,
+    {
+      message: "Either email or phone number is required",
+      path: [],
+    }
+  )
+  .refine(
+    (data) => data.password.length >= 8,
+    {
+      message: "Password must be at least 8 characters long",
+      path: ['password'],
+    }
+);
 
 const LogIn = () => {
 
   const { theme } = useThemeStore();
   const [form, setForm] = useState({
     email: '',
+    phoneNumber: '',
     password: ''
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [switchToEmail, setSwitchToEmail] = useState(false)
+  const [selectedCountry, setSelectedCountry] = useState<countryType>({
+    name: { en: "Nigeria" },
+    dial_code: "+234",
+    code: "NG",
+    flag: "🇳🇬"
+  });
+  const [showModal, setShowModal] = useState(false)
+  const login = useAuthStore((state) => state.login);
+  const setProfile = useProfileStore((state) => state.setProfile);
+
+  const handleShowModal = () => {
+    setShowModal(true)
+  }
+
+  const handleCountry = (country: countryType) => {
+    setSelectedCountry(country)
+    setShowModal(false)
+  }
+
+  const handleSwitch = () => {
+    setSwitchToEmail(!switchToEmail)
+  }
 
   const submit = async () => {
-    router.replace("/(protected)/(routes)/Home")
+    
+    const result = loginSchema.safeParse(form);
+
+    if (!result.success) {
+        const firstIssue = result.error.issues[0];
+
+        return Toast.show({
+          type: 'info',
+          text1: firstIssue.message,
+          text2: "Please check your inputs",
+        });
+    }
+
+    const removeFirstZero = form.phoneNumber.startsWith("0") ? form.phoneNumber.slice(1) : form.phoneNumber;
+    const phone = `${selectedCountry?.dial_code}${removeFirstZero}`;
+
+    const removePlusSign = phone.replace("+", "");
+
+    const payload = form.phoneNumber ? { phoneNumber: removePlusSign, password: form.password }
+        : { email: form.email, password: form.password };
+
+    console.log("Submitting:", payload);
+
+    try {
+
+      setIsSubmitting(true)
+
+      const result = await axiosClient.post("/auth/login", payload)
+
+      console.log(result.data)
+
+      const user = {
+        phoneNumber: result.data.data.user.phoneNumber || "",
+        countryOfResidence: result.data.data.user.countryOfResidence || "",
+        email: result.data.data.user.email || "",
+        fullName:  result.data.data.user.fullName || "",
+        profilePicture: result.data.data.user.profilePicture || "",
+        kycVerified: false,
+        userName: result.data.data.user.userName || "",
+        gender: result.data.data.user.gender || "",
+      }
+      const userData = JSON.stringify(user);
+      await SecureStore.setItemAsync("accessToken", result.data.data.user.accessToken);
+      login(result.data.user.accessToken);
+      await SecureStore.setItemAsync("refreshToken", result.data.data.user.refreshToken);
+      await AsyncStorage.setItem("userProfile", userData);
+      setProfile(user)
+
+    //   setConfirmModal(true)
+    //   setShowOTP(true)
+      router.replace("/(protected)/(routes)/Home")
+
+      setForm({
+        email: '',
+        phoneNumber: '',
+        password: ''
+      })
+
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: error.response.data.message
+      });
+      console.log(error.response.data.message)
+
+      if(error.response.status === 409){
+        router.push("/(onboarding)/LogIn")
+
+        setForm({
+          email: '',
+          phoneNumber: '',
+          password: ''
+        })
+      }
+
+    } finally {
+      setIsSubmitting(false)
+    } 
   }
 
  
@@ -30,7 +181,15 @@ const LogIn = () => {
                     <View className="flex-1 w-full justify-center items-center my-6">
                         <Text className="text-2xl mt-4 font-mbold" style={{ color: theme.colors.text}}>Log In</Text>
                         <Text className="mt-1 font-mmedium text-center px-6" style={{ color: theme.colors.text}}>Enter Your Username/Email and Password</Text>
-                        <FormField value={form.email} placeholder="Email or Username" handleChangeText={(e: any) => setForm({ ...form, email: e })} otherStyles="mt-7" keyboardType="email-address" labelStyle='text-white'/>
+                        {switchToEmail ? (
+                          <FormField value={form.email} placeholder="Email" handleChangeText={(e: any) => setForm({ ...form, email: e, phoneNumber: "" })} otherStyles="mt-7" keyboardType="email-address" labelStyle='text-white'/>
+                          ) : (
+                            <ManualPartInput value={form.phoneNumber} dailCode={selectedCountry.dial_code} flag={selectedCountry.flag} showModal={handleShowModal} placeholder="Phone Number" handleChangeText={(e: any) => setForm({ ...form, phoneNumber: e, email: "" })} otherStyles="mt-7" labelStyle='text-white'/>
+                          )
+                        }
+                        <TouchableOpacity onPress={handleSwitch} className='mt-7'>
+                          <Text className="text-orange font-mbold">{switchToEmail ? 'Use Phone Number' : 'Use Email'}</Text>
+                        </TouchableOpacity>
                         <FormField title="Password*" value={form.password} placeholder="Password" handleChangeText={(e: any) => setForm({ ...form, password: e })} otherStyles="mt-7" labelStyle='text-white'/>
                         <View className='w-full justify-center my-7'>
                             <GradientButton title="Log In" handlePress={submit} containerStyles="w-[80%] mx-auto" textStyles='text-white'/>
@@ -48,6 +207,35 @@ const LogIn = () => {
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
+
+          <Modal
+            transparent={true}
+            visible={showModal}
+            statusBarTranslucent={true}
+            onRequestClose={() => setShowModal(false)}>
+            <View className="flex-1 justify-center items-center px-7" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                {/* TouchableWithoutFeedback only around the background */}
+                <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+                <View className="absolute top-0 left-0 right-0 bottom-0" />
+                </TouchableWithoutFeedback>
+
+                {/* Actual modal content */}
+                <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
+                    <View className='my-7 gap-2'>
+                      {data.countries.map((country, index) => (
+                        <TouchableOpacity key={index} onPress={() => handleCountry(country)} className={`flex-row gap-2 w-full items-center py-4 ${index === 0 && 'border-b border-gray-100'}`}>
+                          <View className='flex-row gap-2 items-center'>
+                            <Text className='font-msbold text-2xl'>{country.flag}</Text>
+                            <Text className='font-msbold text-xl' style={{color: theme.colors.text}}>{country.name.en}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                </View>
+            </View>
+        </Modal>
+
+        <FullScreenLoader visible={isSubmitting} />
         <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )

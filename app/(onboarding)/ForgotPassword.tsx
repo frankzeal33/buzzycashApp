@@ -20,7 +20,7 @@ const { theme } = useThemeStore();
     password: ''
   })
   const [switchToEmail, setSwitchToEmail] = useState(false)
-    const [openModal, setOpenModal] = useState(false)
+  const [openModal, setOpenModal] = useState(false)
 
   const handleSwitch = () => {
     setSwitchToEmail(!switchToEmail)
@@ -59,8 +59,8 @@ const { theme } = useThemeStore();
                             )
                         }
                         <TouchableOpacity onPress={handleSwitch} className='mt-7'>
-                            <Text className="text-orange font-mbold">{switchToEmail ? 'Use Phone Number' : 'Use Email'}</Text>
-                        </TouchableOpacity >
+                          <Text className="text-orange font-mbold">{switchToEmail ? 'Use Phone Number' : 'Use Email'}</Text>
+                        </TouchableOpacity>
                         <View className='w-full justify-center my-7'>
                             <GradientButton title="Continue" handlePress={verify} containerStyles="w-[80%] mx-auto" textStyles='text-white'/>
                         </View>

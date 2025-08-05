@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity, Pressable, Modal, TouchableWithoutFeedback, TextInput } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, Modal, TouchableWithoutFeedback, TextInput } from 'react-native'
+import React, { useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '@/components/FormField'
 import { StyleSheet } from 'react-native'
@@ -11,10 +11,20 @@ import { Link, router } from 'expo-router'
 import Checkbox from 'expo-checkbox';
 import OnboardModal from '@/components/OnboardModal'
 import { OtpInput } from "react-native-otp-entry";
-import { Entypo } from '@expo/vector-icons'
+import { Entypo, FontAwesome5 } from '@expo/vector-icons'
 import DisablePartInput from '@/components/DisablePartInput'
 import { useThemeStore } from '@/store/ThemeStore'
 import { data } from '@/constants'
+import { z } from "zod"
+import Toast from 'react-native-toast-message'
+import { axiosClient } from '@/globalApi'
+import FullScreenLoader from '@/components/FullScreenLoader'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
+import { useProfileStore } from '@/store/ProfileStore'
+import { useAuthStore } from '@/store/AuthStore'
+import ErrorText from '@/components/ErrorText'
+import SuccessText from '@/components/SuccessText'
 
 type countryType =  {
   name: { en: string },
@@ -23,6 +33,41 @@ type countryType =  {
   flag: string,
 }
 
+const registerSchema = z
+.object({
+  country: z
+    .string()
+    .min(1, "Country is required"),
+
+  phoneNumber: z
+    .string()
+    .min(1, "Phone number is required")
+    .max(11,"Phone number is greater than 11 digits")
+    .regex(/^\d+$/, "Phone number must contain only digits"),
+    
+  referralCode: z.string(),
+
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number")
+    .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character")
+    .meta({ description: "Password must be strong and secure" }),
+
+  confirmPassword: z
+    .string()
+    .min(1, "Please confirm your password"),
+})
+.refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+
+type RegisterFormValues = z.infer<typeof registerSchema>
+
 const Register = () => {
 
   const { theme } = useThemeStore();
@@ -30,15 +75,25 @@ const Register = () => {
   const [confirmModal, setConfirmModal] = useState(false)
   const [showOTP, setShowOTP] = useState(false)
   const [showModal, setShowModal] = useState(false)
-
+  const [phoneNoError, setPhoneNoError] = useState("")
+  const [OTPError, setOTPError] = useState("")
+  const [OTPResendSuccess, setOTPResendSuccess] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [otp, setOtp] = useState('');
+  const [resendLoading, setResendLoading] = useState(false)
+  const [key, setKey] = useState(0); // Unique key to force remount
   const [selectedCountry, setSelectedCountry] = useState<countryType | null>(null);
-
+  const [userPhoneNumber, setUserPhoneNumber] = useState("")
   const [form, setForm] = useState({
-    email: '',
     phoneNumber: '',
     password: '',
-    ConfirmPassword: ''
+    confirmPassword: '',
+    referralCode: ''
   })
+  const login = useAuthStore((state) => state.login);
+  const setProfile = useProfileStore((state) => state.setProfile);
+
+  const removeFirstZero = form.phoneNumber.startsWith("0") ? form.phoneNumber.slice(1) : form.phoneNumber;
 
   const handleCountry = (country: countryType) => {
     setSelectedCountry(country)
@@ -46,6 +101,33 @@ const Register = () => {
   }
 
   const confirm = () => {
+
+    const newForm= {
+      ...form,
+      country: selectedCountry?.name?.en || ""
+    }
+
+    const result = registerSchema.safeParse(newForm)
+        
+    if (!result.success) {
+      const firstIssue = result.error.issues[0];
+      // const field = firstIssue.path[0] as keyof RegisterFormValues;
+
+      return Toast.show({
+        type: 'info',
+        text1: firstIssue.message,
+        text2: "Please check your inputs.",
+      });
+    }
+
+    if(!isChecked){
+      return Toast.show({
+        type: 'info',
+        text1: "Accept terms of service",
+        text2: "Please read and accept our terms of service and privacy policy",
+      });
+    }
+
     setConfirmModal(true)
   }
 
@@ -54,18 +136,156 @@ const Register = () => {
     setShowOTP(false)
   }
 
-  const getOTP = async () => {
-    setShowOTP(true)
+  const verify = async () => {
+
+    if(!otp){
+      setOTPError("OTP fields can't be empty")
+      return
+    }
+
+    if(otp.length < 6){
+      setOTPError("OTP needs 6 digits")
+      return 
+    }
+
+    if(resendLoading){
+      setOTPError("Please wait for loading to finish")
+      return 
+    }
+
+    setOTPError("")
+    setOTPResendSuccess("")
+    setPhoneNoError("")
+
+    try {
+
+      const data = {
+        phoneNumber: userPhoneNumber,
+        verificationCode: otp
+      }
+
+      console.log("otp-data", otp)
+      
+      setIsSubmitting(true)
+
+      const result = await axiosClient.post("/auth/verify-account", data)
+
+      console.log("otp-result", result.data)
+      const user = {
+        phoneNumber: result.data.data.user.phoneNumber || "",
+        countryOfResidence: result.data.data.user.countryOfResidence || "",
+        email: "",
+        fullName: "",
+        profilePicture: "",
+        kycVerified: false,
+        gender: ""
+      }
+      const userData = JSON.stringify(user);
+      await SecureStore.setItemAsync("accessToken", result.data.data.user.accessToken);
+      login(result.data.user.accessToken);
+      await SecureStore.setItemAsync("refreshToken", result.data.data.user.refreshToken);
+      await AsyncStorage.setItem("userProfile", userData);
+      setProfile(user)
+
+      setConfirmModal(false)
+      setShowOTP(false)
+      router.replace("/(protected)/(routes)/CreateProfile")
+
+    } catch (error: any) {
+      setOTPError(error.response.data.message)
+      setOtp("");
+      setKey(prev => prev + 1);
+    } finally {
+      setIsSubmitting(false)
+    }
+
   }
 
-  const verify = async () => {
-    setConfirmModal(false)
-    setShowOTP(false)
-    router.push("/(onboarding)/CreateProfile")
+  const getOTP = async () => {
+
+    setPhoneNoError("")
+
+    const phone = `${selectedCountry?.dial_code}${removeFirstZero}`;
+
+    const removePlusSign = phone.replace("+", "");
+
+    const cResidence = selectedCountry?.name.en;
+
+    try {
+
+      setIsSubmitting(true)
+      
+      const data ={
+        countryOfResidence: cResidence,
+        phoneNumber: removePlusSign,
+        password: form.password,
+        confirmPassword: form.confirmPassword,
+        referralCode: form.referralCode
+      }
+
+      console.log(data)
+      const result = await axiosClient.post("/auth/register", data)
+
+      console.log(result.data)
+
+      setUserPhoneNumber(result.data?.data?.user?.phoneNumber)
+
+      setConfirmModal(true)
+      setShowOTP(true)
+
+
+      setForm({
+        phoneNumber: '',
+        password: '',
+        confirmPassword: '',
+        referralCode: ''
+      })
+      setSelectedCountry(null)
+
+    } catch (error: any) {
+      setPhoneNoError(error.response.data.message)
+      console.log(error.response.data.message)
+
+      if(error.response.status === 409){
+        router.push("/(onboarding)/LogIn")
+
+        setForm({
+          phoneNumber: '',
+          password: '',
+          confirmPassword: '',
+          referralCode: ''
+        })
+        setSelectedCountry(null)
+      }
+
+    } finally {
+      setIsSubmitting(false)
+    } 
   }
 
   const resendOTP = async () => {
-    
+
+    setOTPError("")
+    setOTPResendSuccess("")
+    setPhoneNoError("")
+    setResendLoading(true)
+
+    try {
+      
+      const result = await axiosClient.post("/auth/resend-otp", {
+        phoneNumber: userPhoneNumber,
+      })
+
+      console.log("resend-info", result.data)
+
+      setOTPResendSuccess(result.data.message)
+
+    } catch (error: any) {
+      setPhoneNoError(error.response.data.message)
+      console.log(error.response.data)
+    } finally {
+      setResendLoading(false)
+    }
   }
 
  
@@ -88,7 +308,8 @@ const Register = () => {
                   <DisablePartInput value={form.phoneNumber} disabledValue={selectedCountry?.dial_code ?? "+000"} placeholder="Phone Number" handleChangeText={(e: any) => setForm({ ...form, phoneNumber: e })} otherStyles="mt-7" labelStyle='text-white'/>
                   
                   <FormField title="Password*" value={form.password} placeholder="Create Password" handleChangeText={(e: any) => setForm({ ...form, password: e })} otherStyles="mt-7" labelStyle='text-white'/>
-                  <FormField title="Confirm Password*" value={form.ConfirmPassword} placeholder="Confirm Password" handleChangeText={(e: any) => setForm({ ...form, ConfirmPassword: e })} otherStyles="mt-7" labelStyle='text-white'/>
+                  <FormField title="Confirm Password*" value={form.confirmPassword} placeholder="Confirm Password" handleChangeText={(e: any) => setForm({ ...form, confirmPassword: e })} otherStyles="mt-7" labelStyle='text-white'/>
+                  <FormField title="Referral Code" value={form.referralCode} placeholder="Referral Code" handleChangeText={(e: any) => setForm({ ...form, referralCode: e })} otherStyles="mt-7" labelStyle='text-white'/>
                   <View className='w-full flex-row items-start gap-2 my-5'>
                     <Checkbox value={isChecked} onValueChange={setChecked} color='#EF4734' style={{borderRadius: 5}}/>
                     <View className="flex-row flex-wrap flex-1 -mt-1">
@@ -109,32 +330,39 @@ const Register = () => {
             </ScrollView>
         </KeyboardAvoidingView>
 
-        <OnboardModal buttonTitle={showOTP ? "Verify" : "Get OTP"} buttonPress={showOTP ? verify : getOTP} title='OTP Verification' visible={confirmModal} onClose={closeConfirmModal}>
+        <OnboardModal buttonTitle={showOTP ? "Verify" : "Get OTP"} buttonPress={showOTP ? verify : getOTP} title='OTP Verification' visible={confirmModal} loading={isSubmitting} onClose={closeConfirmModal}>
           {showOTP ? (
             <View className='my-2 items-center justify-center'>
               <Text className="text-brown-100 font-mmedium text-center">
-                Enter the 6-digit code sent via the phone number <Text className='text-brown-400'>+2349012121314</Text>
+                Enter the 6-digit code sent via the phone number <Text className='text-brown-400'>+{userPhoneNumber}</Text>
               </Text>
-              <View className="items-center justify-center my-6">
+              <View className="items-center justify-center my-5">
+                {OTPError && <ErrorText error={OTPError}/>}
+                {OTPResendSuccess && <SuccessText error={OTPResendSuccess}/>}
                 <OtpInput
-                  numberOfDigits={6} 
-                  onTextChange={(text) => console.log(text)}
+                  key={key}
+                  numberOfDigits={6}
+                  onTextChange={(text) => setOtp(text)}
                   theme={{
-                  containerStyle: styles.container,
-                  pinCodeContainerStyle: styles.pinCodeContainer,
-                  pinCodeTextStyle: styles.pinCodeText,
-                  focusStickStyle: styles.focusStick,
-                  focusedPinCodeContainerStyle: styles.activePinCodeContainer,
-                  placeholderTextStyle: styles.placeholderText,
-                  filledPinCodeContainerStyle: styles.filledPinCodeContainer,
-                  disabledPinCodeContainerStyle: styles.disabledPinCodeContainer,
-                }}
+                    containerStyle: styles.container,
+                    pinCodeContainerStyle: styles.pinCodeContainer,
+                    pinCodeTextStyle: styles.pinCodeText,
+                    focusStickStyle: styles.focusStick,
+                    focusedPinCodeContainerStyle: styles.activePinCodeContainer,
+                    placeholderTextStyle: styles.placeholderText,
+                    filledPinCodeContainerStyle: styles.filledPinCodeContainer,
+                    disabledPinCodeContainerStyle: styles.disabledPinCodeContainer,
+                  }}
                 />
                 <View className="flex-row gap-1 items-center justify-center mt-8">
                   <Text className="text-center text-brown-100 font-msbold">Didn’t receive OTP?</Text>
+                  {resendLoading ? ( 
+                  <FontAwesome5 name="circle-notch" size={20} color="#FFAE4D" className='animate-spin'/>
+                ) : (
                   <TouchableOpacity onPress={resendOTP}>
-                      <Text className="text-brown-400 font-msbold">Resend OTP</Text>
+                    <Text className="text-brown-400 font-msbold">Resend OTP</Text>
                   </TouchableOpacity >
+                )}
                 </View>
               </View>
             </View>
@@ -143,10 +371,12 @@ const Register = () => {
               <Text className="text-brown-100 font-mmedium text-center">
                 We will send a One-Time Password to your phone number below
               </Text>
-              <View className="items-center justify-center my-8">
-                <Text className="text-white font-mbold text-xl">+2349189764627</Text>
+              <View className="items-center justify-center my-7">
+                {phoneNoError && <ErrorText error={phoneNoError}/>}
+                <Text className="text-white font-mbold text-xl">{`${selectedCountry?.dial_code}${removeFirstZero}`}</Text>
                 <View className='h-0.5 w-52 bg-orange' />
               </View>
+              
             </View>
           )}
         </OnboardModal>
@@ -178,7 +408,8 @@ const Register = () => {
             </View>
         </Modal>
 
-        <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
+      <FullScreenLoader visible={isSubmitting} />
+      <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }

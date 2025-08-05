@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 import * as Linking from 'expo-linking';
 import { useThemeStore } from '@/store/ThemeStore';
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -65,12 +66,70 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.container}>
       <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index"/>
-          <Stack.Screen name="Splash"/>
-          <Stack.Screen name="(onboarding)"/>
-          <Stack.Screen name="(tabs)"/>
-          <Stack.Screen name="(routes)"/>
+        <Stack.Screen name="index"/>
+        <Stack.Screen name="Splash"/>
+        <Stack.Screen name="(onboarding)"/>
+        <Stack.Screen name="(tabs)"/>
+        <Stack.Screen name="(routes)"/>
       </Stack>
+      <Toast
+        config={{
+          success: (props) => (
+            <BaseToast
+              {...props}
+              text1NumberOfLines={2}
+              text2NumberOfLines={2}
+              style={{ 
+                backgroundColor: 'white',
+                borderLeftColor: 'green',
+                zIndex: 9999,
+                minHeight: 55,
+                height: 'auto',
+                paddingVertical: 10,
+              }}
+              contentContainerStyle={{ paddingHorizontal: 15 }}
+              text1Style={{ fontSize: 15, fontWeight: 'bold', color: 'black' }}
+              text2Style={{ fontSize: 13, color: 'black' }}
+            />
+          ),
+          error: (props) => (
+            <ErrorToast
+              {...props}
+              text1NumberOfLines={2}
+              text2NumberOfLines={2}
+              style={{ 
+                backgroundColor: 'white',
+                borderLeftColor: '#EF4734',
+                zIndex: 9999,
+                minHeight: 55,
+                height: 'auto',
+                paddingVertical: 10,
+              }}
+              contentContainerStyle={{ paddingHorizontal: 15 }}
+              text1Style={{ fontSize: 15, fontWeight: 'bold', color: 'black' }}
+              text2Style={{ fontSize: 13, color: 'black' }}
+            />
+          ),
+          info: (props) => (
+            <BaseToast
+              {...props}
+              text1NumberOfLines={2}
+              text2NumberOfLines={2}
+              style={{ 
+                backgroundColor: 'white',
+                borderLeftColor: '#EF4734',
+                zIndex: 9999,
+                minHeight: 55,
+                height: 'auto',
+                paddingVertical: 10,
+              }}
+              contentContainerStyle={{ paddingHorizontal: 15}}
+              text1Style={{ fontSize: 15, fontWeight: 'bold', color: 'black' }}
+              text2Style={{ fontSize: 13, color: 'black' }}
+            />
+          ),
+        }}
+      />
     </GestureHandlerRootView>
   );
 }

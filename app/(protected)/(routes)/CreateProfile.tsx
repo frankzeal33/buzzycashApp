@@ -12,28 +12,108 @@ import OnboardModal from '@/components/OnboardModal'
 import { useThemeStore } from '@/store/ThemeStore'
 import { data } from '@/constants'
 import { Entypo } from '@expo/vector-icons'
+import { axiosClient } from '@/globalApi'
+import Toast from 'react-native-toast-message'
+import z from 'zod'
+import FullScreenLoader from '@/components/FullScreenLoader'
+import * as SecureStore from "expo-secure-store";
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useProfileStore } from '@/store/ProfileStore'
+
+const profileSchema = z
+.object({
+  fullName: z
+    .string()
+    .min(1, "Fullname is required"),
+
+  email: z.email("Invalid email address"),
+    
+  gender: z.
+    string()
+  .min(1, "Gender is required"),
+
+  userName: z
+    .string()
+    .min(1, "Username is required")
+    .refine((val) => !val.includes('@') && !val.includes('.com'), {
+      message: "Username must not contain '@' or '.com'"})
+})
 
 const CreateProfile = () => {
 
   const { theme } = useThemeStore();
   const [openModal, setOpenModal] = useState(false)
-  const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [form, setForm] = useState({
-    fullname: '',
+    fullName: '',
     email: '',
     gender: '',
-    username: ''
+    userName: ''
   })
+  const setProfile = useProfileStore((state) => state.setProfile);
 
   const handleGender = (gender: string) => {
-    setSelectedGender(gender)
+    setForm({...form, gender})
     setShowModal(false)
   }
   
-    const handleModal = () => {
-      setOpenModal(true)
+  const handleModal = async () => {
+    // setOpenModal(true)
+
+    const result = profileSchema.safeParse(form)
+              
+    if (!result.success) {
+      const firstIssue = result.error.issues[0];
+      // const field = firstIssue.path[0] as keyof RegisterFormValues;
+
+      return Toast.show({
+        type: 'info',
+        text1: firstIssue.message,
+        text2: "Please check your inputs.",
+      });
     }
+
+    try {
+      
+      setIsSubmitting(true)
+
+      const result = await axiosClient.post("/profile/create-profile", form)
+
+      console.log(result.data)
+      const updateUser = {
+        fullName: result.data.safeUser.fullName || "",
+        email: result.data.safeUser.email || "",
+        gender: result.data.safeUser.gender || "",
+        userName: result.data.safeUser.userName || "",
+      }
+
+      await AsyncStorage.mergeItem('userProfile', JSON.stringify(updateUser));
+
+      const recentProfile = await AsyncStorage.getItem('userProfile');
+      const updatedProfile = recentProfile ? JSON.parse(recentProfile) : null;
+
+      if (updatedProfile) {
+       setProfile(updatedProfile);
+      }
+
+
+      setForm({
+        fullName: '',
+        email: '',
+        gender: '',
+        userName: ''
+      })
+
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: error.response.data.message
+      });
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
   
     const closeModal = () => {
       setOpenModal(false)
@@ -55,15 +135,15 @@ const CreateProfile = () => {
                 <View className='flex-1 py-6'>
                     <View className="flex-1 w-full justify-center items-center my-6">
                         <Text className="text-2xl mt-4 font-mbold" style={{color: theme.colors.text}}>Create Your Profile</Text>
-                        <FormField value={form.fullname} placeholder="Fullname" handleChangeText={(e: any) => setForm({ ...form, fullname: e })} otherStyles="mt-7" labelStyle='text-white'/>
+                        <FormField value={form.fullName} placeholder="Fullname" handleChangeText={(e: any) => setForm({ ...form, fullName: e })} otherStyles="mt-7" labelStyle='text-white'/>
                         <FormField value={form.email} placeholder="Email" handleChangeText={(e: any) => setForm({ ...form, email: e })} otherStyles="mt-7" keyboardType="email-address" labelStyle='text-white'/>
                         <TouchableOpacity onPress={() => setShowModal(true)} activeOpacity={0.8} style={{ backgroundColor: theme.colors.inputBg}} className={`w-full h-16 px-4 mt-7 rounded-md items-center justify-between flex-row gap-1`}>
                           <View className='flex-1'>
-                            <Text className='text-lg text-gray-500 font-mmedium capitalize' numberOfLines={1}>{(selectedGender ?? 'gender').toLowerCase()}</Text>
+                            <Text className='text-lg text-gray-500 font-mmedium capitalize' numberOfLines={1}>{(form.gender || 'gender').toLowerCase()}</Text>
                           </View>
                           <Entypo name='chevron-small-down' size={30} color="#979797" />
                         </TouchableOpacity>
-                        <FormField value={form.username} placeholder="Username" handleChangeText={(e: any) => setForm({ ...form, username: e })} otherStyles="mt-7" labelStyle='text-white'/>
+                        <FormField value={form.userName} placeholder="Username" handleChangeText={(e: any) => setForm({ ...form, userName: e })} otherStyles="mt-7" labelStyle='text-white'/>
                         <View className='w-full justify-center my-7'>
                             <GradientButton title="Complete" handlePress={handleModal} containerStyles="w-[80%] mx-auto" textStyles='text-white'/>
                         </View>
@@ -71,7 +151,7 @@ const CreateProfile = () => {
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
-
+{/* 
         <OnboardModal buttonTitle="Verify" buttonPress={verify} title='OTP Verification' visible={openModal} onClose={closeModal}>
             <View className='my-2 items-center justify-center'>
               <Text className="text-brown-100 font-mmedium text-center">
@@ -100,7 +180,7 @@ const CreateProfile = () => {
                 </View>
               </View>
             </View>
-        </OnboardModal>
+        </OnboardModal> */}
 
         <Modal
           transparent={true}
@@ -126,6 +206,7 @@ const CreateProfile = () => {
           </View>
       </Modal>
 
+      <FullScreenLoader visible={isSubmitting} />
       <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )

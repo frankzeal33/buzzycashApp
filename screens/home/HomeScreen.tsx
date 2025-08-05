@@ -33,10 +33,10 @@ const sliderImages = [
 ];
 
 const featuredGames = [
-	images.featured,
-	images.featured,
-	images.featured,
-	images.featured,
+	images.featured1,
+	images.featured2,
+	images.featured3,
+	images.featured4,
 ];
 
 const winnerMessages = [
@@ -277,7 +277,7 @@ const HomeScreen = () => {
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({item}) => (
                     <Pressable style={{
-                        width: itemWidth - 26,
+                        width: itemWidth,
                         height: 95,
                         alignSelf: 'center',
                         borderRadius: 8,
