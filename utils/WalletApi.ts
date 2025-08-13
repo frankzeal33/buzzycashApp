@@ -1,32 +1,34 @@
-import { axiosClient } from "@/globalApi"
-import * as SecureStore from "expo-secure-store";
-import { setWalletInfo, setBalanceLoading } from '@/redux/WalletSlice'
+import { axiosClient } from "@/globalApi";
+import useWalletStore from "@/store/WalletStore";
+import Toast from "react-native-toast-message";
 
-const getWallet = async (dispatch: any, toast: any, changeCurrency: null | string) => {
-    
-    dispatch(setBalanceLoading(true))
+const getWallet = async (runOnBackground: boolean) => {
 
-    try {
-      
-      const result = await axiosClient.get("/wallet/get-wallet-details")
+  const { setWalletInfo, setBalanceLoading } = useWalletStore.getState();
 
-      console.log("balance data", result.data )
-      dispatch(setWalletInfo({
-        currency: changeCurrency === null ? result.data.walletDetails.currency : changeCurrency,
-        walletId: result.data.walletDetails.id,
-        is_active: result.data.walletDetails.is_active, 
-        paymentType: result.data.walletDetails.paymentType,
-        walletBalanceNGN: result.data.walletDetails.walletBalanceNGN,
-        walletBalanceGBP: result.data.walletDetails.walletBalanceGBP,
-      }))
-
-    } catch (error: any) {
-      toast.show(error.response.data.message || error.response.data.error.message,{
-        type: "danger",
-      });
-    } finally {
-        dispatch(setBalanceLoading(false))
-    }
+  if(!runOnBackground){
+    setBalanceLoading(true);
   }
 
-  export default getWallet
+  try {
+    const result = await axiosClient.get("/wallet/get-wallet");
+
+    console.log("balance data", result.data);
+
+    const walletBalance = result.data.data.result["wallet Balance"] || 0;
+
+    setWalletInfo(walletBalance);
+
+  } catch (error: any) {
+    Toast.show({
+      type: "error",
+      text1: error.response?.data?.message,
+    });
+  } finally {
+    if(!runOnBackground){
+      setBalanceLoading(false);
+    }
+  }
+};
+
+export default getWallet;

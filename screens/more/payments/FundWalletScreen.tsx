@@ -3,28 +3,82 @@ import React, { useState } from 'react'
 import Header from '@/components/Header'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
-import FormField from '@/components/FormField'
 import GradientButton from '@/components/GradientButton'
 import { StatusBar } from 'expo-status-bar'
 import { Entypo } from '@expo/vector-icons'
 import DisablePartInput from '@/components/DisablePartInput'
 import { useThemeStore } from '@/store/ThemeStore'
+import Toast from 'react-native-toast-message'
+import { axiosClient } from '@/globalApi'
+import FullScreenLoader from '@/components/FullScreenLoader'
 
 const FundWalletScreen = () => {
     
     const { theme } = useThemeStore();
-    const [isFocused, setIsFocused] = useState(false);
     const { bottom } = useSafeAreaInsets()
     const [showModal, setShowModal] = useState(false)
+    const [amount, setAmount] = useState("")
     const [gateway, setGateway] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleGateway = (gateway: string) => {
         setGateway(gateway)
         setShowModal(false)
     }
 
-    const pay = () => {
-        router.push("/(protected)/(routes)/FundPaymentGateway")
+    const pay = async () => {
+
+        if(!amount){
+            return Toast.show({
+                type: 'info',
+                text1: "Add an amount to fund wallet",
+                text2: "Please check your inputs.",
+            });
+        }
+
+        if(Number(amount) < 100){
+            return Toast.show({
+                type: 'info',
+                text1: "Amount should be at least 100 Naira",
+                text2: "Please check your inputs.",
+            });
+        }
+
+        if(!gateway){
+            return Toast.show({
+                type: 'info',
+                text1: "Select a payment gateway",
+                text2: "Select an option.",
+            });
+        }
+
+        if(gateway === "nomba"){
+            try {
+                setIsSubmitting(true)
+            
+                const result = await axiosClient.post("/wallet/request-link", {amount: Number(amount)})
+                console.log(result.data)
+
+                setAmount("")
+                setGateway("")
+
+                router.push({
+                    pathname: "/(protected)/(routes)/FundPaymentGateway",
+                    params: { paylink: result.data.data.checkoutLink }
+                })
+
+            } catch (error: any) {
+                Toast.show({
+                    type: 'error',
+                    text1: error.response.data.message || "Please try again later"
+                });
+
+            } finally {
+                setIsSubmitting(false)
+            } 
+        }
+
+        
     }
 
   return (
@@ -35,7 +89,7 @@ const FundWalletScreen = () => {
                 <View className='rounded-xl w-full p-6 mt-4 gap-5' style={{backgroundColor: theme.colors.darkGray, marginBottom: bottom + 16}}>
                     <View>
                         <Text className='text-lg font-msbold' style={{color: theme.colors.text}}>Amount</Text>
-                        <DisablePartInput disabledValue={"NGN"} placeholder="Enter Amount"/>
+                        <DisablePartInput value={amount} disabledValue={"NGN"} placeholder="Enter Amount" handleChangeText={(e: any) => setAmount(e)}/>
                     </View>
                     <View>
                         <Text className='text-lg font-msbold' style={{color: theme.colors.text}}>Select Gateway</Text>
@@ -70,8 +124,8 @@ const FundWalletScreen = () => {
                 {/* Actual modal content */}
                 <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
                     <View className='my-7 gap-2'>
-                        <TouchableOpacity onPress={() => handleGateway("paystack")} className='flex-row gap-2 w-full items-center py-4 border-b-2 border-gray-100'>
-                            <Text className='font-msbold text-xl' style={{color: theme.colors.text}}>PayStack</Text>
+                        <TouchableOpacity onPress={() => handleGateway("nomba")} className='flex-row gap-2 w-full items-center py-4 border-b-2 border-gray-100'>
+                            <Text className='font-msbold text-xl' style={{color: theme.colors.text}}>Nomba</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => handleGateway("flutterwave")} className='flex-row gap-2 w-full items-center py-4'>
                             <Text className='font-msbold text-xl' style={{color: theme.colors.text}}>FlutterWave</Text>
@@ -81,6 +135,7 @@ const FundWalletScreen = () => {
             </View>
         </Modal>
 
+        <FullScreenLoader visible={isSubmitting} />
         <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )

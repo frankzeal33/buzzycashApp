@@ -1,5 +1,5 @@
 import { FlatList, Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { images } from '@/constants'
@@ -9,6 +9,7 @@ import Menu from '@/components/Menu'
 import GameTitleBox from '@/components/GameTitleBox'
 import TransparentGameCard from '@/components/TransparentGameCard'
 import { useThemeStore } from '@/store/ThemeStore'
+import { axiosClient } from '@/globalApi'
 
 const games: any = [
     {
@@ -38,6 +39,7 @@ const VirtualGamesScreen = () => {
     const Bottom = bottom + 57
     const [showModal, setShowModal] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false)
+    const [loadingGames, setLoadingGames] = useState(false)
 
     const purchase = () => {
         setShowSuccess(true)
@@ -52,6 +54,26 @@ const VirtualGamesScreen = () => {
     const goto = () => {
 
     }
+
+    const virtualGames = async () => {
+        setLoadingGames(true)
+        try {
+
+            const result = await axiosClient.get("/virtual/get-games")
+
+            // setGames(result.data?.data?.data?.games || [])
+            console.log("v-games",result.data.data.gamesResponse)
+
+        } catch (error: any) {
+
+        } finally {
+           setLoadingGames(false)
+        }
+    }
+
+    useEffect(() => {
+        virtualGames()
+    }, [])
 
     const renderGameCard = ({item, index}: {item: any, index: number}) => (
         <TransparentGameCard item={item} index={index} handlePress={() => goto()}/>

@@ -22,7 +22,7 @@ const GradientButton = ({ title, handlePress, containerStyles, bgColor, textStyl
         end={{ x: 1, y: 0 }}
         style={{flex: 1, alignItems: "center", justifyContent: "center", borderRadius: 5}}
       >
-        {isLoading ? <FontAwesome5 name="circle-notch" size={20} color="white" className='animate-spin-fast'/> :
+        {isLoading ? <FontAwesome5 name="circle-notch" size={22} color="white" className='animate-spin-fast'/> :
           <Text className={`font-mbold text-lg ${textStyles}`}>{title}</Text>
         }
       </LinearGradient>

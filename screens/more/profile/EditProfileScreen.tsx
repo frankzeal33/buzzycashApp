@@ -9,31 +9,134 @@ import { data } from '@/constants'
 import GradientButton from '@/components/GradientButton'
 import { useThemeStore } from '@/store/ThemeStore'
 import { StatusBar } from 'expo-status-bar'
+import Toast from 'react-native-toast-message'
+import { axiosClient } from '@/globalApi'
+import { useProfileStore } from '@/store/ProfileStore'
+import FullScreenLoader from '@/components/FullScreenLoader'
+import moment from 'moment'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const EditProfileScreen = () => {
 
   const { theme } = useThemeStore();
-  const [date, setDate] = useState(new Date())
+  const { userProfile, setProfile } = useProfileStore()
+  
+  const [date, setDate] = useState(userProfile?.dateOfBirth ? new Date(userProfile.dateOfBirth) : new Date());
   const [open, setOpen] = useState(false)
-  const [hasPickedDate, setHasPickedDate] = useState(false);
-  const [selectedGender, setSelectedGender] = useState<string | null>(null);
+  const [hasPickedDate, setHasPickedDate] = useState(!!userProfile?.dateOfBirth);
+  const [selectedGender, setSelectedGender] = useState(userProfile?.gender || null);
   const [showModal, setShowModal] = useState(false)
+  const [fullName, setFullName] = useState(userProfile?.fullName || "");
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [form, setForm] = useState({
-    fullname: "ojiego franklin",
-    username: "frankzeal",
-    date_of_birth: "16-06-1994",
-    gender: "male"
-  })
+  const birthFormatted = moment(date).format("YYYY-MM-DD");
+  
+  const formerData = {
+    fullName: userProfile.fullName,
+    dateOfBirth: userProfile.dateOfBirth,
+    gender: userProfile.gender
+  }
+
+  const newData = {
+    fullName: fullName,
+    dateOfBirth: birthFormatted,
+    gender: selectedGender
+  }
+
 
   const handleGender = (gender: string) => {
     setSelectedGender(gender)
     setShowModal(false)
   }
 
+  const hasChanges = () => {
+
+    const current = JSON.stringify(newData);
+    const original = JSON.stringify(formerData);
+
+    return current !== original;
+  };
+
   const submit = async () => {
-    router.replace("/(protected)/(routes)/Profile")
-  }
+
+    if (!fullName) {
+      return Toast.show({
+        type: 'info',
+        text1: "Full name is required",
+        text2: "Please check your inputs.",
+      });
+    }
+
+    if (!hasPickedDate) {
+      return Toast.show({
+        type: 'info',
+        text1: "Date of birth is required",
+        text2: "Please select your date of birth.",
+      });
+    }
+
+    if (!selectedGender) {
+      return Toast.show({
+        type: 'info',
+        text1: "Gender is required",
+        text2: "Please select your gender.",
+      });
+    }
+
+    if (!hasChanges()) {
+      return Toast.show({
+        type: 'info',
+        text1: "No changes detected",
+        text2: "No fields has been edited so far.",
+      });
+    }
+
+    try {
+
+      setIsSubmitting(true)
+
+      const data = {
+        fullName: fullName,
+        dateOfBirth: birthFormatted,
+        gender: selectedGender
+      }
+
+      const result = await axiosClient.patch("/profile/update-profile", data)
+
+      const updateUser = {
+        fullName: result.data.data.user.fullName || "",
+        dateOfBirth: result.data.data.user.dateOfBirth || "",
+        gender: result.data.data.user.gender || "",
+      }
+
+      await AsyncStorage.mergeItem('userProfile', JSON.stringify(updateUser));
+    
+      const recentProfile = await AsyncStorage.getItem('userProfile');
+      const updatedProfile = recentProfile ? JSON.parse(recentProfile) : null;
+
+      if (updatedProfile) {
+        setProfile(updatedProfile);
+      }
+
+      Toast.show({
+        type: 'success',
+        text1: result.data.message,
+        text2: "Profile Updated",
+      });
+      router.back()
+
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: error.response.data.message || "Please try again later"
+      });
+      console.log(error.response.data)
+
+    } finally {
+      setIsSubmitting(false)
+    } 
+  } 
+  
 
   return (
     <SafeAreaView className='h-full flex-1 px-4' style={{backgroundColor: theme.colors.background}}>
@@ -44,8 +147,7 @@ const EditProfileScreen = () => {
             
             <View className='w-full gap-4 py-10'>
               <Text className="text-xl font-msbold mb-5 text-center" style={{ color: theme.colors.text}}>Edit Profile</Text>
-              <EditProfileBox title='Full Name' placeholder="Enter fullname here" value={form.fullname}/>
-              <EditProfileBox title='Username' placeholder="Enter username here" value={form.username}/>
+              <EditProfileBox title='Full Name' placeholder="Enter fullname here" value={fullName} handleChangeText={e => setFullName(e)}/>
               
               <TouchableOpacity onPress={() => setOpen(true)} activeOpacity={0.8} className='w-full h-16 gap-4 rounded-md flex-row justify-between px-4 items-center' style={{ backgroundColor: theme.colors.inputBg}}>
                 <Text className='text-gray-500 font-mmedium'>Date of Birth</Text>
@@ -111,6 +213,8 @@ const EditProfileScreen = () => {
       </Modal>
 
       </View>
+
+      <FullScreenLoader visible={isSubmitting} />
       <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )

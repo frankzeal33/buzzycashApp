@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Button } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Button, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '@/components/FormField'
@@ -20,6 +20,11 @@ import * as SecureStore from "expo-secure-store";
 import { useProfileStore } from '@/store/ProfileStore'
 import { useAuthStore } from '@/store/AuthStore'
 import { data } from '@/constants'
+import OnboardModal from '@/components/OnboardModal'
+import ErrorText from '@/components/ErrorText'
+import SuccessText from '@/components/SuccessText'
+import { FontAwesome5 } from '@expo/vector-icons'
+import { OtpInput } from 'react-native-otp-entry'
 
 type countryType =  {
   name: { en: string },
@@ -78,6 +83,14 @@ const LogIn = () => {
   const login = useAuthStore((state) => state.login);
   const setProfile = useProfileStore((state) => state.setProfile);
 
+  const [openModal, setOpenModal] = useState(false)
+  const [userPhoneNumber, setUserPhoneNumber] = useState("")
+  const [OTPPhoneError, setOTPPhoneError] = useState("")
+  const [OTPPhoneResendSuccess, setOTPPhoneResendSuccess] = useState("")
+  const [phoneOTP, setPhoneOTP] = useState("")
+  const [resendPhoneLoading, setResendPhoneLoading] = useState(false)
+  const [phoneKey, setPhoneKey] = useState(0);
+
   const handleShowModal = () => {
     setShowModal(true)
   }
@@ -91,18 +104,22 @@ const LogIn = () => {
     setSwitchToEmail(!switchToEmail)
   }
 
+  const closeModal = () => {
+    setOpenModal(false)
+  }
+
   const submit = async () => {
     
     const result = loginSchema.safeParse(form);
 
     if (!result.success) {
-        const firstIssue = result.error.issues[0];
+      const firstIssue = result.error.issues[0];
 
-        return Toast.show({
-          type: 'info',
-          text1: firstIssue.message,
-          text2: "Please check your inputs",
-        });
+      return Toast.show({
+        type: 'info',
+        text1: firstIssue.message,
+        text2: "Please check your inputs",
+      });
     }
 
     const removeFirstZero = form.phoneNumber.startsWith("0") ? form.phoneNumber.slice(1) : form.phoneNumber;
@@ -130,19 +147,23 @@ const LogIn = () => {
         fullName:  result.data.data.user.fullName || "",
         profilePicture: result.data.data.user.profilePicture || "",
         kycVerified: false,
-        userName: result.data.data.user.userName || "",
+        userName: result.data.data.user.username || "",
         gender: result.data.data.user.gender || "",
+        isProfileCreated: result.data.data.user.isProfileCreated,
+        dateOfBirth: result.data.data.user.dateOfBirth || ""
       }
       const userData = JSON.stringify(user);
       await SecureStore.setItemAsync("accessToken", result.data.data.user.accessToken);
-      login(result.data.user.accessToken);
+      login(result.data.data.user.accessToken);
       await SecureStore.setItemAsync("refreshToken", result.data.data.user.refreshToken);
       await AsyncStorage.setItem("userProfile", userData);
       setProfile(user)
 
-    //   setConfirmModal(true)
-    //   setShowOTP(true)
-      router.replace("/(protected)/(routes)/Home")
+      if(result.data.data.user.isProfileCreated !== true){
+        router.replace("/(protected)/(routes)/CreateProfile")
+      }else{
+        router.replace("/(protected)/(routes)/Home")
+      }
 
       setForm({
         email: '',
@@ -151,20 +172,19 @@ const LogIn = () => {
       })
 
     } catch (error: any) {
-      Toast.show({
-        type: 'error',
-        text1: error.response.data.message
-      });
-      console.log(error.response.data.message)
+      console.log(error.response.data)
 
-      if(error.response.status === 409){
-        router.push("/(onboarding)/LogIn")
+      if(error.response.status === 403){
 
-        setForm({
-          email: '',
-          phoneNumber: '',
-          password: ''
-        })
+        setUserPhoneNumber(removePlusSign || "")
+        setOTPPhoneError(error.response.data.message)
+        setOpenModal(true)
+
+      }else{
+        Toast.show({
+          type: 'error',
+          text1: error.response.data.message
+        });
       }
 
     } finally {
@@ -172,6 +192,100 @@ const LogIn = () => {
     } 
   }
 
+  const resendOTP = async () => {
+    setOTPPhoneError("")
+    setOTPPhoneResendSuccess("")
+
+    if(form.phoneNumber){
+      setResendPhoneLoading(true)
+  
+      try {
+
+        const result = await axiosClient.post("/auth/resend-otp", {
+          phoneNumber: userPhoneNumber,
+        })
+  
+        console.log("resend-info", result.data)
+  
+        setOTPPhoneResendSuccess(result.data.message)
+  
+      } catch (error: any) {
+        setOTPPhoneError(error.response.data.message)
+        console.log(error.response.data)
+      } finally {
+        setResendPhoneLoading(false)
+        setOpenModal(true)
+      }
+    }
+  }
+
+  const submitOTP = async () => {
+
+    setOTPPhoneError("")
+    setOTPPhoneResendSuccess("")
+
+    if(form.phoneNumber){
+      if(!phoneOTP){
+        setOTPPhoneError("OTP fields can't be empty")
+        return
+      }
+  
+      if(phoneOTP.length < 6){
+        setOTPPhoneError("OTP needs 6 digits")
+        return 
+      }
+  
+      if(resendPhoneLoading){
+        setOTPPhoneError("Please wait for loading to finish")
+        return 
+      }
+  
+      try {
+  
+          const data = {
+            phoneNumber: userPhoneNumber,
+            verificationCode: phoneOTP
+          }
+    
+          console.log("otp-phone", phoneOTP)
+          
+          setIsSubmitting(true)
+    
+          const result = await axiosClient.post("/auth/verify-account", data)
+    
+          console.log("otp-result", result.data)
+          const user = {
+            phoneNumber: result.data.data.user.phoneNumber || "",
+            countryOfResidence: result.data.data.user.countryOfResidence || "",
+            email: "",
+            fullName: "",
+            userName: "",
+            profilePicture: "",
+            kycVerified: false,
+            gender: "",
+            isProfileCreated: false,
+            dateOfBirth: ""
+          }
+          const userData = JSON.stringify(user);
+          await SecureStore.setItemAsync("accessToken", result.data.data.user.accessToken);
+          login(result.data.data.user.accessToken);
+          await SecureStore.setItemAsync("refreshToken", result.data.data.user.refreshToken);
+          await AsyncStorage.setItem("userProfile", userData);
+          setProfile(user)
+
+          setOpenModal(false)
+          router.replace("/(protected)/(routes)/CreateProfile")
+  
+        } catch (error: any) {
+          setOTPPhoneError(error.response.data.message)
+          setOpenModal(true)
+        } finally {
+          setPhoneOTP("");
+          setPhoneKey(prev => prev + 1);
+          setIsSubmitting(false)
+        }
+      }
+    }
  
   return (
     <SafeAreaView className='h-full flex-1' style={{ backgroundColor: theme.colors.background}}>
@@ -208,6 +322,43 @@ const LogIn = () => {
             </ScrollView>
         </KeyboardAvoidingView>
 
+        <OnboardModal buttonTitle="Verify" buttonPress={submitOTP} title='OTP Verification' visible={openModal} loading={isSubmitting} onClose={closeModal}>
+          <View className='my-2 items-center justify-center'>
+            <Text className="text-brown-100 font-mmedium text-center">
+              Enter the 6-digit code sent via the phone number <Text className='text-brown-400'>+{userPhoneNumber}</Text>
+            </Text>
+            <View className="items-center justify-center my-6">
+              {OTPPhoneError && <ErrorText error={OTPPhoneError}/>}
+              {OTPPhoneResendSuccess && <SuccessText error={OTPPhoneResendSuccess}/>}
+              <OtpInput
+                key={phoneKey}
+                numberOfDigits={6}
+                onTextChange={(text) => setPhoneOTP(text)}
+                theme={{
+                containerStyle: styles.container,
+                pinCodeContainerStyle: styles.pinCodeContainer,
+                pinCodeTextStyle: styles.pinCodeText,
+                focusStickStyle: styles.focusStick,
+                focusedPinCodeContainerStyle: styles.activePinCodeContainer,
+                placeholderTextStyle: styles.placeholderText,
+                filledPinCodeContainerStyle: styles.filledPinCodeContainer,
+                disabledPinCodeContainerStyle: styles.disabledPinCodeContainer,
+                }}
+              />
+              <View className="flex-row gap-1 items-center justify-center mt-8">
+                <Text className="text-center text-brown-100 font-msbold">Didn’t receive OTP?</Text>
+                {resendPhoneLoading ? ( 
+                  <FontAwesome5 name="circle-notch" size={16} color="#FFAE4D" className='animate-spin'/>
+                ) : (
+                  <TouchableOpacity onPress={resendOTP}>
+                    <Text className="text-brown-400 font-msbold">Resend OTP</Text>
+                  </TouchableOpacity >
+                )}
+              </View>
+            </View>
+          </View>
+      </OnboardModal>
+        
           <Modal
             transparent={true}
             visible={showModal}
@@ -235,10 +386,47 @@ const LogIn = () => {
             </View>
         </Modal>
 
-        <FullScreenLoader visible={isSubmitting} />
+        <FullScreenLoader visible={isSubmitting || resendPhoneLoading} />
         <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )
 }
 
 export default LogIn
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'transparent',
+    width: 280
+  },
+  pinCodeContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ffffff',
+    width: 40,
+    height: 45
+  },
+  pinCodeText: {
+    color: '#111625',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  focusStick: {
+    backgroundColor: '#FFAE4D',
+  },
+  activePinCodeContainer: {
+    borderColor: '#FFAE4D',
+    borderWidth: 2,
+  },
+  placeholderText: {
+    color: '#ffffff',
+  },
+  filledPinCodeContainer: {
+    backgroundColor: '#ffffff',
+    borderColor: '#FFAE4D',
+  },
+  disabledPinCodeContainer: {
+    backgroundColor: '#e0e0e0',
+  },
+});

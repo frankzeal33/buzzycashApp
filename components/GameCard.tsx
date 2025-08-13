@@ -5,8 +5,13 @@ import CountDown from 'react-native-countdown-component';
 import StrokedText from './StrokedText';
 import displayCurrency from '@/utils/displayCurrency';
 import { getCountdownSeconds } from '@/utils/CountdownSeconds';
+import { ticketGameType } from '@/types/gameTypes';
+import { useState } from 'react';
 
-const GameCard = ({ item, handlePress, index }: { item: any; handlePress: () => void; index: number }) => {
+const GameCard = ({ item, handlePress, index }: { item: ticketGameType; handlePress: () => void; index: number }) => {
+  
+  const [gameExpired, setGameExpired] = useState(false)
+  
   return (
     <View
       className="w-full h-[287px] mb-2 bg-brown-200"
@@ -29,7 +34,7 @@ const GameCard = ({ item, handlePress, index }: { item: any; handlePress: () => 
         >
           <View className="w-full mt-[75px] p-2 items-center">
             <StrokedText
-              text={item?.title}
+              text={item?.name}
               fontSize={23}
               stroke="#000"
               color="#FF9439"
@@ -47,9 +52,9 @@ const GameCard = ({ item, handlePress, index }: { item: any; handlePress: () => 
 
               {/* Countdown Digits */}
               <CountDown
-                until={getCountdownSeconds(item?.expiryTime)}
+                until={getCountdownSeconds(item?.draw_time)}
                 size={20}
-                onFinish={() => console.log('Time up!')}
+                onFinish={() => setGameExpired(true)}
                 digitStyle={{
                   backgroundColor: '#fff',
                   width: 30,
@@ -67,8 +72,8 @@ const GameCard = ({ item, handlePress, index }: { item: any; handlePress: () => 
                 showSeparator
               />
             </View>
-            <TouchableOpacity onPress={handlePress} activeOpacity={0.7} className='bg-white rounded-md min-h-11 justify-center items-center'>
-                <Text className={`font-mbold text-blue text-base px-3`}>Play with {displayCurrency(Number(item?.amount), 'NGN')}</Text>
+            <TouchableOpacity onPress={handlePress} activeOpacity={0.7} className='bg-white rounded-md min-h-11 justify-center items-center' disabled={gameExpired}>
+              <Text className={`font-mbold text-blue text-base px-3`}>{gameExpired ? "Time Elapsed" : `Play with ${displayCurrency(Number(item?.amount))}`}</Text>
             </TouchableOpacity>
           </View>
         </ImageBackground>

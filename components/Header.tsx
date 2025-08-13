@@ -3,9 +3,11 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import { router } from 'expo-router';
 import { useThemeStore } from '@/store/ThemeStore';
+import { useProfileStore } from '@/store/ProfileStore';
 
 type headerProps = {
   title?: string;
+  titleColor?: string;
   icon?: boolean;
   action?: string;
   home?: boolean;
@@ -13,9 +15,18 @@ type headerProps = {
   onpress?: () => void
 }
 
-export default function Header({title, home, profile, action, icon = false, onpress}: headerProps) {
+export default function Header({title, titleColor, home, profile, action, icon = false, onpress}: headerProps) {
 
   const { theme } = useThemeStore();
+  const userProfile = useProfileStore(state => state.userProfile)
+
+  const initials = userProfile.fullName.trim()
+  .split(/\s+/) // split into words
+  .filter(Boolean) // remove empty items
+  .slice(0, 2)  // take max two words
+  .map(word => word.charAt(0).toUpperCase()) // get first letter
+  .join("")
+  .padEnd(2, userProfile.fullName.charAt(1)?.toUpperCase() || ""); // if only one letter, add 2nd char from first word
 
   return (
     <>
@@ -31,7 +42,7 @@ export default function Header({title, home, profile, action, icon = false, onpr
             </Pressable>
           ) : profile ? (
             <Pressable onPress={() => router.push("/(protected)/(routes)/Profile")} className='rounded-full items-center justify-center border border-brown-500 size-9'>
-              <Text className='text-brown-500 font-mbold text-base'>OD</Text>
+              <Text className='text-brown-500 font-mbold text-base'>{initials}</Text>
             </Pressable>
           ) : (
             <View className='w-7'/>
@@ -49,7 +60,7 @@ export default function Header({title, home, profile, action, icon = false, onpr
         </View>
 
         {title && (
-          <Text className={`text-xl font-msbold mt-1 text-center`} style={{ color: theme.colors.text}}>{title}</Text>
+          <Text className={`text-xl font-msbold mt-1 text-center`} style={{ color: titleColor ? titleColor : theme.colors.text}}>{title}</Text>
         )}
       </View>
      

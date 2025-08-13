@@ -1,10 +1,10 @@
 import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { images } from '@/constants'
 import { AntDesign, Entypo } from '@expo/vector-icons'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import CountDown from 'react-native-countdown-component'
 import { getCountdownSeconds } from '@/utils/CountdownSeconds'
 import TicketButton from '@/components/TicketButton'
@@ -14,22 +14,74 @@ import TicketModal from '@/components/TicketModal'
 import LottieView from 'lottie-react-native'
 import { useThemeStore } from '@/store/ThemeStore'
 import Header from '@/components/Header'
+import { axiosClient } from '@/globalApi'
+import FullScreenLoader from '@/components/FullScreenLoader'
+import getWallet from '@/utils/WalletApi'
 
 const TicketDetailsScreen = () => {
 
     const { theme } = useThemeStore();
+    const { ticketData } = useLocalSearchParams() as any
+    const parsedTicketData = ticketData ? JSON.parse(ticketData) : null
     const { top, bottom } = useSafeAreaInsets()
     const [showModal, setShowModal] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false)
+    const [gameExpired, setGameExpired] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [tickets, setTickets] = useState(1)
+    const [totalPrice, setTotalPrice] = useState(Number(parsedTicketData?.amount))
+    const [successResult, setSuccessResult] = useState("Ticket purchased successfully")
 
-    const purchase = () => {
-        setShowSuccess(true)
-        setShowModal(true)
+    useEffect(() => {
+       const total = tickets * Number(parsedTicketData?.amount)
+       setTotalPrice(total)
+    }, [tickets])
+
+    const purchase = async () => {
+
+        try {
+            setIsSubmitting(true)
+
+            const result = await axiosClient.post("/ticket/purchase-ticket", {
+                game_id: parsedTicketData?.id,
+                quantity: tickets,
+                amount_paid: totalPrice
+            })
+    
+            console.log("tick", result.data)
+            setSuccessResult(result.data?.data?.buyResponse?.message || "Ticket purchased successfully")
+    
+            setShowSuccess(true)
+            setShowModal(true)
+
+            setTickets(1)
+            setTotalPrice(Number(parsedTicketData?.amount))
+
+            getWallet(true)
+    
+        } catch (error: any) {
+            setShowSuccess(false)
+            setShowModal(true)
+            console.log(error.response.data)
+        } finally {
+            setIsSubmitting(false)
+        }
+       
     }
 
     const closeModal = () => {
         setShowModal(false)
         setShowSuccess(false)
+    }
+
+    const increaseTicket = () => {
+        setTickets(tickets + 1)
+    }
+
+    const decreaseTicket = () => {
+        if(tickets > 1){
+            setTickets(tickets - 1)
+        }
     }
 
   return (
@@ -40,7 +92,7 @@ const TicketDetailsScreen = () => {
                 <View className='flex-1'>
                     <View className='pt-2 py-4'>
                         <Header icon home onpress={() => router.back()}/>
-                        <Text className="text-2xl text-brown-500 font-mbold mt-1 text-center">Play Weekend Allawee</Text>
+                        <Text className="text-2xl text-brown-500 font-mbold mt-1 text-center">Play {parsedTicketData?.name}</Text>
                     </View>
                     <View className='w-full rounded-xl bg-white' style={{backgroundColor: theme.colors.darkGray}}>
                         <View className='w-full bg-brown-500 rounded-t-xl px-2 py-3'>
@@ -48,7 +100,7 @@ const TicketDetailsScreen = () => {
                         </View>
                         <View className='m-4 gap-2 items-center justify-center'>
                             <Image source={images.darkLogo}/>
-                            <Text className="text-xl font-msbold mt-1 text-center" style={{color: theme.colors.text}}>Weekend Allawee</Text>
+                            <Text className="text-xl font-msbold mt-1 text-center" style={{color: theme.colors.text}}>{parsedTicketData?.name}</Text>
                         </View>
                         <View className='items-center mx-2 mt-2 mb-5'>
                             {/* Custom Labels Row */}
@@ -62,9 +114,9 @@ const TicketDetailsScreen = () => {
             
                             {/* Countdown Digits */}
                             <CountDown
-                                until={getCountdownSeconds("2025-06-21 14:30:00")}
+                                until={getCountdownSeconds(parsedTicketData?.draw_time)}
                                 size={20}
-                                onFinish={() => console.log('Time up!')}
+                                onFinish={() => setGameExpired(true)}
                                 digitStyle={{
                                     backgroundColor: '#EF9439',
                                     width: 30,
@@ -86,15 +138,15 @@ const TicketDetailsScreen = () => {
                             <TicketButton/>
                             <View className={`flex-1 flex-row gap-3 items-center justify-between`}>
                                 
-                                <TouchableOpacity className='px-4'>
+                                <TouchableOpacity className='px-4' activeOpacity={0.7} onPress={decreaseTicket}>
                                     <Entypo name="chevron-left" size={30} color="#EF9439" />
                                 </TouchableOpacity>
                                 
                                 <TouchableOpacity>
-                                    <Text className='text-blue font-msbold text-xl' style={{color: theme.colors.text}}>1</Text>
+                                    <Text className='text-blue font-msbold text-xl' style={{color: theme.colors.text}}>{tickets}</Text>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity className='px-4'>
+                                <TouchableOpacity className='px-4' activeOpacity={0.7} onPress={increaseTicket}>
                                     <Entypo name="chevron-right" size={30} color="#EF9439" />
                                 </TouchableOpacity>
                             </View>
@@ -109,24 +161,25 @@ const TicketDetailsScreen = () => {
                                 <View>
                                     <Text className='font-mmedium text-xl' style={{color: theme.colors.text}}>Total Tickets</Text>
                                 </View>
-                                <Text className="text-xl font-mmedium items-end" style={{color: theme.colors.text}}>1</Text>
+                                <Text className="text-xl font-mmedium items-end" style={{color: theme.colors.text}}>{tickets}</Text>
                             </View>
                             <View className='w-full flex-row items-start justify-between gap-3'>
                                 <View>
                                     <Text className='font-mmedium text-xl' style={{color: theme.colors.text}}>Ticket Price</Text>
-                                    <Text className='font-mmedium text-xl' style={{color: theme.colors.text}}>(2 x 200)</Text>
+                                    <Text className='font-mmedium text-xl' style={{color: theme.colors.text}}>({tickets} x {parsedTicketData?.amount})</Text>
                                 </View>
-                                <Text className="text-xl font-mmedium items-end" style={{color: theme.colors.text}}>{displayCurrency(Number(400), 'NGN')}</Text>
+                                <Text className="text-xl font-mmedium items-end" style={{color: theme.colors.text}}>{displayCurrency(totalPrice)}</Text>
                             </View>
                             <View className='border border-brown-200'/>
                             <View className='w-full flex-row items-start justify-between gap-3'>
                                 <View>
                                     <Text className='font-mbold text-xl' style={{color: theme.colors.text}}>Total Amount</Text>
                                 </View>
-                                <Text className="text-xl font-mbold items-end" style={{color: theme.colors.text}}>{displayCurrency(Number(400), 'NGN')}</Text>
+                                <Text className="text-xl font-mbold items-end" style={{color: theme.colors.text}}>{displayCurrency(totalPrice)}</Text>
                             </View>
                             <GradientButton
-                                title="Purchase Tickets"
+                                disableButton={gameExpired}
+                                title={gameExpired ? "Time Elapsed" : "Purchase Tickets"}
                                 handlePress={purchase}
                                 containerStyles="w-[70%] mx-auto my-4"
                                 textStyles="text-white"
@@ -137,7 +190,7 @@ const TicketDetailsScreen = () => {
                 </View>
             </ScrollView>
             
-            <TicketModal title={showSuccess ? "TIcket Successfully Purchased" : "Insufficient wallet balance"} visible={showModal} onClose={closeModal}>
+            <TicketModal title={showSuccess ? successResult : "Insufficient wallet balance"} visible={showModal} onClose={closeModal}>
                {showSuccess ? (
                     <View className='w-full'>
                         <View className='w-full items-center justify-center mt-6'>
@@ -183,6 +236,8 @@ const TicketDetailsScreen = () => {
 
         </ImageBackground>
         </SafeAreaView>
+
+        <FullScreenLoader visible={isSubmitting} />
         <StatusBar style="light" />
     </SafeAreaProvider>
   )

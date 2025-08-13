@@ -1,9 +1,20 @@
+import { useProfileStore } from "@/store/ProfileStore";
+
 const currencySymbols: Record<string, string> = {
   NGN: '₦',
-  GBP: '£',
+  GHS: '₵',
 };
 
-const displayCurrency = (num: number, currency: 'GBP' | 'NGN' = 'GBP') => {
+const countryToCurrency: Record<string, keyof typeof currencySymbols> = {
+  Nigeria: 'NGN',
+  Ghana: 'GHS',
+};
+
+const displayCurrency = (num: number) => {
+
+  const country = useProfileStore.getState().userProfile.countryOfResidence;
+  const currency = countryToCurrency[country] || 'NGN'; // fallback to NGN
+
     // Strictly ensure num is a number
   if (typeof num !== 'number' || isNaN(num) || num === undefined || num === null) {
     return `${currencySymbols[currency]}0.00`; // fallback
@@ -11,27 +22,14 @@ const displayCurrency = (num: number, currency: 'GBP' | 'NGN' = 'GBP') => {
 
   let formatted = '';
 
-  // Handling GBP (use Intl.NumberFormat)
-  if (currency === 'GBP') {
-    formatted = new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(num);
-  }
+  // Force 2 decimal places
+  formatted = num.toFixed(2);
 
-  // Handling NGN (Manually format for NGN)
-  if (currency === 'NGN') {
-    // Force 2 decimal places
-    formatted = num.toFixed(2);
+  // Add commas for thousands manually
+  formatted = formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-    // Add commas for thousands manually
-    formatted = formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-    // Prepend the ₦ symbol manually (override any previous formatting)
-    formatted = currencySymbols['NGN'] + formatted;
-  }
+  // Prepend the ₦ symbol manually (override any previous formatting)
+  formatted = currencySymbols[currency] + formatted;
 
   return formatted;  // Return the formatted currency
 };

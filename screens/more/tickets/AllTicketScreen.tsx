@@ -1,105 +1,51 @@
-import { View, Text, FlatList, ImageBackground } from 'react-native'
-import React from 'react'
+import { View, Text, FlatList, ImageBackground, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { router } from 'expo-router'
 import Header from '@/components/Header'
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import SearchInput from '@/components/SearchInput'
 import SelectDropdown from 'react-native-select-dropdown'
 import { StyleSheet } from 'react-native'
-import { Entypo } from '@expo/vector-icons'
+import { Entypo, Ionicons } from '@expo/vector-icons'
 import { data, images } from '@/constants'
 import GameCard from '@/components/GameCard'
 import { StatusBar } from 'expo-status-bar'
 import Menu from '@/components/Menu'
 import { useThemeStore } from '@/store/ThemeStore'
-
-
-
-const games: any = [
-    {
-      id: "1",
-      title: "Weekend Allawee",
-      amount: 200,
-      expiryTime: "2025-06-08 14:30:00"
-    },
-    {
-      id: "1",
-      title: "BuzzyBall 45",
-      amount: 100,
-      expiryTime: "2025-06-09 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Daily ChopChop",
-      amount: 1000,
-      expiryTime: "2025-06-10 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Oil Money",
-      amount: 500,
-      expiryTime: "2025-06-11 14:30:00"
-    },
-     {
-      id: "1",
-      title: "Weekend Allawee",
-      amount: 200,
-      expiryTime: "2025-06-08 14:30:00"
-    },
-    {
-      id: "1",
-      title: "BuzzyBall 45",
-      amount: 100,
-      expiryTime: "2025-06-09 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Daily ChopChop",
-      amount: 1000,
-      expiryTime: "2025-06-10 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Oil Money",
-      amount: 500,
-      expiryTime: "2025-06-11 14:30:00"
-    },
-     {
-      id: "1",
-      title: "Weekend Allawee",
-      amount: 200,
-      expiryTime: "2025-06-08 14:30:00"
-    },
-    {
-      id: "1",
-      title: "BuzzyBall 45",
-      amount: 100,
-      expiryTime: "2025-06-09 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Daily ChopChop",
-      amount: 1000,
-      expiryTime: "2025-06-10 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Oil Money",
-      amount: 500,
-      expiryTime: "2025-06-11 14:30:00"
-    },
-  ]
+import { axiosClient } from '@/globalApi'
+import { ticketGameType } from '@/types/gameTypes'
 
 const AllTicketScreen = () => {
 
   const { theme } = useThemeStore();
   const { top, bottom } = useSafeAreaInsets()
-  const Bottom = bottom + 57
+  const Bottom = bottom + 57;
+  const [loadingTickets, setLoadingTickets] = useState(false)
+  const [games, setGames] = useState<ticketGameType[]>([])
 
-  const renderGames = ({item, index}: {item: any, index: number}) => (
+  const AllTickets = async () => {
+    setLoadingTickets(true)
+    try {
+
+      const result = await axiosClient.get("/gaming/get-games")
+
+      setGames(result.data?.data?.data?.games || [])
+
+    } catch (error: any) {
+
+    } finally {
+      setLoadingTickets(false)
+    }
+  }
+
+  useEffect(() => {
+    AllTickets()
+  }, [])
+
+  const renderGames = ({item, index}: {item: ticketGameType, index: number}) => (
       <GameCard item={item} index={index} handlePress={() => router.push({
-          pathname: "/(protected)/(routes)/TicketDetails",
-          params: { ticketData: JSON.stringify(item) },
+        pathname: "/(protected)/(routes)/TicketDetails",
+        params: { ticketData: JSON.stringify(item) },
       })}/>
   )
 
@@ -108,7 +54,7 @@ const AllTicketScreen = () => {
         <SafeAreaView edges={['left', 'right']} className='bg-blue flex-1'>
           <ImageBackground source={images.ticketBg} resizeMode="cover" className='flex-1' style={{paddingTop: top, paddingBottom: Bottom}}>
             <View className='flex-1 px-4'>
-                <Header titleColor="text-orange" title='Ticket Games' icon onpress={() => router.back()}/>
+                <Header titleColor="#EF9439" title='Ticket Games' icon onpress={() => router.back()}/>
                   <View className='mt-2 mb-5 flex-row items-center justify-between gap-1'>
                     <View className='flex-row w-[60%]'>
                       <SearchInput placeholder="Search Games..." otherStyles='w-full'/>
@@ -143,25 +89,29 @@ const AllTicketScreen = () => {
                         }}
                       />
                 </View>
-                <FlatList
-                  data={games}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={renderGames}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={
-                      games.length === 0
-                      ? { flexGrow: 1, justifyContent: 'center', alignItems: 'center' }
-                      : {paddingBottom: 100}
-                  }
-                  ListEmptyComponent={() => (
-                      <View className='flex-1'>
-                          <View className="w-full items-center mx-auto justify-center my-6 max-w-64 flex-1">
-                              {/* <Image source={images.withdrawEmpty} className="mx-auto" resizeMode='contain'/> */}
+                {loadingTickets ? (
+                  <ActivityIndicator size="large" color="#EF9439" />
+                ) : (
+                  <FlatList
+                    data={games}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={renderGames}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={
+                        games.length === 0
+                        ? { flexGrow: 1, justifyContent: 'center', alignItems: 'center' }
+                        : {paddingBottom: 100}
+                    }
+                    ListEmptyComponent={() => (
+                        <View className='flex-1'>
+                            <View className="w-full items-center mx-auto justify-center my-6 max-w-64 flex-1">
+                              <Ionicons name="ticket-outline" size={20} color="#EF9439" className="mx-auto"/>
                               <Text className="text-2xl text-center text-blue mt-4 font-rbold">You have no transactions yet.</Text>
-                          </View>
-                      </View>
-                  )}
-                />
+                            </View>
+                        </View>
+                    )}
+                  />
+                )}
             </View>
             <Menu/>
 

@@ -1,47 +1,80 @@
 import { Redirect } from "expo-router";
-import { useEffect } from "react";
-// import * as SecureStore from "expo-secure-store";
-// import { useDispatch, useSelector } from "react-redux";
-// import { RootState } from "@/redux/store";
-// import { login, logout, setLoading } from "@/redux/AuthSlice";
+import { useEffect, useState } from "react";
+import * as SecureStore from "expo-secure-store";
 import { Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from "react-native";
+import { images } from "@/constants";
+import { StyleSheet } from "react-native";
+import { useAuthStore } from "@/store/AuthStore";
+import { useProfileStore } from "@/store/ProfileStore";
+import useWalletStore from "@/store/WalletStore";
 
 export default function App() {
-  const isAuthenticated = false
-  // const dispatch = useDispatch();
-  // const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
 
-  // useEffect(() => {
-  //   const getData = async () => {
-  //     try {
-  //       const storedToken = await SecureStore.getItemAsync("accessToken");
-  //       if (storedToken) {
-  //         dispatch(login(storedToken));
-  //       } else {
-  //         dispatch(logout());
-  //       }
-  //     } catch (error) {
-  //       dispatch(logout());
-  //     } finally {
-  //       dispatch(setLoading(false));
-  //     }
-  //   };
+  const {login, logout, isLoading, setLoading, isAuthenticated } = useAuthStore((state) => state);
+  const setProfile = useProfileStore((state) => state.setProfile);
+const setHideWallet = useWalletStore((state) => state.setHideWallet);
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const storedToken = await SecureStore.getItemAsync("accessToken");
+        const userProfile = await AsyncStorage.getItem('userProfile');
+        const hideStatus = await AsyncStorage.getItem('hideBalance');
+        const user = userProfile ? JSON.parse(userProfile) : null;
 
-  //   getData();
-  // }, []);
+        if (storedToken) {
+          if (user) {
+            console.log("redux user", user)
+            setProfile(user);
+          }
+          login(storedToken)
+          setHideWallet(hideStatus)
+        } else {
+          logout();
+        }
 
-  // if (isLoading) {
-  //   return (
-  //     <View className="flex-1 justify-center items-center bg-blue">
-  //       <StatusBar backgroundColor="#003366" style="light" />
-  //       <View className="flex-row justify-center items-center">
-  //         <Text className='text-orange font-ablack text-4xl'>Navo</Text>
-  //         <Text className='text-orange font-alight text-4xl'>Cargo</Text>
-  //       </View>
-  //     </View>
-  //   );
-  // }
+      } catch (error) {
+        logout();
+      } finally {
+        setLoading(false);
+      }
+      
+    };
 
-  return <Redirect href={isAuthenticated ? "/(protected)/(tabs)/home" : "/Splash"} />;
+    getData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-blue">
+        <StatusBar backgroundColor="#003366" style="light" />
+        <View className="items-center justify-center">
+          <Image
+            source={images.logo}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          {/* <Text className="text-white font-mbold text-3xl mt-1">Buzzycash</Text> */}
+        </View>
+      </View>
+    );
+  }
+
+  return <Redirect href={isAuthenticated ? "/(protected)/(routes)/Home" : "/Splash"} />;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  image: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  logo: {
+    width: 140,
+    height: 150,
+  },
+});

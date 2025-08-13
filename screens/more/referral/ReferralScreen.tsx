@@ -18,10 +18,21 @@ const ReferralScreen = () => {
     const [index, setIndex] = useState(0);
 
   
-    const renderScene = SceneMap({
-        first: ReferEarn,
-        second: Referrals
-    });
+    // const renderScene = SceneMap({
+    //     first: ReferEarn,
+    //     second: Referrals
+    // });
+
+    const renderScene = ({ route }: any) => {
+      switch (route.key) {
+        case 'first':
+          return <ReferEarn isFocused={index === 0} />;
+        case 'second':
+          return <Referrals isFocused={index === 1} />;
+        default:
+          return null;
+      }
+    };
   
     const routes = [
         { key: 'first', title: 'Refer & Earn' },
@@ -62,11 +73,11 @@ const ReferralScreen = () => {
           <Header title='My Referral' icon onpress={() => router.back()}/>
         </View>
         <TabView
-            navigationState={{ index, routes }}
-            renderScene={renderScene}
-            onIndexChange={setIndex}
-            renderTabBar={renderTabBar}
-            initialLayout={{ width: layout.width }}
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          renderTabBar={renderTabBar}
+          initialLayout={{ width: layout.width }}
         />
         <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>

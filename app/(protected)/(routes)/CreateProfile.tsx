@@ -82,10 +82,11 @@ const CreateProfile = () => {
 
       console.log(result.data)
       const updateUser = {
-        fullName: result.data.safeUser.fullName || "",
-        email: result.data.safeUser.email || "",
-        gender: result.data.safeUser.gender || "",
-        userName: result.data.safeUser.userName || "",
+        fullName: result.data.data.user.fullName || "",
+        email: result.data.data.user.email || "",
+        gender: result.data.data.user.gender || "",
+        userName: result.data.data.user.username || "",
+        isProfileCreated: result.data.data.user.isProfileCreated,
       }
 
       await AsyncStorage.mergeItem('userProfile', JSON.stringify(updateUser));
@@ -97,6 +98,11 @@ const CreateProfile = () => {
        setProfile(updatedProfile);
       }
 
+      Toast.show({
+        type: 'success',
+        text1: result.data.message,
+        text2: "welcome to BuzzyCash"
+      });
 
       setForm({
         fullName: '',

@@ -24,6 +24,12 @@ import LiveWinnerTicker from '@/components/LiveWinnerTicker'
 import LottieView from 'lottie-react-native';
 import Menu from '@/components/Menu';
 import { useThemeStore } from '@/store/ThemeStore';
+import getWallet from '@/utils/WalletApi';
+import { axiosClient } from '@/globalApi';
+import { Skeleton } from 'moti/skeleton';
+import { useSkeletonCommonProps } from '@/utils/SkeletonProps';
+import { Ionicons } from '@expo/vector-icons';
+import { ticketGameType } from '@/types/gameTypes';
 
 const sliderImages = [
 	images.card1,
@@ -57,83 +63,7 @@ const winnerMessages = [
   },
 ];
 
-
-const games: any = [
-    {
-      id: "1",
-      title: "Weekend Allawee",
-      amount: 200,
-      expiryTime: "2025-06-15 14:30:00"
-    },
-    {
-      id: "1",
-      title: "BuzzyBall 45",
-      amount: 100,
-      expiryTime: "2025-06-20 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Daily ChopChop",
-      amount: 1000,
-      expiryTime: "2025-06-13 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Oil Money",
-      amount: 500,
-      expiryTime: "2025-06-11 14:30:00"
-    },
-     {
-      id: "1",
-      title: "Weekend Allawee",
-      amount: 200,
-      expiryTime: "2025-06-08 14:30:00"
-    },
-    {
-      id: "1",
-      title: "BuzzyBall 45",
-      amount: 100,
-      expiryTime: "2025-06-20 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Daily ChopChop",
-      amount: 1000,
-      expiryTime: "2025-06-10 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Oil Money",
-      amount: 500,
-      expiryTime: "2025-06-17 14:30:00"
-    },
-     {
-      id: "1",
-      title: "Weekend Allawee",
-      amount: 200,
-      expiryTime: "2025-06-08 14:30:00"
-    },
-    {
-      id: "1",
-      title: "BuzzyBall 45",
-      amount: 100,
-      expiryTime: "2025-06-09 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Daily ChopChop",
-      amount: 1000,
-      expiryTime: "2025-06-10 14:30:00"
-    },
-    {
-      id: "1",
-      title: "Oil Money",
-      amount: 500,
-      expiryTime: "2025-06-11 14:30:00"
-    },
-  ]
-
-  const CarouselComponent = memo(({ width, itemWidth, fullWidth, theme }: { width: number; itemWidth: number, fullWidth: number, theme: any }) => {
+const CarouselComponent = memo(({ width, itemWidth, fullWidth, theme }: { width: number; itemWidth: number, fullWidth: number, theme: any }) => {
   return (
     <Carousel
       autoPlayInterval={5000}
@@ -196,6 +126,11 @@ const HomeScreen = () => {
   const width = fullWidth - 32
   const itemWidth = width * 0.85;  // 85% of screen width for item
 
+  const skeletonProps = useSkeletonCommonProps();
+  const [loadingTickets, setLoadingTickets] = useState(false)
+  const loadingList = new Array(3).fill(null)
+  const [games, setGames] = useState<ticketGameType[]>([])
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
@@ -203,6 +138,27 @@ const HomeScreen = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  const AllTickets = async () => {
+    setLoadingTickets(true)
+    try {
+
+      const result = await axiosClient.get("/gaming/get-games")
+
+      setGames(result.data?.data?.data?.games || [])
+      console.log("tickets", result.data?.data?.data?.games)
+
+    } catch (error: any) {
+
+    } finally {
+      setLoadingTickets(false)
+    }
+  }
+
+  useEffect(() => {
+    getWallet(false)
+    AllTickets()
+  }, [])
   
   const {
     onMomentumScrollEnd,
@@ -218,10 +174,10 @@ const HomeScreen = () => {
     snapToEdge: true,
   });
 
-  const renderGames = ({item, index}: {item: any, index: number}) => (
+  const renderGames = ({item, index}: {item: ticketGameType, index: number}) => (
     <GameCard item={item} index={index} handlePress={() => router.push({
-        pathname: "/(protected)/(routes)/TicketDetails",
-        params: { ticketData: JSON.stringify(item) },
+      pathname: "/(protected)/(routes)/TicketDetails",
+      params: { ticketData: JSON.stringify(item) },
     })}/>
   )
 
@@ -304,26 +260,38 @@ const HomeScreen = () => {
           style={{ flex: 1 }}
         >
           <View>
-            <FlatList
-              scrollEnabled={false}
-              data={games}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={renderGames}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={
-                games.length === 0
-                    ? { flexGrow: 1, justifyContent: 'center', paddingBottom: 50, alignItems: 'center' }
-                    : {paddingBottom: 50}
-              }
-              ListEmptyComponent={() => (
-              <View className='flex-1'>
-                  <View className="w-full items-center mx-auto justify-center my-6 max-w-64 flex-1">
-                      {/* <Image source={images.withdrawEmpty} className="mx-auto" resizeMode='contain'/> */}
-                      <Text className="text-2xl text-center mt-4 font-rbold" style={{color: theme.colors.text}}>You have no transactions yet.</Text>
-                  </View>
+            {loadingTickets ? (
+              <View className="w-full justify-center mt-8">
+                <Skeleton.Group show={loadingTickets}>
+                  {loadingList.map((item, index) => (
+                    <View className='w-full mb-4 flex-row items-center' key={index}>
+                      <Skeleton height={30} width={'100%'} {...skeletonProps} />
+                    </View>
+                  ))}
+                </Skeleton.Group>
               </View>
-              )}
-          /> 
+            ) : (
+              <FlatList
+                scrollEnabled={false}
+                data={games}
+                keyExtractor={(item, index) => item?.id.toString()}
+                renderItem={renderGames}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={
+                  games.length === 0
+                      ? { flexGrow: 1, justifyContent: 'center', paddingBottom: 50, alignItems: 'center' }
+                      : {paddingBottom: 50}
+                }
+                ListEmptyComponent={() => (
+                <View className='flex-1'>
+                  <View className="w-full items-center mx-auto justify-center my-8 max-w-64 flex-1">
+                    <Ionicons name="ticket-outline" size={40} color="#EF9439" className="mx-auto"/>
+                    <Text className="text-lg text-center mt-4 font-rbold" style={{color: theme.colors.text}}>There is no ticket games yet.</Text>
+                  </View>
+                </View>
+                )}
+              /> 
+            )}
           </View>
         </StickyHeaderScrollView>
 

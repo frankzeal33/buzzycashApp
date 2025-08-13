@@ -102,6 +102,10 @@ const Register = () => {
 
   const confirm = () => {
 
+    setOTPError("")
+    setOTPResendSuccess("")
+    setPhoneNoError("")
+
     const newForm= {
       ...form,
       country: selectedCountry?.name?.en || ""
@@ -138,6 +142,10 @@ const Register = () => {
 
   const verify = async () => {
 
+    setOTPError("")
+    setOTPResendSuccess("")
+    setPhoneNoError("")
+
     if(!otp){
       setOTPError("OTP fields can't be empty")
       return
@@ -152,10 +160,6 @@ const Register = () => {
       setOTPError("Please wait for loading to finish")
       return 
     }
-
-    setOTPError("")
-    setOTPResendSuccess("")
-    setPhoneNoError("")
 
     try {
 
@@ -176,26 +180,29 @@ const Register = () => {
         countryOfResidence: result.data.data.user.countryOfResidence || "",
         email: "",
         fullName: "",
+        userName: "",
         profilePicture: "",
         kycVerified: false,
-        gender: ""
+        gender: "",
+        isProfileCreated: false,
+        dateOfBirth: ""
       }
       const userData = JSON.stringify(user);
       await SecureStore.setItemAsync("accessToken", result.data.data.user.accessToken);
-      login(result.data.user.accessToken);
+      login(result.data.data.user.accessToken);
       await SecureStore.setItemAsync("refreshToken", result.data.data.user.refreshToken);
       await AsyncStorage.setItem("userProfile", userData);
       setProfile(user)
 
+      router.replace("/(protected)/(routes)/CreateProfile")
       setConfirmModal(false)
       setShowOTP(false)
-      router.replace("/(protected)/(routes)/CreateProfile")
 
     } catch (error: any) {
       setOTPError(error.response.data.message)
+    } finally {
       setOtp("");
       setKey(prev => prev + 1);
-    } finally {
       setIsSubmitting(false)
     }
 
@@ -203,6 +210,8 @@ const Register = () => {
 
   const getOTP = async () => {
 
+    setOTPError("")
+    setOTPResendSuccess("")
     setPhoneNoError("")
 
     const phone = `${selectedCountry?.dial_code}${removeFirstZero}`;
@@ -241,21 +250,20 @@ const Register = () => {
         referralCode: ''
       })
       setSelectedCountry(null)
+      setChecked(false)
 
     } catch (error: any) {
+      setConfirmModal(true)
       setPhoneNoError(error.response.data.message)
       console.log(error.response.data.message)
 
       if(error.response.status === 409){
-        router.push("/(onboarding)/LogIn")
 
-        setForm({
-          phoneNumber: '',
-          password: '',
-          confirmPassword: '',
-          referralCode: ''
-        })
-        setSelectedCountry(null)
+        setTimeout(() => {
+          router.replace("/(onboarding)/LogIn")
+          setConfirmModal(false)
+        }, 6000);
+
       }
 
     } finally {
@@ -281,10 +289,12 @@ const Register = () => {
       setOTPResendSuccess(result.data.message)
 
     } catch (error: any) {
-      setPhoneNoError(error.response.data.message)
+      setOTPError(error.response.data.message)
       console.log(error.response.data)
     } finally {
       setResendLoading(false)
+      setConfirmModal(true)
+      setShowOTP(true)
     }
   }
 
@@ -357,12 +367,12 @@ const Register = () => {
                 <View className="flex-row gap-1 items-center justify-center mt-8">
                   <Text className="text-center text-brown-100 font-msbold">Didn’t receive OTP?</Text>
                   {resendLoading ? ( 
-                  <FontAwesome5 name="circle-notch" size={20} color="#FFAE4D" className='animate-spin'/>
-                ) : (
-                  <TouchableOpacity onPress={resendOTP}>
-                    <Text className="text-brown-400 font-msbold">Resend OTP</Text>
-                  </TouchableOpacity >
-                )}
+                    <FontAwesome5 name="circle-notch" size={16} color="#FFAE4D" className='animate-spin'/>
+                  ) : (
+                    <TouchableOpacity onPress={resendOTP}>
+                      <Text className="text-brown-400 font-msbold">Resend OTP</Text>
+                    </TouchableOpacity >
+                  )}
                 </View>
               </View>
             </View>
@@ -408,7 +418,7 @@ const Register = () => {
             </View>
         </Modal>
 
-      <FullScreenLoader visible={isSubmitting} />
+      <FullScreenLoader visible={isSubmitting || resendLoading} />
       <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )

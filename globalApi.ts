@@ -12,8 +12,8 @@ const axiosClient = axios.create({
 
 // Attach access token to every request
 axiosClient.interceptors.request.use(async (config) => {
-   const accessToken = await SecureStore.getItemAsync("accessToken")
-  // const accessToken = useAuthStore.getState().token;
+  //  const accessToken = await SecureStore.getItemAsync("accessToken")
+  const accessToken = useAuthStore.getState().token;
 
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;

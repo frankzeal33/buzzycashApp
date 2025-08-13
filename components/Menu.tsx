@@ -9,6 +9,12 @@ import MenuBalanceCard from './MenuBalanceCard';
 import Constants from 'expo-constants';
 import SelectDropdown from 'react-native-select-dropdown';
 import { useThemeStore } from '@/store/ThemeStore';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
+import { axiosClient } from '@/globalApi';
+import { useAuthStore } from '@/store/AuthStore';
+import { useProfileStore } from '@/store/ProfileStore';
+import { Image as ExpoImage } from 'expo-image';
 
 const Menu = () => {
 
@@ -16,7 +22,12 @@ const Menu = () => {
   const { bottom, top } = useSafeAreaInsets()
   const Bottom = bottom + 25;
   const [showModal, setShowModal] = useState(false)
-  const [mode, setMode] = useState("")
+  const [logoutToken, setLogoutToken] = useState<any>("")
+  const logout = useAuthStore(state => state.logout);
+  const clearProfile = useProfileStore(state => state.clearProfile);
+  const userProfile = useProfileStore(state => state.userProfile);
+
+  const blurhash = '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   const [selectedTheme, setSelectedTheme] = useState<'light' | 'dark' | 'system' | null>(preference);
 
@@ -26,11 +37,39 @@ const Menu = () => {
 
   const screen = useWindowDimensions();
   const maxHeight = screen.height - (top + 10) - (bottom + 30)
-  console.log("height", maxHeight)
 
   const goTo = (route: any) => {
     router.push(route);
     setShowModal(false);
+  }
+
+  useEffect(() => {
+    const handleToken = async () => {
+      const token = await SecureStore.getItemAsync("accessToken")
+      setLogoutToken(token);
+    };
+
+    handleToken()
+  }, [])
+
+  const logoutUser = async () => {
+
+    await SecureStore.deleteItemAsync("accessToken");
+    await SecureStore.deleteItemAsync("refreshToken");
+    await AsyncStorage.removeItem('userProfile');
+    
+    logout();
+    clearProfile();
+    setShowModal(false);
+    
+    axiosClient.post("/auth/logout", {}, {
+      headers: {
+        Authorization: `Bearer ${logoutToken}`,
+      }
+    })
+    
+    router.replace("/(onboarding)/LogIn");
+      
   }
 
   return (
@@ -66,11 +105,15 @@ const Menu = () => {
             <View className="rounded-2xl overflow-hidden w-full" style={{ backgroundColor: theme.colors.background, marginTop: top + 10, marginBottom: bottom + 10, maxHeight: maxHeight}}>
               <View className='items-center justify-center p-4'>
                 <View className='size-[50px] rounded-full border border-gray-200 z-10'>
+                  {!userProfile.profilePicture ? (
                     <Image source={images.user} width={50} height={50} resizeMode='cover' className='w-full h-full overflow-hidden'/>
+                  ) : (
+                    <ExpoImage source={{ uri: `${process.env.EXPO_PUBLIC_IMAGE_URI}${userProfile?.profilePicture}` }} placeholder={{ blurhash }} cachePolicy="disk" contentFit="cover" style={{ width: "100%", height: "100%", borderRadius: 25, overflow: 'hidden' }}/>
+                  )}
                 </View>
                 <View className='pb-2'>
-                    <Text className="font-mbold text-xl text-center pt-2 text-orange" numberOfLines={1}>Selvin Kendrick</Text>
-                    <Text className="font-msbold text-lg text-center pt-1" numberOfLines={1} style={{ color: theme.colors.text}}>@Ken-Drick</Text>
+                    <Text className="font-mbold text-xl text-center pt-2 text-orange capitalize" numberOfLines={1}>{userProfile?.fullName}</Text>
+                    <Text className="font-msbold text-lg text-center pt-1" numberOfLines={1} style={{ color: theme.colors.text}}>@{userProfile?.userName}</Text>
                 </View>
               </View>
               <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
@@ -79,7 +122,7 @@ const Menu = () => {
                     <View className='mt-2 mb-2'>
                         <Pressable onPress={() => goTo("/(protected)/(routes)/Profile")} className='border-b-2 w-full' style={{borderColor: theme.colors.background}}>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
-                            <FontAwesome5 name="user" size={20} color="#EF9439" />
+                            <FontAwesome5 name="user" size={18} color="#EF9439" />
                             <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Profile</Text>
                           </View>
                         </Pressable>
@@ -171,7 +214,7 @@ const Menu = () => {
                             <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Change Password</Text>
                           </View>
                         </Pressable>
-                        <Pressable onPress={() => goTo("/(onboarding)/LogIn")} className='w-full'>
+                        <Pressable onPress={logoutUser} className='w-full'>
                           <View className="w-full flex-row items-center gap-3 px-4 py-3">
                             <AntDesign name="logout" size={18} color="#EF9439" />
                             <Text className="font-mmedium text-lg" style={{color: theme.colors.text}}>Logout</Text>
