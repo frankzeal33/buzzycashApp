@@ -11,6 +11,7 @@ interface UserProfile {
   gender:  string;
   isProfileCreated: boolean;
   dateOfBirth: string;
+  isEmailVerified: boolean;
 }
 
 interface ProfileStore {
@@ -31,7 +32,8 @@ const defaultUserProfile: UserProfile = {
   kycVerified: false,
   gender: "",
   isProfileCreated: false,
-  dateOfBirth: ""
+  dateOfBirth: "",
+  isEmailVerified: false
 };
 
 export const useProfileStore = create<ProfileStore>((set) => ({

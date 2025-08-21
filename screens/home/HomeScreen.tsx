@@ -143,10 +143,10 @@ const HomeScreen = () => {
     setLoadingTickets(true)
     try {
 
-      const result = await axiosClient.get("/gaming/get-games")
+      const result = await axiosClient.get("/ticket/gaming")
 
-      setGames(result.data?.data?.data?.games || [])
-      console.log("tickets", result.data?.data?.data?.games)
+      setGames(result.data?.results?.games || [])
+      console.log("tickets", result.data?.results?.games)
 
     } catch (error: any) {
 
@@ -274,7 +274,7 @@ const HomeScreen = () => {
               <FlatList
                 scrollEnabled={false}
                 data={games}
-                keyExtractor={(item, index) => item?.id.toString()}
+                keyExtractor={(item, index) => item.id.toString()}
                 renderItem={renderGames}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={

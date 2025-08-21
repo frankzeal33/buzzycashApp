@@ -24,9 +24,9 @@ const Theme = [
 ];
 
 const gender = [
-  { label: 'Male', value: 'MALE' },
-  { label: 'Female', value: 'FEMALE' },
-  { label: 'Others', value: 'OTHERS' }
+  { label: 'Male', value: 'male' },
+  { label: 'Female', value: 'female' },
+  { label: 'Others', value: 'others' }
 ];
 
 const IDType = [

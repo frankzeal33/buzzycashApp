@@ -27,9 +27,10 @@ const AllTicketScreen = () => {
     setLoadingTickets(true)
     try {
 
-      const result = await axiosClient.get("/gaming/get-games")
+      const result = await axiosClient.get("/ticket/gaming")
 
-      setGames(result.data?.data?.data?.games || [])
+      setGames(result.data?.results?.games || [])
+      console.log("tickets", result.data?.results?.games)
 
     } catch (error: any) {
 
@@ -60,41 +61,41 @@ const AllTicketScreen = () => {
                       <SearchInput placeholder="Search Games..." otherStyles='w-full'/>
                     </View>
 
-                      <SelectDropdown
-                        data={data.GameTime}
-                        onSelect={(selectedItem, index) => {
-                            console.log(selectedItem, index);
-                        }}
-                        renderButton={(selectedItem, isOpened) => {
-                            return (
-                            <View style={[styles.dropdownButtonStyle2, {backgroundColor: theme.colors.darkGray}]}>
-                                <Text style={styles.dropdownButtonTxtStyle}>
-                                {(selectedItem && selectedItem.title) || 'Time'}
-                                </Text>
-                                <Entypo name={isOpened ? 'chevron-small-up' : 'chevron-small-down'} style={styles.dropdownButtonArrowStyle} size={30} color="#979797" />
-                            </View>
-                            );
-                        }}
-                        renderItem={(item, index, isSelected) => {
-                            return (
-                            <View key={index} style={{...styles.dropdownItemStyle,  backgroundColor: theme.colors.darkGray, ...(isSelected && {backgroundColor: '#C23525'})}}>
-                              <Text style={[styles.dropdownItemTxtStyle, {color: theme.colors.text}]}>{item.title}</Text>
-                            </View>
-                            );
-                        }}
-                        showsVerticalScrollIndicator={false}
-                        dropdownStyle={{
-                          backgroundColor: theme.colors.darkGray,
-                          borderRadius: 8,
-                        }}
-                      />
+                    <SelectDropdown
+                      data={data.GameTime}
+                      onSelect={(selectedItem, index) => {
+                        console.log(selectedItem, index);
+                      }}
+                      renderButton={(selectedItem, isOpened) => {
+                          return (
+                          <View style={[styles.dropdownButtonStyle2, {backgroundColor: theme.colors.darkGray}]}>
+                              <Text style={styles.dropdownButtonTxtStyle}>
+                              {(selectedItem && selectedItem.title) || 'Time'}
+                              </Text>
+                              <Entypo name={isOpened ? 'chevron-small-up' : 'chevron-small-down'} style={styles.dropdownButtonArrowStyle} size={30} color="#979797" />
+                          </View>
+                          );
+                      }}
+                      renderItem={(item, index, isSelected) => {
+                          return (
+                          <View key={index} style={{...styles.dropdownItemStyle,  backgroundColor: theme.colors.darkGray, ...(isSelected && {backgroundColor: '#C23525'})}}>
+                            <Text style={[styles.dropdownItemTxtStyle, {color: theme.colors.text}]}>{item.title}</Text>
+                          </View>
+                          );
+                      }}
+                      showsVerticalScrollIndicator={false}
+                      dropdownStyle={{
+                        backgroundColor: theme.colors.darkGray,
+                        borderRadius: 8,
+                      }}
+                    />
                 </View>
                 {loadingTickets ? (
                   <ActivityIndicator size="large" color="#EF9439" />
                 ) : (
                   <FlatList
                     data={games}
-                    keyExtractor={(item, index) => index.toString()}
+                    keyExtractor={(item, index) => item.id.toString()}
                     renderItem={renderGames}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={
@@ -103,12 +104,12 @@ const AllTicketScreen = () => {
                         : {paddingBottom: 100}
                     }
                     ListEmptyComponent={() => (
-                        <View className='flex-1'>
-                            <View className="w-full items-center mx-auto justify-center my-6 max-w-64 flex-1">
-                              <Ionicons name="ticket-outline" size={20} color="#EF9439" className="mx-auto"/>
-                              <Text className="text-2xl text-center text-blue mt-4 font-rbold">You have no transactions yet.</Text>
-                            </View>
-                        </View>
+                      <View className='flex-1'>
+                          <View className="w-full items-center mx-auto justify-center my-6 max-w-64 flex-1">
+                            <Ionicons name="ticket-outline" size={20} color="#EF9439" className="mx-auto"/>
+                            <Text className="text-2xl text-center text-brown-500 mt-4 font-rbold">No ticket games found.</Text>
+                          </View>
+                      </View>
                     )}
                   />
                 )}

@@ -54,7 +54,7 @@ const GameCard = ({ item, handlePress, index }: { item: ticketGameType; handlePr
               <CountDown
                 until={getCountdownSeconds(item?.draw_time)}
                 size={20}
-                onFinish={() => setGameExpired(true)}
+                onFinish={() => setGameExpired(false)}
                 digitStyle={{
                   backgroundColor: '#fff',
                   width: 30,

@@ -7,8 +7,6 @@ import { KeyboardAvoidingView } from 'react-native'
 import { Platform } from 'react-native'
 import GradientButton from '@/components/GradientButton'
 import { router } from 'expo-router'
-import { OtpInput } from 'react-native-otp-entry'
-import OnboardModal from '@/components/OnboardModal'
 import { useThemeStore } from '@/store/ThemeStore'
 import { data } from '@/constants'
 import { Entypo } from '@expo/vector-icons'
@@ -16,7 +14,6 @@ import { axiosClient } from '@/globalApi'
 import Toast from 'react-native-toast-message'
 import z from 'zod'
 import FullScreenLoader from '@/components/FullScreenLoader'
-import * as SecureStore from "expo-secure-store";
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useProfileStore } from '@/store/ProfileStore'
 
@@ -42,7 +39,6 @@ const profileSchema = z
 const CreateProfile = () => {
 
   const { theme } = useThemeStore();
-  const [openModal, setOpenModal] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [form, setForm] = useState({
@@ -59,7 +55,6 @@ const CreateProfile = () => {
   }
   
   const handleModal = async () => {
-    // setOpenModal(true)
 
     const result = profileSchema.safeParse(form)
               
@@ -82,11 +77,11 @@ const CreateProfile = () => {
 
       console.log(result.data)
       const updateUser = {
-        fullName: result.data.data.user.fullName || "",
-        email: result.data.data.user.email || "",
-        gender: result.data.data.user.gender || "",
-        userName: result.data.data.user.username || "",
-        isProfileCreated: result.data.data.user.isProfileCreated,
+        fullName: result.data.user.fullName || "",
+        email: result.data.user.email || "",
+        gender: result.data.user.gender || "",
+        userName: result.data.user.username || "",
+        isProfileCreated: result.data.user.isProfileCreated,
       }
 
       await AsyncStorage.mergeItem('userProfile', JSON.stringify(updateUser));
@@ -104,6 +99,8 @@ const CreateProfile = () => {
         text2: "welcome to BuzzyCash"
       });
 
+      router.replace("/(protected)/(routes)/Home")
+
       setForm({
         fullName: '',
         email: '',
@@ -116,23 +113,15 @@ const CreateProfile = () => {
         type: 'error',
         text1: error.response.data.message
       });
+
+      if(error.response.status === 403){
+        router.replace("/(protected)/(routes)/Home")
+      }
+      console.log(error.response.data)
     } finally {
       setIsSubmitting(false)
     }
   }
-  
-    const closeModal = () => {
-      setOpenModal(false)
-    }
-  
-    const verify = async () => {
-      setOpenModal(false)
-      router.replace("/(protected)/(routes)/Home")
-    }
-  
-    const resendOTP = async () => {
-      
-    }
  
   return (
     <SafeAreaView className='h-full flex-1' style={{ backgroundColor: theme.colors.background}}>
@@ -157,36 +146,6 @@ const CreateProfile = () => {
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
-{/* 
-        <OnboardModal buttonTitle="Verify" buttonPress={verify} title='OTP Verification' visible={openModal} onClose={closeModal}>
-            <View className='my-2 items-center justify-center'>
-              <Text className="text-brown-100 font-mmedium text-center">
-                Enter the 6-digit code sent via the Email Address <Text className='text-brown-400'>frankzeal93@gmail.com</Text>
-              </Text>
-              <View className="items-center justify-center my-6">
-                <OtpInput
-                  numberOfDigits={6} 
-                  onTextChange={(text) => console.log(text)}
-                  theme={{
-                  containerStyle: styles.container,
-                  pinCodeContainerStyle: styles.pinCodeContainer,
-                  pinCodeTextStyle: styles.pinCodeText,
-                  focusStickStyle: styles.focusStick,
-                  focusedPinCodeContainerStyle: styles.activePinCodeContainer,
-                  placeholderTextStyle: styles.placeholderText,
-                  filledPinCodeContainerStyle: styles.filledPinCodeContainer,
-                  disabledPinCodeContainerStyle: styles.disabledPinCodeContainer,
-                }}
-                />
-                <View className="flex-row gap-1 items-center justify-center mt-8">
-                  <Text className="text-center text-brown-100 font-msbold">Didn’t receive OTP?</Text>
-                  <TouchableOpacity onPress={resendOTP}>
-                      <Text className="text-brown-400 font-msbold">Resend OTP</Text>
-                  </TouchableOpacity >
-                </View>
-              </View>
-            </View>
-        </OnboardModal> */}
 
         <Modal
           transparent={true}
@@ -219,41 +178,3 @@ const CreateProfile = () => {
 }
 
 export default CreateProfile
-
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'transparent',
-    width: 280
-  },
-  pinCodeContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ffffff',
-    width: 40,
-    height: 45
-  },
-  pinCodeText: {
-    color: '#111625',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  focusStick: {
-    backgroundColor: '#FFAE4D',
-  },
-  activePinCodeContainer: {
-    borderColor: '#FFAE4D',
-    borderWidth: 2,
-  },
-  placeholderText: {
-    color: '#ffffff',
-  },
-  filledPinCodeContainer: {
-    backgroundColor: '#ffffff',
-    borderColor: '#FFAE4D',
-  },
-  disabledPinCodeContainer: {
-    backgroundColor: '#e0e0e0',
-  },
-});

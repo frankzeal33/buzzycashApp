@@ -56,7 +56,7 @@ const FundWalletScreen = () => {
             try {
                 setIsSubmitting(true)
             
-                const result = await axiosClient.post("/wallet/request-link", {amount: Number(amount)})
+                const result = await axiosClient.post("/wallet/fund-wallet", {amount: Number(amount)})
                 console.log(result.data)
 
                 setAmount("")
@@ -64,7 +64,7 @@ const FundWalletScreen = () => {
 
                 router.push({
                     pathname: "/(protected)/(routes)/FundPaymentGateway",
-                    params: { paylink: result.data.data.checkoutLink }
+                    params: { paylink: result.data.checkoutLink }
                 })
 
             } catch (error: any) {

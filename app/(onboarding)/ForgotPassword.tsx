@@ -135,9 +135,9 @@ const ForgotPassword = () => {
         console.log(result.data)
   
         if(form.phoneNumber){
-          setUserPhoneNumber(result.data.data.user.phoneNumber || "")
+          setUserPhoneNumber(result.data.user.phoneNumber || "")
         }else{
-          setUserEmail(result.data.data.user.email || "")
+          setUserEmail(result.data.user.email || "")
         }
   
         setOpenModal(true)
@@ -246,7 +246,7 @@ const ForgotPassword = () => {
           setOpenModal(false)
           router.replace({
             pathname: "/(onboarding)/NewForgotPassword",
-            params: { userId: result.data.data.userId },
+            params: { userId: result.data.userId },
           })
   
         } catch (error: any) {
@@ -291,7 +291,7 @@ const ForgotPassword = () => {
           setOpenModal(false)
           router.replace({
             pathname: "/(onboarding)/NewForgotPassword",
-            params: { userId: result.data.data.userId },
+            params: { userId: result.data.userId },
           })
   
         } catch (error: any) {

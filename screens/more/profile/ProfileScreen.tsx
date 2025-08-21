@@ -1,10 +1,10 @@
-import { View, Text, ScrollView, Image, TouchableOpacity, Alert, Modal } from 'react-native'
+import { View, Text, ScrollView, Image, TouchableOpacity, Alert, Modal, Pressable, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import Header from '@/components/Header'
 import { images } from '@/constants'
-import { AntDesign, Entypo, Ionicons } from '@expo/vector-icons'
+import { AntDesign, Entypo, FontAwesome5, Ionicons } from '@expo/vector-icons'
 import ProfileBox from '@/components/ProfileBox'
 import { useThemeStore } from '@/store/ThemeStore'
 import { StatusBar } from 'expo-status-bar'
@@ -17,13 +17,24 @@ import Toast from 'react-native-toast-message'
 import GradientButton from '@/components/GradientButton'
 import FullScreenLoader from '@/components/FullScreenLoader'
 import { Image as ExpoImage } from 'expo-image';
+import OnboardModal from '@/components/OnboardModal'
+import { OtpInput } from 'react-native-otp-entry'
+import ErrorText from '@/components/ErrorText'
+import SuccessText from '@/components/SuccessText'
 
 const ProfileScreen = () => {
 
   const { theme } = useThemeStore();
   const { userProfile, setProfile } = useProfileStore()
   
+  const [OTPResendError, setOTPResendError] = useState("")
+  const [OTPResendSuccess, setOTPResendSuccess] = useState("")
+  const [resendLoading, setResendLoading] = useState(false)
+  const [otp, setOtp] = useState("")
+  const [emailKey, setEmailKey] = useState(0);
+
   const [showModal, setShowModal] = useState(false);
+  const [openModal, setOpenModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [file, setFile] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
@@ -140,6 +151,111 @@ const ProfileScreen = () => {
     }
   };
 
+  const sendOTP = async () => {
+    try {
+      setIsSubmitting(true)
+      const result = await axiosClient.post("/profile/request-verification", {})
+
+      console.log("send-info", result.data)
+      setOpenModal(true)
+
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: error.response.data.message
+      });
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const resendOTP = async () => {
+    setOTPResendError("")
+    setOTPResendSuccess("")
+    
+    try {
+      setResendLoading(true)
+
+      const result = await axiosClient.post("/profile/request-verification", {})
+
+      console.log("resend-info", result.data)
+
+      setOTPResendSuccess(result.data.message)
+
+    } catch (error: any) {
+      setOTPResendError(error.response.data.message)
+      console.log(error.response.data)
+    } finally {
+      setResendLoading(false)
+      setOpenModal(true)
+    }
+  }
+
+  const closeModal = () => {
+    setOpenModal(false)
+  }
+  
+  const verify = async () => {
+
+    setOTPResendError("")
+    setOTPResendSuccess("")
+
+    if(!otp){
+      setOTPResendError("OTP fields can't be empty")
+      return
+    }
+
+    if(otp.length < 6){
+      setOTPResendError("OTP needs 6 digits")
+      return 
+    }
+
+    if(resendLoading){
+      setOTPResendError("Please wait for loading to finish")
+      return 
+    }
+
+    try {
+
+      setIsSubmitting(true)
+      const result = await axiosClient.post("/profile/verify-email", {
+        email: userProfile.email,
+        verificationCode: otp
+      })
+
+      console.log("send-info", result.data)
+
+      const updateUser = {
+        isEmailVerified: result.data.user.isEmailVerified ?? false,
+      }
+
+      await AsyncStorage.mergeItem('userProfile', JSON.stringify(updateUser));
+
+      const recentProfile = await AsyncStorage.getItem('userProfile');
+      const updatedProfile = recentProfile ? JSON.parse(recentProfile) : null;
+
+      if (updatedProfile) {
+        setProfile(updatedProfile);
+      }
+
+      setOpenModal(false)
+
+      Toast.show({
+        type: 'success',
+        text1: result.data.message,
+        text2: "Your email address has been verified"
+      });
+
+    } catch (error: any) {
+      setOTPResendError(error.response.data.message)
+      setOpenModal(true)
+    } finally {
+      setEmailKey(prev => prev + 1);
+      setIsSubmitting(false)
+    }
+    
+  }
+
   return (
     <SafeAreaView className='h-full flex-1 px-4' style={{ backgroundColor: theme.colors.background}}>
       <Header action='Edit' title='Profile' icon onpress={() => router.back()}/>
@@ -168,6 +284,11 @@ const ProfileScreen = () => {
           </View>
           
           <View className='gap-4 pb-14'>
+            {!userProfile.isEmailVerified && (
+              <TouchableOpacity activeOpacity={0.8} className='p-4 bg-red-500/10 rounded-md' onPress={sendOTP}>
+                <Text className='text-red-500'>Verify your email address</Text>
+              </TouchableOpacity>
+            )}
             <ProfileBox label='Full Name' value={userProfile.fullName}/>
             <ProfileBox label='Username' value={userProfile.userName}/>
             <ProfileBox label='Email' value={userProfile.email}/>
@@ -204,6 +325,44 @@ const ProfileScreen = () => {
         </SafeAreaView>
     </Modal>
 
+    
+    <OnboardModal buttonTitle="Verify" buttonPress={verify} title='OTP Verification' visible={openModal} loading={isSubmitting} onClose={closeModal}>
+        <View className='my-2 items-center justify-center'>
+          <Text className="text-brown-100 font-mmedium text-center">
+            Enter the 6-digit code sent via the Email Address <Text className='text-brown-400'>{userProfile.email}</Text>
+          </Text>
+          <View className="items-center justify-center my-6">
+            {OTPResendError && <ErrorText error={OTPResendError}/>}
+            {OTPResendSuccess && <SuccessText error={OTPResendSuccess}/>}
+            <OtpInput
+              key={emailKey}
+              numberOfDigits={6} 
+              onTextChange={(text) => setOtp(text)}
+              theme={{
+              containerStyle: styles.container,
+              pinCodeContainerStyle: styles.pinCodeContainer,
+              pinCodeTextStyle: styles.pinCodeText,
+              focusStickStyle: styles.focusStick,
+              focusedPinCodeContainerStyle: styles.activePinCodeContainer,
+              placeholderTextStyle: styles.placeholderText,
+              filledPinCodeContainerStyle: styles.filledPinCodeContainer,
+              disabledPinCodeContainerStyle: styles.disabledPinCodeContainer,
+            }}
+            />
+            <View className="flex-row gap-1 items-center justify-center mt-8">
+              <Text className="text-center text-brown-100 font-msbold">Didn’t receive OTP?</Text>
+              {resendLoading ? ( 
+                <FontAwesome5 name="circle-notch" size={16} color="#FFAE4D" className='animate-spin'/>
+              ) : (
+                <TouchableOpacity onPress={resendOTP}>
+                  <Text className="text-brown-400 font-msbold">Resend OTP</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </View>
+    </OnboardModal>
+
     <FullScreenLoader visible={isSubmitting} />
     <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
@@ -211,3 +370,41 @@ const ProfileScreen = () => {
 }
 
 export default ProfileScreen
+
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'transparent',
+    width: 280
+  },
+  pinCodeContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ffffff',
+    width: 40,
+    height: 45
+  },
+  pinCodeText: {
+    color: '#111625',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  focusStick: {
+    backgroundColor: '#FFAE4D',
+  },
+  activePinCodeContainer: {
+    borderColor: '#FFAE4D',
+    borderWidth: 2,
+  },
+  placeholderText: {
+    color: '#ffffff',
+  },
+  filledPinCodeContainer: {
+    backgroundColor: '#ffffff',
+    borderColor: '#FFAE4D',
+  },
+  disabledPinCodeContainer: {
+    backgroundColor: '#e0e0e0',
+  },
+});

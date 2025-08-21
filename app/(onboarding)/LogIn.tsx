@@ -141,25 +141,26 @@ const LogIn = () => {
       console.log(result.data)
 
       const user = {
-        phoneNumber: result.data.data.user.phoneNumber || "",
-        countryOfResidence: result.data.data.user.countryOfResidence || "",
-        email: result.data.data.user.email || "",
-        fullName:  result.data.data.user.fullName || "",
-        profilePicture: result.data.data.user.profilePicture || "",
+        phoneNumber: result.data.user.phoneNumber || "",
+        countryOfResidence: result.data.user.countryOfResidence || "",
+        email: result.data.user.email || "",
+        fullName:  result.data.user.fullName || "",
+        profilePicture: result.data.user.profilePicture || "",
         kycVerified: false,
-        userName: result.data.data.user.username || "",
-        gender: result.data.data.user.gender || "",
-        isProfileCreated: result.data.data.user.isProfileCreated,
-        dateOfBirth: result.data.data.user.dateOfBirth || ""
+        userName: result.data.user.username || "",
+        gender: result.data.user.gender || "",
+        isProfileCreated: result.data.user.isProfileCreated,
+        dateOfBirth: result.data.user.dateOfBirth || "",
+        isEmailVerified: result.data.user.isEmailVerified ?? false
       }
       const userData = JSON.stringify(user);
-      await SecureStore.setItemAsync("accessToken", result.data.data.user.accessToken);
-      login(result.data.data.user.accessToken);
-      await SecureStore.setItemAsync("refreshToken", result.data.data.user.refreshToken);
+      await SecureStore.setItemAsync("accessToken", result.data.user.accessToken);
+      login(result.data.user.accessToken);
+      await SecureStore.setItemAsync("refreshToken", result.data.user.refreshToken);
       await AsyncStorage.setItem("userProfile", userData);
       setProfile(user)
 
-      if(result.data.data.user.isProfileCreated !== true){
+      if(result.data.user.isProfileCreated !== true){
         router.replace("/(protected)/(routes)/CreateProfile")
       }else{
         router.replace("/(protected)/(routes)/Home")
@@ -255,8 +256,8 @@ const LogIn = () => {
     
           console.log("otp-result", result.data)
           const user = {
-            phoneNumber: result.data.data.user.phoneNumber || "",
-            countryOfResidence: result.data.data.user.countryOfResidence || "",
+            phoneNumber: result.data.user.phoneNumber || "",
+            countryOfResidence: result.data.user.countryOfResidence || "",
             email: "",
             fullName: "",
             userName: "",
@@ -264,12 +265,13 @@ const LogIn = () => {
             kycVerified: false,
             gender: "",
             isProfileCreated: false,
-            dateOfBirth: ""
+            dateOfBirth: "",
+            isEmailVerified: false
           }
           const userData = JSON.stringify(user);
-          await SecureStore.setItemAsync("accessToken", result.data.data.user.accessToken);
-          login(result.data.data.user.accessToken);
-          await SecureStore.setItemAsync("refreshToken", result.data.data.user.refreshToken);
+          await SecureStore.setItemAsync("accessToken", result.data.user.accessToken);
+          login(result.data.user.accessToken);
+          await SecureStore.setItemAsync("refreshToken", result.data.user.refreshToken);
           await AsyncStorage.setItem("userProfile", userData);
           setProfile(user)
 

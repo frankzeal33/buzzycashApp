@@ -49,7 +49,7 @@ const TicketDetailsScreen = () => {
             })
     
             console.log("tick", result.data)
-            setSuccessResult(result.data?.data?.buyResponse?.message || "Ticket purchased successfully")
+            setSuccessResult(result.data?.message || "Ticket purchased successfully")
     
             setShowSuccess(true)
             setShowModal(true)
@@ -178,7 +178,7 @@ const TicketDetailsScreen = () => {
                                 <Text className="text-xl font-mbold items-end" style={{color: theme.colors.text}}>{displayCurrency(totalPrice)}</Text>
                             </View>
                             <GradientButton
-                                disableButton={gameExpired}
+                                // disableButton={gameExpired}
                                 title={gameExpired ? "Time Elapsed" : "Purchase Tickets"}
                                 handlePress={purchase}
                                 containerStyles="w-[70%] mx-auto my-4"

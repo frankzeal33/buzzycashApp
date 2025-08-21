@@ -176,8 +176,8 @@ const Register = () => {
 
       console.log("otp-result", result.data)
       const user = {
-        phoneNumber: result.data.data.user.phoneNumber || "",
-        countryOfResidence: result.data.data.user.countryOfResidence || "",
+        phoneNumber: result.data.user.phoneNumber || "",
+        countryOfResidence: result.data.user.countryOfResidence || "",
         email: "",
         fullName: "",
         userName: "",
@@ -185,12 +185,13 @@ const Register = () => {
         kycVerified: false,
         gender: "",
         isProfileCreated: false,
-        dateOfBirth: ""
+        dateOfBirth: "",
+        isEmailVerified: false
       }
       const userData = JSON.stringify(user);
-      await SecureStore.setItemAsync("accessToken", result.data.data.user.accessToken);
-      login(result.data.data.user.accessToken);
-      await SecureStore.setItemAsync("refreshToken", result.data.data.user.refreshToken);
+      await SecureStore.setItemAsync("accessToken", result.data.user.accessToken);
+      login(result.data.user.accessToken);
+      await SecureStore.setItemAsync("refreshToken", result.data.user.refreshToken);
       await AsyncStorage.setItem("userProfile", userData);
       setProfile(user)
 

@@ -104,10 +104,12 @@ const EditProfileScreen = () => {
       const result = await axiosClient.patch("/profile/update-profile", data)
 
       const updateUser = {
-        fullName: result.data.data.user.fullName || "",
-        dateOfBirth: result.data.data.user.dateOfBirth || "",
-        gender: result.data.data.user.gender || "",
+        fullName: result.data.user.fullName || "",
+        dateOfBirth: result.data.user.dateOfBirth || "",
+        gender: result.data.user.gender || "",
       }
+
+      console.log(result.data)
 
       await AsyncStorage.mergeItem('userProfile', JSON.stringify(updateUser));
     

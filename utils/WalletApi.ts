@@ -15,7 +15,7 @@ const getWallet = async (runOnBackground: boolean) => {
 
     console.log("balance data", result.data);
 
-    const walletBalance = result.data.data.result["wallet Balance"] || 0;
+    const walletBalance = result.data.result["wallet Balance"] || 0;
 
     setWalletInfo(walletBalance);
 
