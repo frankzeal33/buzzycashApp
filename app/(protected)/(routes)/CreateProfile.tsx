@@ -73,7 +73,14 @@ const CreateProfile = () => {
       
       setIsSubmitting(true)
 
-      const result = await axiosClient.post("/profile/create-profile", form)
+      const data = {
+        email: form.email,
+        full_name: form.fullName,
+        gender: form.gender,
+        user_name: form.userName
+      }
+
+      const result = await axiosClient.post("/profile/create-profile", data)
 
       console.log(result.data)
       const updateUser = {

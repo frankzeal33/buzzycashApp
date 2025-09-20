@@ -56,7 +56,31 @@ const FundWalletScreen = () => {
             try {
                 setIsSubmitting(true)
             
-                const result = await axiosClient.post("/wallet/fund-wallet", {amount: Number(amount)})
+                const result = await axiosClient.post("/wallet/fund-wallet", { amount: Number(amount), payment_method: gateway })
+                console.log(result.data)
+
+                setAmount("")
+                setGateway("")
+
+                router.push({
+                    pathname: "/(protected)/(routes)/FundPaymentGateway",
+                    params: { paylink: result.data.checkoutLink }
+                })
+
+            } catch (error: any) {
+                Toast.show({
+                    type: 'error',
+                    text1: error.response.data.message || "Please try again later"
+                });
+
+            } finally {
+                setIsSubmitting(false)
+            } 
+        }else if(gateway === "flutterwave"){
+            try {
+                setIsSubmitting(true)
+            
+                const result = await axiosClient.post("/wallet/fund-wallet", { amount: Number(amount), payment_method: gateway })
                 console.log(result.data)
 
                 setAmount("")

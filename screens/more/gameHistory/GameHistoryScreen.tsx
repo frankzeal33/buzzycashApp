@@ -65,54 +65,54 @@ const gameHistory: gameType = [
      winningBalls: 30,
     createdAt: '2025-06-08 14:30:00'
   },
-  //  {
-  //   id: '7',
-  //   lottery: 'Zero Play',
-  //   price: 200,
-  //   status: "ONGOING",
-  //   winningBalls: 8,
-  //   createdAt: '2025-06-08 14:30:00'
-  // },
-  //   {
-  //   id: '8',
-  //   lottery: 'Weekend Allowee',
-  //   price: 200,
-  //   status: "LOST",
-  //    winningBalls: null,
-  //   createdAt: '2025-06-08 14:30:00'
-  // },
-  //   {
-  //   id: '9',
-  //   lottery: 'Weekend Allowee',
-  //   price: 200,
-  //   status: "WON",
-  //   winningBalls: null,
-  //   createdAt: '2025-06-08 14:30:00'
-  // },
-  //   {
-  //   id: '10',
-  //   lottery: 'Weekend Allowee',
-  //   price: 200,
-  //   status: "ONGOING",
-  //   winningBalls: 8,
-  //   createdAt: '2025-06-08 14:30:00'
-  // },
-  //   {
-  //   id: '11',
-  //   lottery: 'Weekend Allowee',
-  //   price: 200,
-  //   status: "LOST",
-  //    winningBalls: null,
-  //   createdAt: '2025-06-08 14:30:00'
-  // },
-  //   {
-  //   id: '12',
-  //   lottery: 'Weekend Allowee',
-  //   price: 200,
-  //   status: "WON",
-  //    winningBalls: 30,
-  //   createdAt: '2025-06-08 14:30:00'
-  // }
+   {
+    id: '7',
+    lottery: 'Zero Play',
+    price: 200,
+    status: "ONGOING",
+    winningBalls: 8,
+    createdAt: '2025-06-08 14:30:00'
+  },
+    {
+    id: '8',
+    lottery: 'Weekend Allowee',
+    price: 200,
+    status: "LOST",
+     winningBalls: null,
+    createdAt: '2025-06-08 14:30:00'
+  },
+    {
+    id: '9',
+    lottery: 'Weekend Allowee',
+    price: 200,
+    status: "WON",
+    winningBalls: null,
+    createdAt: '2025-06-08 14:30:00'
+  },
+    {
+    id: '10',
+    lottery: 'Weekend Allowee',
+    price: 200,
+    status: "ONGOING",
+    winningBalls: 8,
+    createdAt: '2025-06-08 14:30:00'
+  },
+    {
+    id: '11',
+    lottery: 'Weekend Allowee',
+    price: 200,
+    status: "LOST",
+     winningBalls: null,
+    createdAt: '2025-06-08 14:30:00'
+  },
+    {
+    id: '12',
+    lottery: 'Weekend Allowee',
+    price: 200,
+    status: "WON",
+     winningBalls: 30,
+    createdAt: '2025-06-08 14:30:00'
+  }
 ]
 
 export default function GameHistoryScreen() {
@@ -133,7 +133,7 @@ export default function GameHistoryScreen() {
     <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 px-4' style={{ backgroundColor: theme.colors.background}}>
       <Header title='Game History' icon onpress={() => router.back()}/>
      
-        <View className="mt-4 flex-1 rounded-md border border-orange border-b-0 overflow-hidden pt-1">
+        <View className="flex-1 mt-4 rounded-md border border-orange border-b-0 overflow-hidden pt-1">
           <FlatList
             data={games}
             keyExtractor={(item, index) => index.toString()}

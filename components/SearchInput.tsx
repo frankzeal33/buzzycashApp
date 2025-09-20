@@ -32,7 +32,7 @@ const SearchInput = ({ value, placeholder, handleChangeText, labelStyle, disable
                 backgroundColor: theme.colors.darkGray,
                 color: theme.colors.text
               }
-            ]} className="flex-1 font-aregular text-base" placeholder={placeholder} placeholderTextColor="#ccc" onChangeText={handleChangeText} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} editable={disabled}/>
+            ]} className="flex-1 font-aregular text-base" value={value} placeholder={placeholder} placeholderTextColor="#ccc" onChangeText={handleChangeText} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} editable={disabled}/>
           <TouchableOpacity>
               <AntDesign name="search1" size={22} color="#ccc" />
           </TouchableOpacity>

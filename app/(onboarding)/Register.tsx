@@ -164,8 +164,8 @@ const Register = () => {
     try {
 
       const data = {
-        phoneNumber: userPhoneNumber,
-        verificationCode: otp
+        phone_number: userPhoneNumber,
+        verification_code: otp
       }
 
       console.log("otp-data", otp)
@@ -226,11 +226,11 @@ const Register = () => {
       setIsSubmitting(true)
       
       const data ={
-        countryOfResidence: cResidence,
-        phoneNumber: removePlusSign,
+        country_of_residence: cResidence,
+        phone_number: removePlusSign,
         password: form.password,
-        confirmPassword: form.confirmPassword,
-        referralCode: form.referralCode
+        confirm_password: form.confirmPassword,
+        referral_code: form.referralCode
       }
 
       console.log(data)
@@ -238,7 +238,7 @@ const Register = () => {
 
       console.log(result.data)
 
-      setUserPhoneNumber(result.data?.data?.user?.phoneNumber)
+      setUserPhoneNumber(result.data?.user?.phoneNumber)
 
       setConfirmModal(true)
       setShowOTP(true)
@@ -258,12 +258,12 @@ const Register = () => {
       setPhoneNoError(error.response.data.message)
       console.log(error.response.data.message)
 
-      if(error.response.status === 409){
+      if(error.response.status === 409 && error.response.data.message === "Account exists but not verified. Please login to complete verification"){
 
         setTimeout(() => {
           router.replace("/(onboarding)/LogIn")
           setConfirmModal(false)
-        }, 6000);
+        }, 7000);
 
       }
 
@@ -282,7 +282,7 @@ const Register = () => {
     try {
       
       const result = await axiosClient.post("/auth/resend-otp", {
-        phoneNumber: userPhoneNumber,
+        phone_number: userPhoneNumber,
       })
 
       console.log("resend-info", result.data)

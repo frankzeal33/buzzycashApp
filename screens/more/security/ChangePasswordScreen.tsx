@@ -65,7 +65,11 @@ const ChangePasswordScreen = () => {
 
       setIsSubmitting(true)
   
-      const result = await axiosClient.put("/auth/change-password", form)
+      const result = await axiosClient.put("/auth/change-password", {
+        current_password: form.currentPassword,
+        new_password: form.newPassword,
+        confirm_new_password: form.confirmNewPassword
+      })
 
       Toast.show({
         type: 'success',

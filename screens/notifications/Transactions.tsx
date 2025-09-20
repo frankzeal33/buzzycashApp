@@ -6,6 +6,7 @@ import moment from 'moment';
 import Loading from '@/components/Loading';
 import NotificationCard from '@/components/NotificationCard';
 import { useThemeStore } from '@/store/ThemeStore';
+import { axiosClient } from '@/globalApi';
 
 type NotificationItem = {
   id: string;
@@ -22,33 +23,33 @@ type NotificationSection = {
   data: NotificationItem[];
 };
 
-const sections: NotificationSection[] = [
-  {
-    title: 'Today',
-    data: [
-      { id: '1', title: 'Hotpicks', endsIn: '1day 3hrs 30mins', time: 'Today @1:48pm' },
-      { id: '2', title: 'Daily ChopChop', endsIn: '7hrs 20mins', time: 'Today @1:40pm' },
-      { id: '3', title: 'Buzzy Balls', endsIn: '', time: 'Today @1:40pm' },
-    ],
-  },
-  {
-    title: 'Yesterday',
-    data: [
-      { id: '4', title: 'Hotpicks', amount: '2,500.00', status: 'You Won', time: 'Today @1:48pm', unread: true },
-      { id: '5', title: 'Weekend Allowee', amount: '3,500.00', status: 'You Lost', time: 'Today @11:20am' },
-      { id: '6', title: 'Buzzy Balls', amount: '2,000.00', status: 'You Won', time: 'Today @12:00pm' },
-      { id: '7', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' }
-    ],
-  },
-  {
-    title: '3days Ago',
-    data: [
-      { id: '8', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
-      { id: '9', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
-      { id: '10', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
-    ],
-  },
-];
+// const sections: NotificationSection[] = [
+//   {
+//     title: 'Today',
+//     data: [
+//       { id: '1', title: 'Hotpicks', endsIn: '1day 3hrs 30mins', time: 'Today @1:48pm' },
+//       { id: '2', title: 'Daily ChopChop', endsIn: '7hrs 20mins', time: 'Today @1:40pm' },
+//       { id: '3', title: 'Buzzy Balls', endsIn: '', time: 'Today @1:40pm' },
+//     ],
+//   },
+//   {
+//     title: 'Yesterday',
+//     data: [
+//       { id: '4', title: 'Hotpicks', amount: '2,500.00', status: 'You Won', time: 'Today @1:48pm', unread: true },
+//       { id: '5', title: 'Weekend Allowee', amount: '3,500.00', status: 'You Lost', time: 'Today @11:20am' },
+//       { id: '6', title: 'Buzzy Balls', amount: '2,000.00', status: 'You Won', time: 'Today @12:00pm' },
+//       { id: '7', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' }
+//     ],
+//   },
+//   {
+//     title: '3days Ago',
+//     data: [
+//       { id: '8', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
+//       { id: '9', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
+//       { id: '10', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
+//     ],
+//   },
+// ];
   
 
 const Transactions = () => {
@@ -56,14 +57,56 @@ const Transactions = () => {
     const { theme } = useThemeStore();
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false)
+    const [transactions, setTransaction] = useState<NotificationSection[]>([])
+    const [totalItems, setTotalItems] = useState(0)
+
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
+        getByTransactions()
+    }, [])
+
+    const getByTransactions = async () => {
+        setLoading(true)
+        try {
+           const result = await axiosClient.get(`/notification?notiType=games&limit=${pageSize}&page=${page}`)
+            setTransaction(result.data.notifications || [])
+            setTotalItems(result.data.total_count || 0)
+            console.log(result.data)
+        } catch (error: any) {
+            console.log(error.response?.data || error.message)
+        } finally {
             setLoading(false)
-        }, 4000)
-    
-        return () => clearTimeout(timer);
-    }, []);
+        }
+    }
+
+    const sections: NotificationSection[] = useMemo(() => {
+        if (!Array.isArray(transactions) || transactions.length === 0) return [];
+
+        // Group by month (e.g. "September 2025")
+        const grouped: Record<string, any[]> = {};
+
+        transactions.forEach((n, index) => {
+            const dateKey = moment(n.created_at).format("MMMM YYYY"); // e.g., "September 2025"
+
+            if (!grouped[dateKey]) grouped[dateKey] = [];
+
+            grouped[dateKey].push({
+            id: String(index),
+            title: n?.title?.trim() || "Untitled",
+            amount: n?.amount ? displayCurrency(Number(n?.amount), n?.currency || "NGN") : "",
+            status: n?.status || "",
+            time: moment(n.created_at).format("MMM D, hh:mma"), // e.g., "Sep 18, 11:49am"
+            unread: n?.status !== "successful",
+            });
+        });
+
+        return Object.keys(grouped).map((key) => ({
+            title: key,
+            data: grouped[key],
+        }));
+    }, [transactions]);
 
     const displayModal = () => {
         setShowModal(true)

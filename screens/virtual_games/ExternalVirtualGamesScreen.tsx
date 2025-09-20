@@ -1,19 +1,18 @@
 import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Header from '@/components/Header'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useThemeStore } from '@/store/ThemeStore'
 import { WebView } from "react-native-webview"
-import getWallet from '@/utils/WalletApi'
 import { AntDesign } from '@expo/vector-icons'
+import { StatusBar } from 'expo-status-bar'
 
 const { height, width} = Dimensions.get("window")
 
-const FundPaymentGatewayScreen = () => {
+const ExternalVirtualGamesScreen = () => {
 
   const { theme } = useThemeStore();
-  const { paylink } = useLocalSearchParams() as any;
+  const { gameLink } = useLocalSearchParams() as any;
 
   const [visible, setVisible] = useState(false)
 
@@ -40,20 +39,19 @@ const FundPaymentGatewayScreen = () => {
   };
 
   return (
-    <SafeAreaView className='h-full flex-1 bg-white'>
+    <SafeAreaView className='h-full flex-1 bg-black'>
       <View className='px-4'>
         <View className='py-2'>
           <View className='flex-row items-center justify-between gap-2'>
             <View className='w-7'/>
-            <TouchableOpacity onPress={() => router.back()}><AntDesign name="arrowleft" size={28} color="#EF9439"/></TouchableOpacity>
+            <TouchableOpacity onPress={() => router.back()}><AntDesign name="arrowleft" size={28} color="#fff"/></TouchableOpacity>
           </View>
-          <Text className={`text-xl font-msbold mt-1 text-center text-black`}>Fund Wallet</Text>
         </View>
       </View>
 
       <WebView
        ref={webview}
-        source={{uri: paylink }}
+        source={{uri: gameLink }}
         onLoadStart={() => setVisible(true)}
         onLoadEnd={() => setVisible(false)}
         onNavigationStateChange={handleWebViewNavigationStateChange}
@@ -61,14 +59,13 @@ const FundPaymentGatewayScreen = () => {
 
       {
         visible && (
-          <ActivityIndicator size="large" color="#111625" style={{position:"absolute", top: height/2, left: width/2}}/>
+          <ActivityIndicator size="large" color="black" style={{position:"absolute", top: height/2, left: width/2}}/>
         )
       }
 
+        <StatusBar style="light" />
     </SafeAreaView>
   )
 }
 
-export default FundPaymentGatewayScreen
-
-const styles = StyleSheet.create({})
+export default ExternalVirtualGamesScreen

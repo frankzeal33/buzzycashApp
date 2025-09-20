@@ -64,9 +64,9 @@ const NewForgotPassword = () => {
             setIsSubmitting(true)
             
             const data = {
-                userId: userId,
-                newPassword: form.password,
-                confirmNewPassword: form.confirmPassword
+                user_id: userId,
+                new_password: form.password,
+                confirm_new_password: form.confirmPassword
             }
 
             const result = await axiosClient.put("/auth/reset-password", data)

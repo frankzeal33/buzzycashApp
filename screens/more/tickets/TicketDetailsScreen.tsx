@@ -17,6 +17,7 @@ import Header from '@/components/Header'
 import { axiosClient } from '@/globalApi'
 import FullScreenLoader from '@/components/FullScreenLoader'
 import getWallet from '@/utils/WalletApi'
+import Toast from 'react-native-toast-message'
 
 const TicketDetailsScreen = () => {
 
@@ -61,7 +62,14 @@ const TicketDetailsScreen = () => {
     
         } catch (error: any) {
             setShowSuccess(false)
-            setShowModal(true)
+            if(error.response.status === 402 && error.response.data.message === "Insufficient wallet balance"){
+                setShowModal(true)
+            }else{
+                Toast.show({
+                    type: 'error',
+                    text1: error.response.data.message
+                });
+            }
             console.log(error.response.data)
         } finally {
             setIsSubmitting(false)
@@ -72,6 +80,11 @@ const TicketDetailsScreen = () => {
     const closeModal = () => {
         setShowModal(false)
         setShowSuccess(false)
+    }
+
+    const goToFundWallet = () => {
+        setShowModal(false)
+        router.push("/(protected)/(routes)/FundWallet")
     }
 
     const increaseTicket = () => {
@@ -178,7 +191,7 @@ const TicketDetailsScreen = () => {
                                 <Text className="text-xl font-mbold items-end" style={{color: theme.colors.text}}>{displayCurrency(totalPrice)}</Text>
                             </View>
                             <GradientButton
-                                // disableButton={gameExpired}
+                                disableButton={gameExpired}
                                 title={gameExpired ? "Time Elapsed" : "Purchase Tickets"}
                                 handlePress={purchase}
                                 containerStyles="w-[70%] mx-auto my-4"
@@ -221,12 +234,12 @@ const TicketDetailsScreen = () => {
                                 source={images.info}
                             />
                         </View>
-                        <Text className="font-mmedium text-center my-6">
+                        <Text className="font-mmedium text-center my-6" style={{color: theme.colors.text}}>
                             You are one step closer to your big win. Take more risk to gain more.
                         </Text>
                         <GradientButton
                             title="Fund Wallet"
-                            handlePress={() => router.push("/(protected)/(routes)/FundWallet")}
+                            handlePress={goToFundWallet}
                             containerStyles="w-[70%] mx-auto"
                             textStyles="text-white"
                         />

@@ -127,7 +127,7 @@ const LogIn = () => {
 
     const removePlusSign = phone.replace("+", "");
 
-    const payload = form.phoneNumber ? { phoneNumber: removePlusSign, password: form.password }
+    const payload = form.phoneNumber ? { phone_number: removePlusSign, password: form.password }
         : { email: form.email, password: form.password };
 
     console.log("Submitting:", payload);
@@ -175,7 +175,7 @@ const LogIn = () => {
     } catch (error: any) {
       console.log(error.response.data)
 
-      if(error.response.status === 403){
+      if(error.response.status === 403 && error.response.data.message === "Verification OTP sent. Please verify your account to continue."){
 
         setUserPhoneNumber(removePlusSign || "")
         setOTPPhoneError(error.response.data.message)
@@ -203,7 +203,7 @@ const LogIn = () => {
       try {
 
         const result = await axiosClient.post("/auth/resend-otp", {
-          phoneNumber: userPhoneNumber,
+          phone_number: userPhoneNumber,
         })
   
         console.log("resend-info", result.data)
@@ -244,8 +244,8 @@ const LogIn = () => {
       try {
   
           const data = {
-            phoneNumber: userPhoneNumber,
-            verificationCode: phoneOTP
+            phone_number: userPhoneNumber,
+            verification_code: phoneOTP
           }
     
           console.log("otp-phone", phoneOTP)

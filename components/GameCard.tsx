@@ -5,7 +5,7 @@ import CountDown from 'react-native-countdown-component';
 import StrokedText from './StrokedText';
 import displayCurrency from '@/utils/displayCurrency';
 import { getCountdownSeconds } from '@/utils/CountdownSeconds';
-import { ticketGameType } from '@/types/gameTypes';
+import { ticketGameType } from '@/types/types';
 import { useState } from 'react';
 
 const GameCard = ({ item, handlePress, index }: { item: ticketGameType; handlePress: () => void; index: number }) => {
@@ -54,7 +54,7 @@ const GameCard = ({ item, handlePress, index }: { item: ticketGameType; handlePr
               <CountDown
                 until={getCountdownSeconds(item?.draw_time)}
                 size={20}
-                onFinish={() => setGameExpired(false)}
+                onFinish={() => setGameExpired(true)}
                 digitStyle={{
                   backgroundColor: '#fff',
                   width: 30,

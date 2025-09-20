@@ -18,7 +18,7 @@ import Carousel from "react-native-reanimated-carousel";
 import Header from '@/components/Header';
 import BalanceCard from '@/components/BalanceCard';
 import { images } from '@/constants';
-import { Link, router } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import GameCard from '@/components/GameCard';
 import LiveWinnerTicker from '@/components/LiveWinnerTicker'
 import LottieView from 'lottie-react-native';
@@ -29,7 +29,7 @@ import { axiosClient } from '@/globalApi';
 import { Skeleton } from 'moti/skeleton';
 import { useSkeletonCommonProps } from '@/utils/SkeletonProps';
 import { Ionicons } from '@expo/vector-icons';
-import { ticketGameType } from '@/types/gameTypes';
+import { ticketGameType } from '@/types/types';
 
 const sliderImages = [
 	images.card1,
@@ -112,6 +112,8 @@ const CarouselComponent = memo(({ width, itemWidth, fullWidth, theme }: { width:
 
 const HomeScreen = () => {
 
+  const { orderId, orderReference, status } = useLocalSearchParams() as any;
+
   const { theme } = useThemeStore();
   const { bottom } = useSafeAreaInsets()
   const Bottom = bottom + 55;
@@ -156,9 +158,16 @@ const HomeScreen = () => {
   }
 
   useEffect(() => {
-    getWallet(false)
     AllTickets()
   }, [])
+
+  useEffect(() => {
+    if ((orderId && orderReference) || status === "completed") {
+      getWallet(true)
+    } else {
+      getWallet(false)
+    }
+  }, [orderId, orderReference, status]);
   
   const {
     onMomentumScrollEnd,
@@ -285,7 +294,7 @@ const HomeScreen = () => {
                 ListEmptyComponent={() => (
                 <View className='flex-1'>
                   <View className="w-full items-center mx-auto justify-center my-8 max-w-64 flex-1">
-                    <Ionicons name="ticket-outline" size={40} color="#EF9439" className="mx-auto"/>
+                    <Ionicons name="ticket-outline" size={24} color="#EF9439" className="mx-auto"/>
                     <Text className="text-lg text-center mt-4 font-rbold" style={{color: theme.colors.text}}>There is no ticket games yet.</Text>
                   </View>
                 </View>

@@ -1,20 +1,20 @@
 const transactionType = [
-  {title: 'Game'},
-  {title: 'Ticket'},
-  {title: 'Cashout'},
-  {title: 'Deposit'}
+  {title: 'Top Up', value: 'TOPUP'},
+  {title: 'Cashout', value: 'CASHOUT'},
+  {title: 'Game', value: 'GAME'},
+  {title: 'Ticket', value: 'TICKET'}
 ];
 
 const transactionRemark = [
-  { title: 'Successful' },
-  { title: 'Failed' },    
-  { title: 'Reversed' },
-  { title: 'Pending' }
+  { title: 'Successful', value: 'SUCCESSFUL' },
+  { title: 'Failed', value: 'FAILED' },    
+  { title: 'Reversed', value: 'REVERSED' },
+  { title: 'Pending', value: 'PENDING' }
 ];
 
 const GameTime = [
-  { title: 'Ongoing' },
-  { title: 'Elapsed' }
+  { title: 'Ongoing', value: 'ONGOING' },
+  { title: 'Elapsed', value: 'ELAPSED' }
 ];
 
 const Theme = [
@@ -24,9 +24,9 @@ const Theme = [
 ];
 
 const gender = [
-  { label: 'Male', value: 'male' },
-  { label: 'Female', value: 'female' },
-  { label: 'Others', value: 'others' }
+  { label: 'Male', value: 'MALE' },
+  { label: 'Female', value: 'FEMALE' },
+  { label: 'Others', value: 'OTHERS' }
 ];
 
 const IDType = [

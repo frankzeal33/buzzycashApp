@@ -31,7 +31,7 @@ export default function MenuBalanceCard({showModal, setShowModal}: {showModal: b
         <View>
           {balanceLoading ? (
             <View className='min-h-7'>
-              <ActivityIndicator size="small" color="black"/>
+              <ActivityIndicator size="small" color={theme.colors.text}/>
             </View>
           ) : 
            hideWallet === "true" ? (

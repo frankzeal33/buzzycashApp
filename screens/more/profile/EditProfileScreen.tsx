@@ -96,10 +96,12 @@ const EditProfileScreen = () => {
       setIsSubmitting(true)
 
       const data = {
-        fullName: fullName,
-        dateOfBirth: birthFormatted,
+        full_name: fullName,
+        date_of_birth: birthFormatted,
         gender: selectedGender
       }
+
+      console.log(data)
 
       const result = await axiosClient.patch("/profile/update-profile", data)
 

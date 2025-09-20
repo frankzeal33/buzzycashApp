@@ -8,6 +8,7 @@ import Pagination from '@cherry-soft/react-native-basic-pagination';
 import Loading from '@/components/Loading'
 import { router } from 'expo-router'
 import { useThemeStore } from '@/store/ThemeStore'
+import { axiosClient } from '@/globalApi'
 
 type ticketsType = {
   id: string,
@@ -17,63 +18,81 @@ type ticketsType = {
   createdAt: string,
 }[]
 
-const tickets: ticketsType = [
-  {
-    id: '1',
-    name: 'Zero Play',
-    amount: 200,
-    quantity: 3,
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: '2',
-    name: 'Weekend Allowee',
-    amount: 2000,
-    quantity: 2,
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: '3',
-    name: 'Weekend Allowee',
-    amount: 300,
-    quantity: 1,
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: '4',
-    name: 'Weekend Allowee',
-    amount: 200,
-    quantity: 2,
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: '5',
-    name: 'Weekend Allowee',
-    amount: 200,
-    quantity: 2,
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: '6',
-    name: 'Weekend Allowee',
-    amount: 200,
-    quantity: 2,
-    createdAt: '2025-06-08 14:30:00'
-  }
-]
+// const tickets: ticketsType = [
+//   {
+//     id: '1',
+//     name: 'Zero Play',
+//     amount: 200,
+//     quantity: 3,
+//     createdAt: '2025-06-08 14:30:00'
+//   },
+//     {
+//     id: '2',
+//     name: 'Weekend Allowee',
+//     amount: 2000,
+//     quantity: 2,
+//     createdAt: '2025-06-08 14:30:00'
+//   },
+//     {
+//     id: '3',
+//     name: 'Weekend Allowee',
+//     amount: 300,
+//     quantity: 1,
+//     createdAt: '2025-06-08 14:30:00'
+//   },
+//     {
+//     id: '4',
+//     name: 'Weekend Allowee',
+//     amount: 200,
+//     quantity: 2,
+//     createdAt: '2025-06-08 14:30:00'
+//   },
+//     {
+//     id: '5',
+//     name: 'Weekend Allowee',
+//     amount: 200,
+//     quantity: 2,
+//     createdAt: '2025-06-08 14:30:00'
+//   },
+//     {
+//     id: '6',
+//     name: 'Weekend Allowee',
+//     amount: 200,
+//     quantity: 2,
+//     createdAt: '2025-06-08 14:30:00'
+//   }
+// ]
 
 export default function TicketsScreen() {
 
   const { theme } = useThemeStore();
   const [showModal, setShowModal] = useState(false)
-   const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
+  const [tickets, setTickets] = useState<ticketsType[]>([])
+  const [totalItems, setTotalItems] = useState(0)
+
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
-    setTimeout(() => {
-        setLoading(false)
-    }, 4000)
-  })
+    getTickets()
+  }, [])
+
+  const getTickets = async () => {
+    setLoading(true)
+    try {
+      
+      const result = await axiosClient.get(`/result/user-results?limit=${pageSize}&page=${page}`)   
+
+      setTickets(result.data?.resultsResponse?.items || [])
+      setTotalItems(result.data?.resultsResponse?.count || 0)
+      console.log(result.data)
+    } catch (error: any) {
+      console.log(error.response?.data || error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleModal = () => {
     setShowModal(true)
@@ -111,11 +130,11 @@ export default function TicketsScreen() {
           </View>
         )}
 
-        {tickets.length > 0 && !loading && (
+        {tickets.length > 0 && totalItems > pageSize && !loading && (
           <View className="mb-6">
             <Pagination
-              totalItems={100}
-              pageSize={5}
+              totalItems={totalItems}
+              pageSize={pageSize}
               currentPage={page}
               onPageChange={setPage}
               showLastPagesButtons

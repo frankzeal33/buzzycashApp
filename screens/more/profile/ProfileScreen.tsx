@@ -220,7 +220,7 @@ const ProfileScreen = () => {
       setIsSubmitting(true)
       const result = await axiosClient.post("/profile/verify-email", {
         email: userProfile.email,
-        verificationCode: otp
+        verification_code: otp
       })
 
       console.log("send-info", result.data)

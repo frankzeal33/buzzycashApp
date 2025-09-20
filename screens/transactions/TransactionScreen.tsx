@@ -1,6 +1,6 @@
 import Header from '@/components/Header'
 import { StatusBar } from 'expo-status-bar'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FlatList, Modal, ScrollView, Text, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Pagination from '@cherry-soft/react-native-basic-pagination';
@@ -13,75 +13,75 @@ import SearchInput from '@/components/SearchInput'
 import Entypo from '@expo/vector-icons/Entypo';
 import { router } from 'expo-router'
 import { useThemeStore } from '@/store/ThemeStore'
-
-type transactionsType = {
-  id: string,
-  name: string,
-  amount: number,
-  balance: number,
-  paymentStatus: string,
-  createdAt: string,
-}[]
-
-const transactions: transactionsType = [
-  {
-    id: 'US2VDJ4I3RI',
-    name: 'Price Money',
-    amount: 200,
-    balance: 30000,
-    paymentStatus: "SUCCESSFUL",
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: 'US2VDJ4I3RI',
-    name: 'Ticket Purchase',
-    amount: 2000,
-    balance: 30000,
-    paymentStatus: "SUCCESSFUL",
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: 'US2VDJ4I3RI',
-    name: 'Deposit',
-    amount: 300,
-    balance: 30000,
-    paymentStatus: "FAILED",
-    createdAt: '2025-06-08 14:30:00'
-  },
-    {
-    id: 'US2VDJ4I3RI',
-    name: 'Cashout',
-    amount: 200,
-    balance: 30000,
-    paymentStatus: "PENDING",
-    createdAt: '2025-06-08 14:30:00'
-  },
-  {
-    id: 'US2VDJ4I3RI',
-    name: 'Ticket Purchase',
-    amount: 200,
-    balance: 30000,
-    paymentStatus: "SUCCESSFUL",
-    createdAt: '2025-06-08 14:30:00'
-  },
-]
+import { axiosClient } from '@/globalApi'
+import { transactionsType } from '@/types/types'
+import Loading from '@/components/Loading'
 
 const TransactionScreen = () => {
 
   const { theme } = useThemeStore();
+  const [transactions, setTransactions] = useState<transactionsType[]>([])
+  const [loadingTransactions, setLoadingTransactions] = useState(true)
+  const [transactionInfo, setTransactionInfo] = useState<transactionsType | null>(null)
   const [showModal, setShowModal] = useState(false)
-  const [page, setPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0)
+  const [remark, setRemark] = useState<string | null>(null)
+  const [type, setType] = useState<string | null>(null)
 
-  const handleModal = () => {
+  const [search, setSearch] = useState("")
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  const handleModal = (item: transactionsType) => {
     setShowModal(true)
+    setTransactionInfo(item)
+  }
+
+  const handleSearchChange = (text: string) => {
+    console.log("Search text:", text) 
+    setSearch(text)
+    setPage(1)       // reset to first page
+  }
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      getTransactions()
+    }, 500) // debounce for smoother search
+
+    return () => clearTimeout(timeout)
+  }, [page, remark, type, search])
+
+  const getTransactions = async () => {
+    setLoadingTransactions(true)
+    try {
+      let result
+
+      if (search) {
+        result = await axiosClient.get(`/transactions/search?search=${encodeURIComponent(search)}&limit=${pageSize}&page=${page}`)
+      } else {
+        let query = `/transactions/history?limit=${pageSize}&page=${page}`
+        if (remark) query += `&payment_status=${remark}`
+        if (type) query += `&payment_type=${type}`
+        result = await axiosClient.get(query)
+      }
+
+      setTransactions(result.data.transactions || [])
+      setTotalItems(result.data.total_count || 0)
+      console.log(result.data)
+    } catch (error: any) {
+      console.log(error.response?.data || error.message)
+    } finally {
+      setLoadingTransactions(false)
+    }
   }
 
   const renderTickets = ({item, index}: {item: any, index: number}) => (
-    <TransactionCard item={item} index={index} handlePress={() => handleModal()}/>
+    <TransactionCard item={item} index={index} handlePress={() => handleModal(item)}/>
   )
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 px-4' style={{ backgroundColor: theme.colors.background}}>
+    <SafeAreaView className='h-full flex-1 px-4' style={{ backgroundColor: theme.colors.background}}>
       <Header title='Transaction History' icon onpress={() => router.back()}/>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
      
@@ -90,13 +90,16 @@ const TransactionScreen = () => {
             ListHeaderComponent={() => (
               <View style={{ backgroundColor: theme.colors.background}}>
                 <View className='flex flex-row w-full'>
-                  <SearchInput placeholder="Search Transactions..." otherStyles='w-full'/>
+                  <SearchInput placeholder="Search Transactions..." value={search} handleChangeText={handleSearchChange} otherStyles='w-full'/>
                 </View>
                 <View className='my-3 flex-row items-center justify-between gap-1'>
                   
                   <SelectDropdown
                     data={data.transactionType}
+                    defaultValue={data.transactionType.find(item => item.value === type) || null}
                     onSelect={(selectedItem, index) => {
+                      setSearch("")
+                      setType(selectedItem.value)
                       console.log(selectedItem, index);
                     }}
                     renderButton={(selectedItem, isOpened) => {
@@ -111,7 +114,7 @@ const TransactionScreen = () => {
                     }}
                     renderItem={(item, index, isSelected) => {
                       return (
-                        <View key={index} style={{...styles.dropdownItemStyle, backgroundColor: theme.colors.darkGray, ...(isSelected && {backgroundColor: '#C23525'})}}>
+                        <View key={index} style={{...styles.dropdownItemStyle, backgroundColor: theme.colors.darkGray, ...(isSelected && {backgroundColor: '#EF9439'})}}>
                           <Text style={[styles.dropdownItemTxtStyle, {color: theme.colors.text}]}>{item.title}</Text>
                         </View>
                       );
@@ -125,7 +128,10 @@ const TransactionScreen = () => {
 
                   <SelectDropdown
                     data={data.transactionRemark}
+                    defaultValue={data.transactionRemark.find(item => item.value === remark) || null}
                     onSelect={(selectedItem, index) => {
+                      setSearch("")
+                      setRemark(selectedItem.value)
                       console.log(selectedItem, index);
                     }}
                     renderButton={(selectedItem, isOpened) => {
@@ -140,7 +146,7 @@ const TransactionScreen = () => {
                     }}
                     renderItem={(item, index, isSelected) => {
                       return (
-                        <View key={index} style={{...styles.dropdownItemStyle, backgroundColor: theme.colors.darkGray, ...(isSelected && {backgroundColor: '#C23525'})}}>
+                        <View key={index} style={{...styles.dropdownItemStyle, backgroundColor: theme.colors.darkGray, ...(isSelected && {backgroundColor: '#EF9439'})}}>
                           <Text style={[styles.dropdownItemTxtStyle, {color: theme.colors.text}]}>{item.title}</Text>
                         </View>
                       );
@@ -154,26 +160,33 @@ const TransactionScreen = () => {
                 </View>
               </View>
             )}
-            data={transactions}
-            keyExtractor={(item, index) => index.toString()}
+            data={loadingTransactions ? [] : transactions}
+            keyExtractor={(item, index) => item.id}
             renderItem={renderTickets}
             scrollEnabled={false}
-            ListEmptyComponent={() => (  
+            ListEmptyComponent={!loadingTransactions ? (
               <View className="items-center justify-center py-44">
-                <Text className="text-xl text-center font-msbold" style={{ color: theme.colors.text}}>No Tickets yet!</Text>
+                <Text className="text-xl text-center font-msbold" style={{ color: theme.colors.text}}>{search ? "No result found!" : "No Tickets yet!"}</Text>
                 <Text className="text-sm text-center mt-1 font-mlight" style={{ color: theme.colors.text}}>
-                  All your purchased tickets will show here.
+                  All your transaction history will show here.
                 </Text>
               </View>
-            )}
+            ) : null}
+            ListFooterComponent={
+              loadingTransactions ? (
+                <View className="items-center justify-center py-44">
+                  <Loading/>
+                </View>
+              ) : null
+            }
           />
         </View>
 
-        {transactions.length > 0 && (
+        {transactions.length > 0 && totalItems > pageSize && !loadingTransactions && (
           <View className="mb-6">
             <Pagination
-              totalItems={100}
-              pageSize={5}
+              totalItems={totalItems}
+              pageSize={pageSize}
               currentPage={page}
               onPageChange={setPage}
               showLastPagesButtons
@@ -206,21 +219,28 @@ const TransactionScreen = () => {
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Amount</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(0), 'NGN')}</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(transactionInfo?.amount))}</Text>
                     </View>
                     <View className='flex-row items-start justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
-                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Post Balance</Text>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Status</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(100), 'NGN')}</Text>
+                      <Text className={`text-base font-mmedium flex-1 ${transactionInfo?.payment_status === "SUCCESSFUL" ? "text-green-500" : transactionInfo?.payment_status === "FAILED" ? "text-red-500" : "text-yellow-500"}`}>{transactionInfo?.payment_status}</Text>
                     </View>
                     <View className='flex-row items-start justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
-                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Details</Text>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Category</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>Debit for purchased ticket</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{transactionInfo?.category}</Text>
+                    </View>
+                    <View className='flex-row items-start justify-between gap-3'>
+                      <View className='flex-row gap-2 items-center justify-between w-36'>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Txn No</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
+                      </View>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{transactionInfo?.transaction_reference}</Text>
                     </View>
                   </View>
                 </ScrollView>

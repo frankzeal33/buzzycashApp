@@ -30,7 +30,7 @@ export default function BalanceCard() {
         <View>
           {balanceLoading ? (
             <View className='min-h-8'>
-              <ActivityIndicator size="small" color="black"/>
+              <ActivityIndicator size="small" color={theme.colors.text}/>
             </View>
           ) : 
             hideWallet === "true" ? (

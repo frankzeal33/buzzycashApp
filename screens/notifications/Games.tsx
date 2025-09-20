@@ -6,6 +6,7 @@ import moment from 'moment';
 import Loading from '@/components/Loading';
 import NotificationCard from '@/components/NotificationCard';
 import { useThemeStore } from '@/store/ThemeStore';
+import { axiosClient } from '@/globalApi';
 
 type NotificationItem = {
   id: string;
@@ -22,43 +23,95 @@ type NotificationSection = {
   data: NotificationItem[];
 };
 
-const sections: NotificationSection[] = [
-  {
-    title: 'Ongoing',
-    data: [
-      { id: '1', title: 'Hotpicks', endsIn: '1day 3hrs 30mins', time: 'Today @1:48pm' },
-      { id: '2', title: 'Daily ChopChop', endsIn: '7hrs 20mins', time: 'Today @1:40pm' },
-      { id: '3', title: 'Buzzy Balls', endsIn: '', time: 'Today @1:40pm' },
-    ],
-  },
-  {
-    title: 'Recent',
-    data: [
-      { id: '4', title: 'Hotpicks', amount: '2,500.00', status: 'You Won', time: 'Today @1:48pm', unread: true },
-      { id: '5', title: 'Weekend Allowee', amount: '3,500.00', status: 'You Lost', time: 'Today @11:20am' },
-      { id: '6', title: 'Buzzy Balls', amount: '2,000.00', status: 'You Won', time: 'Today @12:00pm', unread: true },
-      { id: '7', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
-      { id: '8', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
-      { id: '9', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm',unread: true  },
-      { id: '10', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
-    ],
-  },
-];
-  
+// const sections: NotificationSection[] = [
+//   {
+//     title: 'Ongoing',
+//     data: [
+//       { id: '1', title: 'Hotpicks', endsIn: '1day 3hrs 30mins', time: 'Today @1:48pm' },
+//       { id: '2', title: 'Daily ChopChop', endsIn: '7hrs 20mins', time: 'Today @1:40pm' },
+//       { id: '3', title: 'Buzzy Balls', endsIn: '', time: 'Today @1:40pm' },
+//     ],
+//   },
+//   {
+//     title: 'Recent',
+//     data: [
+//       { id: '4', title: 'Hotpicks', amount: '2,500.00', status: 'You Won', time: 'Today @1:48pm', unread: true },
+//       { id: '5', title: 'Weekend Allowee', amount: '3,500.00', status: 'You Lost', time: 'Today @11:20am' },
+//       { id: '6', title: 'Buzzy Balls', amount: '2,000.00', status: 'You Won', time: 'Today @12:00pm', unread: true },
+//       { id: '7', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
+//       { id: '8', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
+//       { id: '9', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm',unread: true  },
+//       { id: '10', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
+//     ],
+//   },
+// ];
 
 const Games = () => {
     
     const { theme } = useThemeStore();
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false)
+    const [games, setGames] = useState<NotificationSection[]>([])
+    const [totalItems, setTotalItems] = useState(0)
+
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setLoading(false)
-        }, 4000)
+        getGames()
+    }, [])
 
-        return () => clearTimeout(timer);
-    }, []);
+    const getGames = async () => {
+        setLoading(true)
+        try {
+           const result = await axiosClient.get(`/notification?notiType=games&limit=${pageSize}&page=${page}`)
+            setGames(result.data.notifications || [])
+            setTotalItems(result.data.total_count || 0)
+            console.log(result.data)
+        } catch (error: any) {
+            console.log(error.response?.data || error.message)
+        } finally {
+         setLoading(false)
+        }
+    }
+
+    // transform API data into sections
+    const sections: NotificationSection[] = useMemo(() => {
+        if (!Array.isArray(games) || games.length === 0) {
+            return [];
+        }
+
+        const ongoing = games
+            .filter((n) => n?.status === "pending")
+            .map((n, index) => ({
+            id: String(index),
+            title: n?.title?.trim() || "", // ensure string
+            amount: displayCurrency(Number(n?.amount || 0), n?.currency || "NGN"),
+            status: n?.status ?? "unknown",
+            time: n?.display_time ?? "",
+            unread: false,
+            }));
+
+        const recent = games
+            .filter((n) => n?.status !== "pending")
+            .map((n, index) => ({
+            id: String(index + 1000),
+            title: n?.title?.trim() || "Untitled", // 👈 fallback for empty
+            amount: displayCurrency(Number(n?.amount || 0), n?.currency || "NGN"),
+            status: n?.status ?? "unknown",
+            time: n?.display_time ?? "",
+            unread: true,
+            }));
+
+        return [
+            ...(ongoing.length > 0
+            ? [{ title: "Ongoing", data: ongoing }]
+            : []), // 👈 hide if empty
+            ...(recent.length > 0
+            ? [{ title: "Recent", data: recent }]
+            : []),
+        ];
+        }, [games]);
 
     const displayModal = () => {
         setShowModal(true)

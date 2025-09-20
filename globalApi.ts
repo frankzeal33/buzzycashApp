@@ -28,7 +28,7 @@ axiosClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const isUnauthorized = error.response?.status === 401;
-    console.log("run refresh error=", error.response?.status)
+    console.log("run refresh error=", error.response)
     
     const isFirstRetry = !originalRequest._retry;
 

@@ -13,7 +13,7 @@ import { StatusBar } from 'expo-status-bar'
 import Menu from '@/components/Menu'
 import { useThemeStore } from '@/store/ThemeStore'
 import { axiosClient } from '@/globalApi'
-import { ticketGameType } from '@/types/gameTypes'
+import { ticketGameType } from '@/types/types'
 
 const AllTicketScreen = () => {
 
@@ -106,7 +106,7 @@ const AllTicketScreen = () => {
                     ListEmptyComponent={() => (
                       <View className='flex-1'>
                           <View className="w-full items-center mx-auto justify-center my-6 max-w-64 flex-1">
-                            <Ionicons name="ticket-outline" size={20} color="#EF9439" className="mx-auto"/>
+                            <Ionicons name="ticket-outline" size={30} color="#EF9439" className="mx-auto"/>
                             <Text className="text-2xl text-center text-brown-500 mt-4 font-rbold">No ticket games found.</Text>
                           </View>
                       </View>

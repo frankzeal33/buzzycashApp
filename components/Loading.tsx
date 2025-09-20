@@ -7,13 +7,13 @@ const Loading = () => {
   return (
     <View className='w-full items-center justify-center flex-1'>
         <LottieView
-            autoPlay
-            style={{
-                width: 200,
-                height: 200,
-                alignSelf: 'center',
-            }}
-            source={images.loading}
+          autoPlay
+          style={{
+            width: 100,
+            height: 100,
+            alignSelf: 'center',
+          }}
+          source={images.loading}
         />
     </View>
   )

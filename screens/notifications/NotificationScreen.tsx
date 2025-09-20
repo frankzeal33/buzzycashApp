@@ -6,7 +6,6 @@ import { StatusBar } from 'expo-status-bar'
 import { router } from 'expo-router'
 import { TabView, SceneMap } from 'react-native-tab-view';
 import Games from './Games'
-import All from './All'
 import Transactions from './Transactions'
 import { useThemeStore } from '@/store/ThemeStore'
 
@@ -19,15 +18,13 @@ const NotificationScreen = () => {
 
   
     const renderScene = SceneMap({
-        first: Games,
-        second: Transactions,
-        third: All
+      first: Games,
+      second: Transactions
     });
   
     const routes = [
         { key: 'first', title: 'Games' },
-        { key: 'second', title: 'Transactions' },
-        { key: 'third', title: 'All' },
+        { key: 'second', title: 'Transactions' }
     ];
 
   // Render the custom tab bar

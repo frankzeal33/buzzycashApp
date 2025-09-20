@@ -121,7 +121,7 @@ const ForgotPassword = () => {
   
       const removePlusSign = phone.replace("+", "");
   
-      const payload = form.phoneNumber ? { phoneNumber: removePlusSign }
+      const payload = form.phoneNumber ? { phone_number: removePlusSign }
           : { email: form.email };
   
       console.log("Submitting:", payload);
@@ -166,7 +166,7 @@ const ForgotPassword = () => {
         try {
           
           const result = await axiosClient.post("/auth/forgot-password", {
-            phoneNumber: userPhoneNumber,
+            phone_number: userPhoneNumber,
           })
     
           console.log("resend-info", result.data)
@@ -231,8 +231,8 @@ const ForgotPassword = () => {
       try {
   
           const data = {
-            phoneNumber: userPhoneNumber,
-            verificationCode: phoneOTP
+            phone_number: userPhoneNumber,
+            verification_code: phoneOTP
           }
   
           console.log("otp-phone", phoneOTP)
@@ -277,7 +277,7 @@ const ForgotPassword = () => {
   
           const data = {
             email: userEmail,
-            verificationCode: emailOTP
+            verification_code: emailOTP
           }
   
           console.log("otp-email", emailOTP)
