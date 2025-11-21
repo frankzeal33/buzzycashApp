@@ -11,57 +11,17 @@ import { useThemeStore } from '@/store/ThemeStore'
 import { axiosClient } from '@/globalApi'
 
 type ticketsType = {
-  id: string,
-  name: string,
-  amount: number,
-  quantity: number,
-  createdAt: string,
+  game_id: string;
+  game_id__amount: string; 
+  game_id__draw_time: string; 
+  game_id__game_id: string;
+  game_id__max_winners: number, 
+  game_id__name: string; 
+  game_id__status: string; 
+  id: string;
+  purchased_at: string; 
+  status: string;
 }[]
-
-// const tickets: ticketsType = [
-//   {
-//     id: '1',
-//     name: 'Zero Play',
-//     amount: 200,
-//     quantity: 3,
-//     createdAt: '2025-06-08 14:30:00'
-//   },
-//     {
-//     id: '2',
-//     name: 'Weekend Allowee',
-//     amount: 2000,
-//     quantity: 2,
-//     createdAt: '2025-06-08 14:30:00'
-//   },
-//     {
-//     id: '3',
-//     name: 'Weekend Allowee',
-//     amount: 300,
-//     quantity: 1,
-//     createdAt: '2025-06-08 14:30:00'
-//   },
-//     {
-//     id: '4',
-//     name: 'Weekend Allowee',
-//     amount: 200,
-//     quantity: 2,
-//     createdAt: '2025-06-08 14:30:00'
-//   },
-//     {
-//     id: '5',
-//     name: 'Weekend Allowee',
-//     amount: 200,
-//     quantity: 2,
-//     createdAt: '2025-06-08 14:30:00'
-//   },
-//     {
-//     id: '6',
-//     name: 'Weekend Allowee',
-//     amount: 200,
-//     quantity: 2,
-//     createdAt: '2025-06-08 14:30:00'
-//   }
-// ]
 
 export default function TicketsScreen() {
 
@@ -82,10 +42,10 @@ export default function TicketsScreen() {
     setLoading(true)
     try {
       
-      const result = await axiosClient.get(`/result/user-results?limit=${pageSize}&page=${page}`)   
+      const result = await axiosClient.get(`/ticket/get-tickets?limit=${pageSize}&page=${page}`)   
 
-      setTickets(result.data?.resultsResponse?.items || [])
-      setTotalItems(result.data?.resultsResponse?.count || 0)
+      setTickets(result.data?.tickets || [])
+      setTotalItems(result.data?.count || 0)
       console.log(result.data)
     } catch (error: any) {
       console.log(error.response?.data || error.message)

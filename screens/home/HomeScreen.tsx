@@ -29,7 +29,7 @@ import { axiosClient } from '@/globalApi';
 import { Skeleton } from 'moti/skeleton';
 import { useSkeletonCommonProps } from '@/utils/SkeletonProps';
 import { Ionicons } from '@expo/vector-icons';
-import { ticketGameType } from '@/types/types';
+import { leaderBoardType, ticketGameType } from '@/types/types';
 
 const sliderImages = [
 	images.card1,
@@ -132,6 +132,9 @@ const HomeScreen = () => {
   const [loadingTickets, setLoadingTickets] = useState(false)
   const loadingList = new Array(3).fill(null)
   const [games, setGames] = useState<ticketGameType[]>([])
+  const [leaderBoardItems, setLeaderBoardItems] = useState<leaderBoardType[]>([])
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [loadingLeaderBoard, setLoadingLeaderBoard] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -159,7 +162,37 @@ const HomeScreen = () => {
 
   useEffect(() => {
     AllTickets()
+    leaderBoard()
+    getUnReadNotificationCount()
   }, [])
+
+  const getUnReadNotificationCount = async () => {
+    try {
+      const result = await axiosClient.get('/notification/unread')
+      console.log("noti=", result.data)
+      setNotificationCount(result.data?.unreadCount || 0)
+
+    } catch (error: any) {
+      
+    }
+  };
+
+  const leaderBoard = async () => {
+    setLoadingLeaderBoard(true)
+    try {
+
+      const result = await axiosClient.get("/result/leaderboard")
+
+      setLeaderBoardItems(result.data?.items || [])
+      console.log("this is")
+      console.log("leader=", result.data)
+
+    } catch (error: any) {
+
+    } finally {
+      setLoadingLeaderBoard(false)
+    }
+  }
 
   useEffect(() => {
     if ((orderId && orderReference) || status === "completed") {
@@ -193,7 +226,7 @@ const HomeScreen = () => {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1' style={{ backgroundColor: theme.colors.background}}>
       <View className='flex-1 px-4' style={{paddingBottom: Bottom}}>
-        <Header profile/>
+        <Header profile notificationCount={notificationCount}/>
         <StickyHeaderScrollView
           ref={scrollViewRef}
           containerStyle={{ flex: 1 }}
@@ -261,7 +294,7 @@ const HomeScreen = () => {
                   />
               </View>
               {/* live game */}
-              <LiveWinnerTicker winnerMessages={winnerMessages}/>
+              <LiveWinnerTicker winnerMessages={winnerMessages} loading={loadingLeaderBoard} />
             </View>
           )}
 
@@ -283,7 +316,7 @@ const HomeScreen = () => {
               <FlatList
                 scrollEnabled={false}
                 data={games}
-                keyExtractor={(item, index) => item.id.toString()}
+                keyExtractor={(item, index) => item.game_id}
                 renderItem={renderGames}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={

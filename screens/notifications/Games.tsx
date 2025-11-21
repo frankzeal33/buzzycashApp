@@ -53,6 +53,8 @@ const Games = () => {
     const [showModal, setShowModal] = useState(false)
     const [games, setGames] = useState<NotificationSection[]>([])
     const [totalItems, setTotalItems] = useState(0)
+    const [readStatus, setReadStatus] = useState(true)
+    const [notificationInfo, setNotificationInfo] = useState<NotificationItem | null>(null)
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
@@ -64,10 +66,10 @@ const Games = () => {
     const getGames = async () => {
         setLoading(true)
         try {
-           const result = await axiosClient.get(`/notification?notiType=games&limit=${pageSize}&page=${page}`)
+           const result = await axiosClient.get(`/notification?type=games&limit=${pageSize}&page=${page}`)
             setGames(result.data.notifications || [])
             setTotalItems(result.data.total_count || 0)
-            console.log(result.data)
+            console.log("gamesT=",result.data)
         } catch (error: any) {
             console.log(error.response?.data || error.message)
         } finally {
@@ -82,44 +84,59 @@ const Games = () => {
         }
 
         const ongoing = games
-            .filter((n) => n?.status === "pending")
-            .map((n, index) => ({
-            id: String(index),
-            title: n?.title?.trim() || "", // ensure string
-            amount: displayCurrency(Number(n?.amount || 0), n?.currency || "NGN"),
-            status: n?.status ?? "unknown",
-            time: n?.display_time ?? "",
-            unread: false,
+            .filter((n: any) => n?.status === "pending")
+            .map((n: any, index) => ({
+                id: n?.id,
+                title: n?.title?.trim() || "Untitled",
+                subtitle: n?.subtitle?.trim() || "Untitled",
+                amount: n?.amount,
+                status: n?.status || "",
+                time: n?.display_time ?? ""
             }));
 
         const recent = games
-            .filter((n) => n?.status !== "pending")
-            .map((n, index) => ({
-            id: String(index + 1000),
-            title: n?.title?.trim() || "Untitled", // 👈 fallback for empty
-            amount: displayCurrency(Number(n?.amount || 0), n?.currency || "NGN"),
-            status: n?.status ?? "unknown",
-            time: n?.display_time ?? "",
-            unread: true,
+            .filter((n: any) => n?.status !== "pending")
+            .map((n: any, index) => ({
+                id: n?.id,
+                title: n?.title?.trim() || "Untitled",
+                subtitle: n?.subtitle?.trim() || "Untitled",
+                amount: n?.amount,
+                status: n?.status || "",
+                time: n?.display_time ?? ""
             }));
 
         return [
             ...(ongoing.length > 0
             ? [{ title: "Ongoing", data: ongoing }]
-            : []), // 👈 hide if empty
+            : []), // hide if empty
             ...(recent.length > 0
             ? [{ title: "Recent", data: recent }]
             : []),
         ];
-        }, [games]);
+    }, [games]);
 
-    const displayModal = () => {
+     const markAsRead = async () => {
+        try {
+            const result = await axiosClient.patch(`/notification/read-all?type=games`)
+            setReadStatus(false)
+
+            console.log("trnoti=", result.data)
+        } catch (error: any) {
+            console.log(error.response?.data || error.message)
+        }
+    }
+    
+    const displayModal = (item: NotificationItem) => {
+        setNotificationInfo(item)
         setShowModal(true)
+
+        axiosClient.patch(`/notification/${item?.id}/read`)
+
     }
     
     const renderNotification = ({ item, section }: any) => {
         return (
-            <NotificationCard item={item} section={section} handlePress={displayModal}/>
+            <NotificationCard item={item} section={section} handlePress={() => displayModal(item)}/>
         );
     };
 
@@ -162,12 +179,16 @@ const Games = () => {
         </View>  
         {sections.length > 0 && !loading &&(
             <View className="flex-row justify-between px-4 pb-2 pt-4">
-                <TouchableOpacity>
-                    <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>MARK AS READ</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
+                {readStatus ? (
+                    <TouchableOpacity onPress={markAsRead}>
+                        <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>MARK AS READ</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>MARKED AS READ</Text>
+                )}
+                {/* <TouchableOpacity>
                     <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>CLEAR ALL</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
         )}
 
@@ -217,7 +238,7 @@ const Games = () => {
                             <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Price</Text>
                         </View>
                         <View className='items-end justify-end gap-2 flex-1'>
-                            <Text className="font-semibold text-base" style={{ color: theme.colors.text}}>{displayCurrency(Number(0), 'NGN')}</Text>
+                            <Text className="font-semibold text-base" style={{ color: theme.colors.text}}>{displayCurrency(Number(0))}</Text>
                         </View>
                         </View>
                     </View>

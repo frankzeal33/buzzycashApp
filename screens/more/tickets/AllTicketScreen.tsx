@@ -95,7 +95,7 @@ const AllTicketScreen = () => {
                 ) : (
                   <FlatList
                     data={games}
-                    keyExtractor={(item, index) => item.id.toString()}
+                    keyExtractor={(item, index) => item.game_id}
                     renderItem={renderGames}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={

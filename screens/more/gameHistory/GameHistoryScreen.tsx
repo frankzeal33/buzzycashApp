@@ -6,6 +6,7 @@ import { router } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { useThemeStore } from '@/store/ThemeStore'
+import { axiosClient } from '@/globalApi'
 
 type gameType = {
   id: string;
@@ -121,9 +122,35 @@ export default function GameHistoryScreen() {
   const [games, setGames] = useState<gameType>([])
   const { bottom } = useSafeAreaInsets()
 
+  const [loading, setLoading] = useState(true)
+  const [totalItems, setTotalItems] = useState(0)
+  
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
   useEffect(() => {
     setGames(gameHistory)
   }, [])
+
+  useEffect(() => {
+    getGames()
+  }, [])
+  
+  const getGames = async () => {
+    setLoading(true)
+    try {
+      
+      const result = await axiosClient.get(`/result/winners?limit=${pageSize}&page=${page}`)   
+
+      setGames(result.data?.logsResponse?.items || [])
+      setTotalItems(result.data?.logsResponse?.count || 0)
+      console.log("g=",result.data?.logsResponse?.items)
+    } catch (error: any) {
+      console.log(error.response?.data || error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const renderGamesHistory = ({item, index}: {item: any, index: number}) => (
     <GameHistoryCard item={item} index={index}/>

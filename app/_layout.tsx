@@ -9,6 +9,7 @@ import { StyleSheet } from 'react-native';
 import * as Linking from 'expo-linking';
 import { useThemeStore } from '@/store/ThemeStore';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import getWallet from '@/utils/WalletApi';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -41,8 +42,13 @@ export default function RootLayout() {
     const handleDeepLink = ({ url }: {url: any}) => {
       const data = Linking.parse(url);
       console.log('Received payment callback:', data);
-      // router.push("/(tabs)/home")
-      // e.g. data.query.status === 'success'
+      
+      if (data.hostname === "Home") {
+        if(data.queryParams?.status === "completed"){
+          getWallet(true)
+        }
+      }
+
     };
 
     const sub = Linking.addEventListener('url', handleDeepLink);

@@ -34,8 +34,8 @@ const TransactionScreen = () => {
   const [pageSize, setPageSize] = useState(5);
 
   const handleModal = (item: transactionsType) => {
-    setShowModal(true)
     setTransactionInfo(item)
+    setShowModal(true)
   }
 
   const handleSearchChange = (text: string) => {
@@ -234,6 +234,13 @@ const TransactionScreen = () => {
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
                       <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{transactionInfo?.category}</Text>
+                    </View>
+                    <View className='flex-row items-start justify-between gap-3'>
+                      <View className='flex-row gap-2 items-center justify-between w-36'>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Type</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
+                      </View>
+                      <Text className={`text-base font-mmedium flex-1 ${transactionInfo?.transaction_type === "CREDIT" ? "text-green-500" : transactionInfo?.transaction_type === "DEBIT" ? "text-red-500" : "text-orange-500"}`}>{transactionInfo?.transaction_type}</Text>
                     </View>
                     <View className='flex-row items-start justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>

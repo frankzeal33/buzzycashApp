@@ -26,7 +26,6 @@ const TransactionCard = ({item, handlePress, index}: {item: transactionsType; ha
 
           <View className='items-end justify-end'>
             <Text className="font-bold text-base" style={{ color: theme.colors.text}}>{displayCurrency(Number(item?.amount))}</Text>
-            {/* <Text className="font-light text-sm"  style={{ color: theme.colors.text}}>Bal: {displayCurrency(Number(item?.amount))}</Text> */}
           </View>
         </View>
     </Pressable >

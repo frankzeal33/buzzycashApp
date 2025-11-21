@@ -1,9 +1,10 @@
-import { View, Text, TouchableOpacity, Pressable, Modal, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, TouchableOpacity, Pressable } from 'react-native'
 import AntDesign from '@expo/vector-icons/AntDesign'
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import { router } from 'expo-router';
 import { useThemeStore } from '@/store/ThemeStore';
 import { useProfileStore } from '@/store/ProfileStore';
+import { formatCount } from '@/utils/formatCount';
 
 type headerProps = {
   title?: string;
@@ -12,10 +13,11 @@ type headerProps = {
   action?: string;
   home?: boolean;
   profile?: boolean;
+  notificationCount?: number;
   onpress?: () => void
 }
 
-export default function Header({title, titleColor, home, profile, action, icon = false, onpress}: headerProps) {
+export default function Header({title, titleColor, home, profile, action, notificationCount = 0, icon = false, onpress}: headerProps) {
 
   const { theme } = useThemeStore();
   const userProfile = useProfileStore(state => state.userProfile)
@@ -27,6 +29,10 @@ export default function Header({title, titleColor, home, profile, action, icon =
   .map(word => word.charAt(0).toUpperCase()) // get first letter
   .join("")
   .padEnd(2, userProfile.fullName.charAt(1)?.toUpperCase() || ""); // if only one letter, add 2nd char from first word
+
+  const goToNotification =  () => {
+    router.push("/(protected)/(routes)/Notifications")
+  }
 
   return (
     <>
@@ -50,10 +56,10 @@ export default function Header({title, titleColor, home, profile, action, icon =
           {icon ? (
             <TouchableOpacity onPress={onpress}><AntDesign name="arrowleft" size={28} color="#EF9439"/></TouchableOpacity>
           ) : (
-            <Pressable onPress={() => router.push("/(protected)/(routes)/Notifications")} className="relative rounded-full border border-brown-500 size-9 items-center justify-center">
+            <Pressable onPress={goToNotification} className="relative rounded-full border border-brown-500 size-9 items-center justify-center">
               <EvilIcons name="bell" size={20} color="#EF9439"/>
               <View className="absolute -top-1 -right-1 bg-brown-500 rounded-full min-w-[14px] h-[14px] items-center justify-center px-[4px]">
-                <Text className="text-white text-[8px] font-mbold">3</Text>
+                <Text className="text-white text-[8px] font-mbold">{formatCount(notificationCount)}</Text>
               </View>
             </Pressable>
           )}

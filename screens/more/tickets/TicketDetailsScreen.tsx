@@ -44,7 +44,7 @@ const TicketDetailsScreen = () => {
             setIsSubmitting(true)
 
             const result = await axiosClient.post("/ticket/purchase-ticket", {
-                game_id: parsedTicketData?.id,
+                game_id: parsedTicketData?.game_id,
                 quantity: tickets,
                 amount_paid: totalPrice
             })

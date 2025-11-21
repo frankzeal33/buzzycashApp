@@ -15,7 +15,7 @@ const displayCurrency = (num: number) => {
   const country = useProfileStore.getState().userProfile.countryOfResidence;
   const currency = countryToCurrency[country] || 'NGN'; // fallback to NGN
 
-    // Strictly ensure num is a number
+  // Strictly ensure num is a number
   if (typeof num !== 'number' || isNaN(num) || num === undefined || num === null) {
     return `${currencySymbols[currency]}0.00`; // fallback
   }

@@ -37,6 +37,11 @@ const FundPaymentGatewayScreen = () => {
     //   router.dismissAll()
     // }
 
+    if(url.includes('?orderId')) {
+      getWallet(true)
+      router.dismissAll()
+    }
+
   };
 
   return (

@@ -3,7 +3,7 @@ export type ticketGameType = {
   created_at: string;
   draw_interval: number;
   draw_time: string;
-  id: string; 
+  game_id: string; 
   max_winners: number;
   name: string;
   status: "active" | 'inactive', 
@@ -24,4 +24,10 @@ export type transactionsType = {
   reference: string;
   transaction_reference: string;
   transaction_type: string;
+}
+
+export type leaderBoardType = {
+  phone: string;
+  amount: number;
+  timestamp: string;
 }
