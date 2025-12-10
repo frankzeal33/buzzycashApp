@@ -15,9 +15,16 @@ const getWallet = async (runOnBackground: boolean) => {
 
     console.log("balance data", result.data);
 
-    const walletBalance = result.data.result.balance || 0;
+    const payload = result.data?.result;
 
-    setWalletInfo(walletBalance);
+    const allBalances = {
+      total: payload?.balance ?? 0,
+      bonus: Number(payload?.["wallet Balance"]?.bonus_balance ?? 0),
+      playing: Number(payload?.["wallet Balance"]?.playing_balance ?? 0),
+      winning: Number(payload?.["wallet Balance"]?.winning_balance ?? 0),
+    };
+
+    setWalletInfo(allBalances);
 
   } catch (error: any) {
     Toast.show({

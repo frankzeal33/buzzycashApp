@@ -22,7 +22,7 @@ const NotificationCard = ({item, section, handlePress}: {item: any; section: any
           <Text className="font-mregular text-sm flex-1" numberOfLines={1} style={{color: theme.colors.text}}>
             {item?.subtitle}
           </Text>
-          <Text className="font-mregular text-sm" style={{color: theme.colors.text}}>{item?.time}</Text>
+          <Text className="font-mregular text-sm" style={{color: theme.colors.text}}>{item?.created_at}</Text>
       </View>
   </Pressable>
   )

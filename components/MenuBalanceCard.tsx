@@ -15,7 +15,7 @@ import { useFocusEffect } from '@react-navigation/native';
 export default function MenuBalanceCard({showModal, setShowModal}: {showModal: boolean; setShowModal: any}) {
 
   const { theme } = useThemeStore();
-   const { walletBalance, balanceLoading, hideWallet, setHideWallet } = useWalletStore((state) => state);
+   const { wallet, balanceLoading, hideWallet, setHideWallet } = useWalletStore((state) => state);
 
   const hideBalance = async (hideValue: string) => {
 
@@ -37,7 +37,7 @@ export default function MenuBalanceCard({showModal, setShowModal}: {showModal: b
            hideWallet === "true" ? (
               <Text className="font-ablack text-xl" style={{ color: theme.colors.text}}>*****</Text>
             ) : (
-              <Text className="font-semibold text-xl" style={{ color: theme.colors.text}}>{displayCurrency(Number(walletBalance))}</Text>
+              <Text className="font-semibold text-xl" style={{ color: theme.colors.text}}>{displayCurrency(Number(wallet?.total))}</Text>
           )}
         </View>
         {hideWallet === "false" || !hideWallet ? (

@@ -1,4 +1,4 @@
-import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, ImageBackground, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -26,6 +26,7 @@ const TicketDetailsScreen = () => {
     const parsedTicketData = ticketData ? JSON.parse(ticketData) : null
     const { top, bottom } = useSafeAreaInsets()
     const [showModal, setShowModal] = useState(false)
+    const [confirmModal, setConfirmModal] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false)
     const [gameExpired, setGameExpired] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -38,9 +39,14 @@ const TicketDetailsScreen = () => {
        setTotalPrice(total)
     }, [tickets])
 
+    const confirm = () => {
+        setConfirmModal(true)
+    }
+
     const purchase = async () => {
 
         try {
+            setConfirmModal(false)
             setIsSubmitting(true)
 
             const result = await axiosClient.post("/ticket/purchase-ticket", {
@@ -193,7 +199,7 @@ const TicketDetailsScreen = () => {
                             <GradientButton
                                 disableButton={gameExpired}
                                 title={gameExpired ? "Time Elapsed" : "Purchase Tickets"}
-                                handlePress={purchase}
+                                handlePress={confirm}
                                 containerStyles="w-[70%] mx-auto my-4"
                                 textStyles="text-white"
                             />
@@ -246,6 +252,37 @@ const TicketDetailsScreen = () => {
                     </View>
                )}
             </TicketModal>
+
+            <Modal
+                transparent={true}
+                visible={confirmModal}
+                statusBarTranslucent={true}
+                onRequestClose={() => setConfirmModal(false)}>
+                <View className="flex-1 justify-center items-center px-8" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                    {/* TouchableWithoutFeedback only around the background */}
+                    <TouchableWithoutFeedback onPress={() => setConfirmModal(false)}>
+                        <View className="absolute top-0 left-0 right-0 bottom-0" />
+                    </TouchableWithoutFeedback>
+    
+                    {/* Actual modal content */}
+                    <View className="rounded-2xl max-h-[60%] px-4 py-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
+                        <View className='w-full'>
+                            <Text className="font-mbold text-xl text-center" style={{color: theme.colors.text}}>
+                                Confirm Tickets
+                            </Text>
+                            <Text className="font-mmedium text-center my-4" style={{color: theme.colors.text}}>
+                                Confirm that you want to purchase ticket
+                            </Text>
+                            <GradientButton
+                                title="Purchase Tickets"
+                                handlePress={purchase}
+                                containerStyles="w-full mx-auto"
+                                textStyles="text-white"
+                            />
+                        </View>
+                    </View>
+                </View>
+            </Modal>
 
         </ImageBackground>
         </SafeAreaView>

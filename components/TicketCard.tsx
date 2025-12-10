@@ -15,7 +15,7 @@ const TicketCard = ({item, handlePress, index}: {item: any; handlePress: () => v
             <View>
               <Text className="font-mbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>{item?.game_id__name}</Text>
               <Text className="font-mregular text-sm my-1" numberOfLines={1} style={{ color: theme.colors.text}}>{moment(item?.purchased_at).format('llll')}</Text>
-              <Text className="font-mregular text-sm" numberOfLines={1} style={{ color: theme.colors.text}}>{item?.quantity} x {displayCurrency(Number(item?.game_id__amount))}</Text>
+              <Text className="font-mregular text-sm" numberOfLines={1} style={{ color: theme.colors.text}}>Game Status: <Text className={`capitalize ${item?.game_id__status === "active" ? "text-green-500" : "text-red-500"}`}>{item?.game_id__status}</Text></Text>
             </View>
           </View>
 

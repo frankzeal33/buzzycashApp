@@ -48,7 +48,7 @@ const Transactions = () => {
            const result = await axiosClient.get(`/notification?type=transactions&limit=${pageSize}&page=${page}`)
             setTransaction(result.data.notifications || [])
             setTotalItems(result.data.total_count || 0)
-            console.log("trnoti=", result.data)
+            console.log("tt=", result.data)
         } catch (error: any) {
             console.log(error.response?.data || error.message)
         } finally {
@@ -73,7 +73,7 @@ const Transactions = () => {
                 subtitle: n?.subtitle?.trim() || "Untitled",
                 amount: n?.amount,
                 status: n?.status || "",
-                time: moment(n.created_at).format("MMM D, hh:mma"), // e.g., "Sep 18, 11:49am"
+                created_at: moment(n.created_at).format("MMM D, hh:mma"), // e.g., "Sep 18, 11:49am"
             });
         });
 
@@ -195,6 +195,20 @@ const Transactions = () => {
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                         </View>
                         <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{notificationInfo?.subtitle}</Text>
+                    </View>
+                    <View className='flex-row items-start justify-between gap-3'>
+                      <View className='flex-row gap-2 items-center justify-between w-36'>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Status</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
+                      </View>
+                      <Text className={`capitalize text-base font-mmedium flex-1 ${notificationInfo?.status === "successful" ? "text-green-500" : notificationInfo?.status === "FAILED" ? "text-red-500" : "text-yellow-500"}`}>{notificationInfo?.status}</Text>
+                    </View>
+                    <View className='flex-row items-center justify-between gap-3'>
+                        <View className='flex-row gap-2 items-center justify-between w-36'>
+                            <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Date</Text>
+                            <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
+                        </View>
+                        <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{notificationInfo?.created_at}</Text>
                     </View>
                     </View>
                 </ScrollView>

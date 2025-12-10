@@ -214,35 +214,35 @@ const TransactionScreen = () => {
               <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View className='my-7 gap-5'>
-                    <View className='flex-row items-start justify-between gap-3'>
+                    <View className='flex-row items-center justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Amount</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
                       <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(transactionInfo?.amount))}</Text>
                     </View>
-                    <View className='flex-row items-start justify-between gap-3'>
+                    <View className='flex-row items-center justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Status</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
                       <Text className={`text-base font-mmedium flex-1 ${transactionInfo?.payment_status === "SUCCESSFUL" ? "text-green-500" : transactionInfo?.payment_status === "FAILED" ? "text-red-500" : "text-yellow-500"}`}>{transactionInfo?.payment_status}</Text>
                     </View>
-                    <View className='flex-row items-start justify-between gap-3'>
+                    <View className='flex-row items-center justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Category</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
                       <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{transactionInfo?.category}</Text>
                     </View>
-                    <View className='flex-row items-start justify-between gap-3'>
+                    <View className='flex-row items-center justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Type</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
                       <Text className={`text-base font-mmedium flex-1 ${transactionInfo?.transaction_type === "CREDIT" ? "text-green-500" : transactionInfo?.transaction_type === "DEBIT" ? "text-red-500" : "text-orange-500"}`}>{transactionInfo?.transaction_type}</Text>
                     </View>
-                    <View className='flex-row items-start justify-between gap-3'>
+                    <View className='flex-row items-center justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Txn No</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>

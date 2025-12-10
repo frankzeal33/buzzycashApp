@@ -9,6 +9,8 @@ import Loading from '@/components/Loading'
 import { router } from 'expo-router'
 import { useThemeStore } from '@/store/ThemeStore'
 import { axiosClient } from '@/globalApi'
+import displayCurrency from '@/utils/displayCurrency'
+import moment from 'moment'
 
 type ticketsType = {
   game_id: string;
@@ -21,7 +23,7 @@ type ticketsType = {
   id: string;
   purchased_at: string; 
   status: string;
-}[]
+}
 
 export default function TicketsScreen() {
 
@@ -30,7 +32,7 @@ export default function TicketsScreen() {
   const [loading, setLoading] = useState(true)
   const [tickets, setTickets] = useState<ticketsType[]>([])
   const [totalItems, setTotalItems] = useState(0)
-
+  const [ticketInfo, setTicketInfo] = useState<ticketsType | null>(null)
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
@@ -54,12 +56,13 @@ export default function TicketsScreen() {
     }
   }
 
-  const handleModal = () => {
+  const handleModal = (item: ticketsType) => {
+    setTicketInfo(item)
     setShowModal(true)
   }
 
   const renderTickets = ({item, index}: {item: any, index: number}) => (
-    <TicketCard item={item} index={index} handlePress={() => handleModal()}/>
+    <TicketCard item={item} index={index} handlePress={() => handleModal(item)}/>
   )
 
   return (
@@ -75,7 +78,7 @@ export default function TicketsScreen() {
           <View className="my-4" style={{ backgroundColor: theme.colors.darkGray}}>
             <FlatList
               data={tickets}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item, index) => item?.id}
               renderItem={renderTickets}
               scrollEnabled={false}
               ListEmptyComponent={() => (  
@@ -108,35 +111,75 @@ export default function TicketsScreen() {
 
         <Modal
           transparent={true}
+          // animationType='slide'
           visible={showModal}
           statusBarTranslucent={true}
           onRequestClose={() => setShowModal(false)}>
-            <View className="flex-1 justify-center items-center px-10" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+            <View className="flex-1 justify-center items-center px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
               {/* TouchableWithoutFeedback only around the background */}
               <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
                 <View className="absolute top-0 left-0 right-0 bottom-0" />
               </TouchableWithoutFeedback>
 
               {/* Actual modal content */}
-              <View className="rounded-2xl max-h-[60%] px-6 w-full" style={{backgroundColor: theme.colors.darkGray}}>
-                <FlatList
-                  data={tickets}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={() => (
-                    <View className='flex-row items-center justify-between mt-7'>
-                      <Text className='font-msbold' style={{ color: theme.colors.text}}>Ticket#3</Text>
-                      <Text className='font-msbold text-2xl' style={{color: theme.colors.text}}>:</Text>
-                      <View className="rounded-full min-w-[30px] h-[30px] items-center justify-center px-[6px]" style={{backgroundColor: theme.colors.inputBg}}>
-                        <Text className="text-base font-msbold" style={{color: theme.colors.text}}>0</Text>
+              <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <View className='my-7 gap-5'>
+                    <View className='flex-row items-center justify-between gap-3'>
+                      <View className='flex-row gap-2 items-center justify-between w-36'>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Name</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{ticketInfo?.game_id__name}</Text>
                     </View>
-                  )}
-                  contentContainerStyle={{ paddingBottom: 28 }}
-                  showsVerticalScrollIndicator={false}
-                />
+                    <View className='flex-row items-center justify-between gap-3'>
+                      <View className='flex-row gap-2 items-center justify-between w-36'>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Amount</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
+                      </View>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(ticketInfo?.game_id__amount))}</Text>
+                    </View>
+                    <View className='flex-row items-center justify-between gap-3'>
+                      <View className='flex-row gap-2 items-center justify-between w-36'>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>G-Status</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
+                      </View>
+                      <Text className={`capitalize text-base font-mmedium flex-1 ${ticketInfo?.game_id__status === "active" ? "text-green-500" : "text-red-500"}`}>{ticketInfo?.game_id__status}</Text>
+                    </View>
+                    <View className='flex-row items-center justify-between gap-3'>
+                      <View className='flex-row gap-2 items-center justify-between w-36'>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Draw Time</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
+                      </View>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{moment(ticketInfo?.game_id__draw_time).format('llll')}</Text>
+                    </View>
+                    <View className='flex-row items-center justify-between gap-3'>
+                      <View className='flex-row gap-2 items-center justify-between w-36'>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Purchased At</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
+                      </View>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{moment(ticketInfo?.purchased_at).format('llll')}</Text>
+                    </View>
+                    <View className='flex-row items-center justify-between gap-3'>
+                      <View className='flex-row gap-2 items-center justify-between w-36'>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>P-Status</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
+                      </View>
+                      <Text className={`capitalize text-base font-mmedium flex-1 ${ticketInfo?.status === "SUCCESSFUL" ? "text-green-500" : ticketInfo?.status === "FAILED" ? "text-red-500" : "text-yellow-500"}`}>{ticketInfo?.status}</Text>
+                    </View>
+                    <View className='flex-row items-center justify-between gap-3'>
+                      <View className='flex-row gap-2 items-center justify-between w-36'>
+                        <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Game Id</Text>
+                        <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
+                      </View>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{ticketInfo?.game_id__game_id}</Text>
+                    </View>
+                  </View>
+                </ScrollView>
               </View>
             </View>
         </Modal>
+
       </ScrollView>
       <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>

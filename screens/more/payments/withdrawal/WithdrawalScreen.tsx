@@ -16,6 +16,7 @@ import z from 'zod'
 import { useProfileStore } from '@/store/ProfileStore'
 import PopupModal from '@/components/PopupModal'
 import FullScreenLoader from '@/components/FullScreenLoader'
+import getWallet from '@/utils/WalletApi'
 
 type nameType = {
   name: string;
@@ -175,6 +176,8 @@ const WithdrawalScreen = () => {
         recipientAccountNumber: "",
         recipientBankCode: ""
       })
+
+      getWallet(true)
 
     } catch (error: any) {
         Toast.show({

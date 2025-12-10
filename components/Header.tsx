@@ -58,9 +58,11 @@ export default function Header({title, titleColor, home, profile, action, notifi
           ) : (
             <Pressable onPress={goToNotification} className="relative rounded-full border border-brown-500 size-9 items-center justify-center">
               <EvilIcons name="bell" size={20} color="#EF9439"/>
-              <View className="absolute -top-1 -right-1 bg-brown-500 rounded-full min-w-[14px] h-[14px] items-center justify-center px-[4px]">
-                <Text className="text-white text-[8px] font-mbold">{formatCount(notificationCount)}</Text>
-              </View>
+              {!!notificationCount && (
+                <View className="absolute -top-1 -right-1 bg-brown-500 rounded-full min-w-[14px] h-[14px] items-center justify-center px-[4px]">
+                  <Text className="text-white text-[8px] font-mbold">{formatCount(notificationCount)}</Text>
+                </View>
+              )}
             </Pressable>
           )}
         </View>

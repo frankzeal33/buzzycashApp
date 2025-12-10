@@ -39,8 +39,10 @@ axiosClient.interceptors.response.use(
         const refreshToken = await SecureStore.getItemAsync('refreshToken');
         const refreshResponse = await axios.post(
           `${process.env.EXPO_PUBLIC_SERVER_URI}/auth/refresh-token`,
-          { refresh_token: refreshToken}
+          { refresh_token: refreshToken }
         );
+
+        console.log("ref=", refreshResponse.data)
 
         const newAccessToken = refreshResponse.data.accessToken;
 

@@ -11,7 +11,7 @@ import { axiosClient } from '@/globalApi';
 type NotificationItem = {
   id: string;
   title: string;
-  time: string;
+  created_at: string;
   endsIn?: string;
   amount?: string;
   status?: string;
@@ -71,7 +71,8 @@ const Games = () => {
             setTotalItems(result.data.total_count || 0)
             console.log("gamesT=",result.data)
         } catch (error: any) {
-            console.log(error.response?.data || error.message)
+            console.log("no=",error.response?.data || error.message)
+            console.log(error.response)
         } finally {
          setLoading(false)
         }
@@ -91,7 +92,7 @@ const Games = () => {
                 subtitle: n?.subtitle?.trim() || "Untitled",
                 amount: n?.amount,
                 status: n?.status || "",
-                time: n?.display_time ?? ""
+                created_at: moment(n.created_at).format("MMM D YYYY, hh:mma")
             }));
 
         const recent = games
@@ -102,7 +103,7 @@ const Games = () => {
                 subtitle: n?.subtitle?.trim() || "Untitled",
                 amount: n?.amount,
                 status: n?.status || "",
-                time: n?.display_time ?? ""
+                created_at: moment(n.created_at).format("MMM D YYYY, hh:mma")
             }));
 
         return [

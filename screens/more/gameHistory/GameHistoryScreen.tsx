@@ -145,6 +145,7 @@ export default function GameHistoryScreen() {
       setGames(result.data?.logsResponse?.items || [])
       setTotalItems(result.data?.logsResponse?.count || 0)
       console.log("g=",result.data?.logsResponse?.items)
+      console.log("w=", result.data?.logsResponse?.items?.[0]?.won_results);
     } catch (error: any) {
       console.log(error.response?.data || error.message)
     } finally {
