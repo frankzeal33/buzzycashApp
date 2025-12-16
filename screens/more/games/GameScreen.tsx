@@ -28,7 +28,7 @@ const games: any = [
     },
     {
         id: "3",
-        title: "Lottery Games",
+        title: "Lottery Game",
         image: images.lotteryGame,
         description: "Select Randomly to Win",
         route: "/(protected)/(routes)/LotteryGames"

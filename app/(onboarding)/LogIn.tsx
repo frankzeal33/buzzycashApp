@@ -173,15 +173,22 @@ const LogIn = () => {
       })
 
     } catch (error: any) {
-      console.log(error.response.data)
 
-      if(error.response.status === 403 && error.response.data.message === "Verification OTP sent. Please verify your account to continue."){
+      console.log("console",error.response.data)
+
+      if(error.response.status === 400 && error.response.data.message === "Account not verified. Verification OTP sent to your phone."){
 
         setUserPhoneNumber(removePlusSign || "")
         setOTPPhoneError(error.response.data.message)
         setOpenModal(true)
 
-      }else{
+      }else if(error.response.status === 400 && error.response.data.message === "Your email is not verified. Please visit your profile to complete verification."){
+        Toast.show({
+          type: 'error',
+          text1: error.response.data.message,
+          text2: "Please login with phone number instead.",
+        });
+      } else{
         Toast.show({
           type: 'error',
           text1: error.response.data.message

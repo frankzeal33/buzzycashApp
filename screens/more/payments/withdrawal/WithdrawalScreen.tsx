@@ -176,6 +176,7 @@ const WithdrawalScreen = () => {
         recipientAccountNumber: "",
         recipientBankCode: ""
       })
+      setAmount("")
 
       getWallet(true)
 
@@ -240,9 +241,9 @@ const WithdrawalScreen = () => {
             </ScrollView>
         </KeyboardAvoidingView>
 
-        <PopupModal visible={showSuccessModal} title='Your account details have been submitted' onClose={closeSuccessModal}>
+        <PopupModal visible={showSuccessModal} title='Your withdrawal is successful' onClose={closeSuccessModal}>
             <View className='flex-start w-full my-3'>
-                <Text className="font-abold text-center" style={{color: theme.colors.text}}>You will recieve an alert within 5 Minutes</Text>
+                <Text className="font-abold text-center" style={{color: theme.colors.text}}>You will recieve an alert within 2 Minutes</Text>
             </View>
             <View className='mt-4 flex-row gap-4 items-center'>
                 <GradientButton
