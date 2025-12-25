@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 
 interface RefData {
-  Invitees: number
+  invitees: number
   referralCode: string
   totalEarned: number
 }
@@ -15,7 +15,7 @@ interface ReferralStore {
 
 export const useReferralStore = create<ReferralStore>((set) => ({
   refData: {
-    Invitees: 0,
+    invitees: 0,
     referralCode: "",
     totalEarned: 0
   },

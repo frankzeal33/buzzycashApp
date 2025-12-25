@@ -29,7 +29,7 @@ export default function BalanceCard() {
       <View className='w-full rounded-xl mb-3 p-4' style={{ backgroundColor: theme.colors.darkGray, borderWidth: theme.dark ? 1 : 0, borderColor: theme.dark ? theme.colors.inputBg : undefined,}}>
         <Pressable className='flex-row items-center gap-1' onPress={() => setShowModal(true)}>
           <Text className="font-mmedium" style={{ color: theme.colors.text}}>AVAILABLE BALANCE</Text>
-          <Ionicons name="grid-outline" size={13} color="black" />
+          <Ionicons name="grid-outline" size={13} color={theme.colors.text} />
         </Pressable>
         <View className='flex-row items-center justify-between mt-1'>
           <View>

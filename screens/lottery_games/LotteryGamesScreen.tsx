@@ -62,7 +62,7 @@ const LotteryGamesScreen = () => {
               contentContainerStyle={{gap: 20, paddingTop: 16, paddingBottom: 30}}
               ListHeaderComponent={() => 
                 <View className='flex-row gap-2 items-center px-4'>
-                    <Text className='font-msbold'>Pick 5 numbers</Text>
+                    <Text className='font-msbold' style={{ color: theme.colors.text}}>Pick 5 numbers</Text>
                     <View className="flex-row gap-1 items-center">
                         {indicator.map((_, index) => {
 
@@ -90,14 +90,14 @@ const LotteryGamesScreen = () => {
               ListFooterComponent={() => 
                 <View>
                     <View className='gap-2 px-4'>
-                        <Text className='font-msbold'>Numbers picked</Text>
+                        <Text className='font-msbold' style={{ color: theme.colors.text}}>Numbers picked</Text>
                         <View className='flex-row gap-1 items-center'>
                             {numbersSelected.length === 0 ? (
-                                <Text className='text-base'>Click on each number to select</Text>
+                                <Text className='text-base' style={{ color: theme.colors.text}}>Click on each number to select</Text>
                             ) : (
                                 numbersSelected.map((item, index) => (   
                                     <View key={index} className='size-12 items-center justify-center rounded-full border border-gray-400'>
-                                        <Text>{item}</Text>
+                                        <Text style={{ color: theme.colors.text}}>{item}</Text>
                                     </View>
                                 ))
                             )}
@@ -105,7 +105,7 @@ const LotteryGamesScreen = () => {
                     </View>
                     <View className='flex-row gap-6 items-center px-4 py-8 my-6' style={{backgroundColor: theme.colors.background}}>
                         <Pressable onPress={clear}>
-                            <Ionicons name="trash-outline" size={26} color="black" />
+                            <Ionicons name="trash-outline" size={26} color={theme.colors.text} />
                         </Pressable>
                         <GradientButton
                             title="Play"
@@ -114,7 +114,7 @@ const LotteryGamesScreen = () => {
                             containerStyles="flex-1"
                             textStyles="text-white"
                         />
-                        <Feather name="refresh-cw" size={24} color="black" />
+                        <Feather name="refresh-cw" size={24} color={theme.colors.text} />
                     </View>
                 </View>
               }

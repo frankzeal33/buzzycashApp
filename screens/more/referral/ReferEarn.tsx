@@ -33,11 +33,10 @@ const ReferEarn = ({ isFocused }: { isFocused: boolean }) => {
     
             const result = await axiosClient.get("/referrals/referral-details")
 
-            setCode(result?.data?.data?.referralCode)
-            await AsyncStorage.setItem("referralCode", result?.data?.data?.referralCode);
-            setReferralInfo(result?.data?.data)
-            
+            setCode(result?.data?.referralCode)
             console.log(result.data)
+            await AsyncStorage.setItem("referralCode", result?.data?.referralCode);
+            setReferralInfo(result?.data)
   
           } catch (error: any) {
             Toast.show({

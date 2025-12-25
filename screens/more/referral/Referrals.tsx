@@ -23,7 +23,7 @@ const Referrals = ({ isFocused }: { isFocused: boolean }) => {
         try {
 
             const result = await axiosClient.get("/referrals/referral-details")
-            setReferralInfo(result?.data?.data)
+            setReferralInfo(result?.data)
             
             console.log(result.data)
 
@@ -74,7 +74,7 @@ const Referrals = ({ isFocused }: { isFocused: boolean }) => {
                             </View>
                             <Text className="text-lg font-mbold" style={{color: theme.colors.text}}>Invites</Text>
                         </View>
-                        <Text className="text-lg font-mmedium" style={{color: theme.colors.text}}>{refData.Invitees}</Text>
+                        <Text className="text-lg font-mmedium" style={{color: theme.colors.text}}>{refData.invitees}</Text>
                     </View>
                 </View>  
             )}

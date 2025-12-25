@@ -38,6 +38,7 @@ const forgotSchema = z
     .or(z.literal('')),
   phoneNumber: z
     .string()
+    .min(10, "Phone number is less than 10 digits")
     .max(11, "Phone number is greater than 11 digits")
     .regex(/^\d+$/, "Phone number must contain only digits")
     .optional().or(z.literal(''))

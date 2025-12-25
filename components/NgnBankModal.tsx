@@ -69,7 +69,7 @@ const NgnBankModal = ({placeholder, header, showModal, close, selectedValue, tit
         <View className='flex-1 items-center justify-center' style={{backgroundColor: theme.colors.background}}>
             <Modal animationType='slide' transparent={false} visible={showModal} onRequestClose={handleShowModal}>
                 <SafeAreaView className='flex-1' style={{backgroundColor: theme.colors.background}}>
-                    <View className='px-4'>
+                    <View className='px-4 flex-1'>
                         <View className='flex-row items-center justify-between gap-2 py-2'>
                             <Text className='font-bold text-lg' style={{color: theme.colors.text}}>{header}</Text>
                             <TouchableOpacity onPress={() => close()}>
@@ -80,7 +80,7 @@ const NgnBankModal = ({placeholder, header, showModal, close, selectedValue, tit
                             loading ? (
                                 <ActivityIndicator size="large" color={theme.colors.text}/>
                             ) : (
-                                <View className='w-full'>
+                                <View className='w-full flex-1'>
                                     <View className='w-full my-2'>
                                         <SearchInput value={query} handleChangeText={(text) => setQuery(text)} disabled={allBanks.length !== 0} placeholder="Search Banks..."/>
                                     </View>
@@ -100,6 +100,7 @@ const NgnBankModal = ({placeholder, header, showModal, close, selectedValue, tit
                                             </TouchableOpacity>
                                         )}
                                         showsVerticalScrollIndicator={false}
+                                        contentContainerStyle={{paddingBottom: 30}}
                                         ListEmptyComponent={() => (
                                             <View className='h-[70vh]'>
                                                 <View className="w-full items-center mx-auto justify-center my-6 mt-16 max-w-60 flex-1">

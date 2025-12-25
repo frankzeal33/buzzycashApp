@@ -113,7 +113,6 @@ const Menu = () => {
                 </View>
                 <View className='pb-2'>
                     <Text className="font-mbold text-xl text-center pt-2 text-orange capitalize" numberOfLines={1}>{userProfile?.fullName}</Text>
-                    <Text className="font-msbold text-lg text-center pt-1" numberOfLines={1} style={{ color: theme.colors.text}}>@{userProfile?.userName}</Text>
                 </View>
               </View>
               <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>

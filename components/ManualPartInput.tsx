@@ -37,7 +37,9 @@ const ManualPartInput = ({ title, value, placeholder, dailCode, flag, inputBg, k
             }
           ]}>
           <Text className='text-xl'>{flag}</Text>
-          <TextInput className={`pl-1 font-mmedium text-base`} value={dailCode} placeholderTextColor="#979797" editable={false}/>
+          <Text className="font-mmedium text-base text-black">
+            {dailCode}
+          </Text>
         </TouchableOpacity>
         <TextInput style={[
             {

@@ -41,9 +41,15 @@ const registerSchema = z
 
   phoneNumber: z
     .string()
-    .min(1, "Phone number is required")
+    .min(10, "Phone number is less than 10 digits")
     .max(11,"Phone number is greater than 11 digits")
     .regex(/^\d+$/, "Phone number must contain only digits"),
+
+  fullName: z
+    .string()
+    .min(1, "Fullname is required"),
+
+  email: z.email("Invalid email address"),
     
   referralCode: z.string(),
 
@@ -86,6 +92,8 @@ const Register = () => {
   const [userPhoneNumber, setUserPhoneNumber] = useState("")
   const [form, setForm] = useState({
     phoneNumber: '',
+    fullName: '',
+    email: '',
     password: '',
     confirmPassword: '',
     referralCode: ''
@@ -178,8 +186,8 @@ const Register = () => {
       const user = {
         phoneNumber: result.data.user.phoneNumber || "",
         countryOfResidence: result.data.user.countryOfResidence || "",
-        email: "",
-        fullName: "",
+        email: result.data.user.email || "",
+        fullName: result.data.user.fullName || "",
         userName: "",
         profilePicture: "",
         kycVerified: false,
@@ -195,7 +203,7 @@ const Register = () => {
       await AsyncStorage.setItem("userProfile", userData);
       setProfile(user)
 
-      router.replace("/(protected)/(routes)/CreateProfile")
+      router.replace("/(protected)/(routes)/Home")
       setConfirmModal(false)
       setShowOTP(false)
 
@@ -228,6 +236,8 @@ const Register = () => {
       const data ={
         country_of_residence: cResidence,
         phone_number: removePlusSign,
+        email: form.email,
+        full_name: form.fullName,
         password: form.password,
         confirm_password: form.confirmPassword,
         referral_code: form.referralCode
@@ -246,6 +256,8 @@ const Register = () => {
 
       setForm({
         phoneNumber: '',
+        fullName: '',
+        email: '',
         password: '',
         confirmPassword: '',
         referralCode: ''
@@ -318,6 +330,9 @@ const Register = () => {
 
                   <DisablePartInput value={form.phoneNumber} disabledValue={selectedCountry?.dial_code ?? "+000"} placeholder="Phone Number" handleChangeText={(e: any) => setForm({ ...form, phoneNumber: e })} otherStyles="mt-7" labelStyle='text-white'/>
                   
+                  <FormField value={form.fullName} placeholder="Fullname" handleChangeText={(e: any) => setForm({ ...form, fullName: e })} otherStyles="mt-7" labelStyle='text-white'/>
+                  <FormField value={form.email} placeholder="Email" handleChangeText={(e: any) => setForm({ ...form, email: e })} otherStyles="mt-7" keyboardType="email-address" labelStyle='text-white'/>
+
                   <FormField title="Password*" value={form.password} placeholder="Create Password" handleChangeText={(e: any) => setForm({ ...form, password: e })} otherStyles="mt-7" labelStyle='text-white'/>
                   <FormField title="Confirm Password*" value={form.confirmPassword} placeholder="Confirm Password" handleChangeText={(e: any) => setForm({ ...form, confirmPassword: e })} otherStyles="mt-7" labelStyle='text-white'/>
                   <FormField title="Referral Code" value={form.referralCode} placeholder="Referral Code" handleChangeText={(e: any) => setForm({ ...form, referralCode: e })} otherStyles="mt-7" labelStyle='text-white'/>

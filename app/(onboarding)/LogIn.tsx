@@ -43,6 +43,7 @@ const loginSchema = z
     .or(z.literal('')),
   phoneNumber: z
     .string()
+    .min(10, "Phone number is less than 10 digits")
     .max(11, "Phone number is greater than 11 digits")
     .regex(/^\d+$/, "Phone number must contain only digits")
     .optional().or(z.literal('')),
@@ -160,11 +161,7 @@ const LogIn = () => {
       await AsyncStorage.setItem("userProfile", userData);
       setProfile(user)
 
-      if(result.data.user.isProfileCreated !== true){
-        router.replace("/(protected)/(routes)/CreateProfile")
-      }else{
-        router.replace("/(protected)/(routes)/Home")
-      }
+      router.replace("/(protected)/(routes)/Home")
 
       setForm({
         email: '',
@@ -283,7 +280,7 @@ const LogIn = () => {
           setProfile(user)
 
           setOpenModal(false)
-          router.replace("/(protected)/(routes)/CreateProfile")
+          router.replace("/(protected)/(routes)/Home")
   
         } catch (error: any) {
           setOTPPhoneError(error.response.data.message)

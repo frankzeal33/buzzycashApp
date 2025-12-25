@@ -290,10 +290,10 @@ const ProfileScreen = () => {
               </TouchableOpacity>
             )}
             <ProfileBox label='Full Name' value={userProfile.fullName}/>
-            <ProfileBox label='Username' value={userProfile.userName}/>
+            <ProfileBox label='Country' value={userProfile.countryOfResidence}/>
             <ProfileBox label='Email' value={userProfile.email}/>
             <ProfileBox label='Date of Birth' value={userProfile.dateOfBirth || "----------"}/>
-            <ProfileBox label='Gender' value={userProfile.gender}/>
+            <ProfileBox label='Gender' value={userProfile.gender || "----------"}/>
             <ProfileBox label='Phone Number' value={`+${userProfile.phoneNumber}`}/>
           </View>
         </ScrollView>
