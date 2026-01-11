@@ -61,7 +61,7 @@ const Slide = memo(({ item, statusBarHeight, statusBarBottom, onRegister, onLogi
           <ImageBackground source={item.image} resizeMode="cover" className='w-full flex-1'>
             <View className="justify-center items-center mt-auto w-full mx-auto max-w-[75%]" style={{ marginBottom: statusBarBottom }}>
               <View className='w-full gap-6'>
-                <GradientButton title="Register" handlePress={onRegister} containerStyles="w-full border border-white" textStyles='text-white' />
+                <GradientButton title="Get Started" handlePress={onRegister} containerStyles="w-full border border-white" textStyles='text-white' />
                 <GradientButton title="Log In" handlePress={onLogin} containerStyles="w-full border border-white" gradientColors={['#323746', '#323746', '#111625']} textStyles='text-white' />
               </View>
 
@@ -116,7 +116,7 @@ const Onboarding = () => {
   }, []);
 
   const handleRegister = () => {
-    router.push('/(onboarding)/Register');
+    router.push("/(landing)")
   };
 
   const handleLogin = () => {

@@ -56,7 +56,7 @@ export default function BalanceCard() {
         </View>
         <View className='flex-row items-center justify-between gap-2 mt-3 w-full'>
           <IconButton title='DEPOSIT' handlePress={() => router.push("/(protected)/(routes)/FundWallet")} textStyles='text-white' icon={<Fontisto name="wallet" size={12} color="white" />} containerStyles='bg-brown-500 w-[38%] px-2'/>
-          <IconButton title='PURCHASE TICKET' handlePress={() => router.push("/(protected)/(routes)/Games")} textStyles='text-white' icon={<MaterialCommunityIcons name="ticket-outline" size={16} color="white" />} containerStyles='bg-blue w-[58%] px-2' border/>
+          <IconButton title='PLAY GAMES' handlePress={() => router.push("/(protected)/(routes)/Games")} textStyles='text-white' icon={<MaterialCommunityIcons name="ticket-outline" size={16} color="white" />} containerStyles='bg-blue w-[58%] px-2' border/>
         </View>
       </View>
 
