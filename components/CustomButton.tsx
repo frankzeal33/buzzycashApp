@@ -18,9 +18,9 @@ const CustomButton = ({ title, handlePress, containerStyles, bgColor, textStyles
   
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.7} className={`rounded-md min-h-16 justify-center items-center ${containerStyles} ${isLoading || disableButton ? 'opacity-50' : ''}`} style={{backgroundColor: theme.colors.text}} disabled={isLoading || disableButton}>
-        {isLoading ? <FontAwesome5 name="circle-notch" size={20} color="white" className='animate-spin-fast'/> :
-         <Text className={`font-mbold text-lg ${textStyles}`} style={{color: theme.colors.background}}>{title}</Text>
-         }
+      {isLoading ? <FontAwesome5 name="circle-notch" size={20} color="white" className='animate-spin-fast'/> :
+        <Text className={`font-mbold text-lg ${textStyles}`} style={{color: theme.colors.background}}>{title}</Text>
+        }
     </TouchableOpacity>
   )
 }

@@ -42,11 +42,11 @@ export default function MenuBalanceCard({showModal, setShowModal}: {showModal: b
         </View>
         {hideWallet === "false" || !hideWallet ? (
           <TouchableOpacity activeOpacity={0.8} className='items-center flex-row gap-1'  onPress={() => hideBalance('true')}>
-            <Feather name="eye" size={20} color={theme.colors.text} />
+            <Feather name="eye-off" size={20} color={theme.colors.text} />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity activeOpacity={0.8} className='items-center flex-row gap-1' onPress={() => hideBalance('false')}>
-            <Feather name="eye-off" size={20} color={theme.colors.text} />
+            <Feather name="eye" size={20} color={theme.colors.text} />
           </TouchableOpacity>
         )}
       </View>

@@ -27,10 +27,18 @@ export default function BalanceCard() {
   return (
     <>
       <View className='w-full rounded-xl mb-3 p-4' style={{ backgroundColor: theme.colors.darkGray, borderWidth: theme.dark ? 1 : 0, borderColor: theme.dark ? theme.colors.inputBg : undefined,}}>
-        <Pressable className='flex-row items-center gap-1' onPress={() => setShowModal(true)}>
+        <View className='flex-row items-center gap-1'>
           <Text className="font-mmedium" style={{ color: theme.colors.text}}>AVAILABLE BALANCE</Text>
-          <Ionicons name="grid-outline" size={13} color={theme.colors.text} />
-        </Pressable>
+          {hideWallet === "false" || !hideWallet ? (
+              <TouchableOpacity activeOpacity={0.8} className='items-center flex-row gap-1' onPress={() => hideBalance('true')}>
+                <Feather name="eye-off" size={18} color={theme.colors.text} />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity activeOpacity={0.8} className='items-center flex-row gap-1' onPress={() => hideBalance('false')}>
+                <Feather name="eye" size={18} color={theme.colors.text} />
+              </TouchableOpacity>
+            )}
+        </View>
         <View className='flex-row items-center justify-between mt-1'>
           <View>
             {balanceLoading ? (
@@ -44,15 +52,9 @@ export default function BalanceCard() {
                 <Text className="font-semibold text-2xl" style={{ color: theme.colors.text}}>{displayCurrency(Number(wallet?.total))}</Text>
             )}
           </View>
-          {hideWallet === "false" || !hideWallet ? (
-              <TouchableOpacity activeOpacity={0.8} className='items-center flex-row gap-1'  onPress={() => hideBalance('true')}>
-                <Feather name="eye" size={20} color={theme.colors.text} />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity activeOpacity={0.8} className='items-center flex-row gap-1' onPress={() => hideBalance('false')}>
-                <Feather name="eye-off" size={20} color={theme.colors.text} />
-              </TouchableOpacity>
-            )}
+          <TouchableOpacity activeOpacity={0.8} className='items-center flex-row gap-1' onPress={() => setShowModal(true)}>
+            <Ionicons name="grid-outline" size={20} color={theme.colors.text} />
+          </TouchableOpacity>
         </View>
         <View className='flex-row items-center justify-between gap-2 mt-3 w-full'>
           <IconButton title='DEPOSIT' handlePress={() => router.push("/(protected)/(routes)/FundWallet")} textStyles='text-white' icon={<Fontisto name="wallet" size={12} color="white" />} containerStyles='bg-brown-500 w-[38%] px-2'/>

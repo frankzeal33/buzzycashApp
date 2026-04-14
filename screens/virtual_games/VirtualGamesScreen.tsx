@@ -13,24 +13,66 @@ import { axiosClient } from '@/globalApi'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 
 const games: any = [
+    // {
+    //     id: "1",
+    //     title: "Lucky Scratch",
+    //     image: images.luckyScratch,
+    //     route: "/(protected)/(routes)/Card"
+    // },
+    // {
+    //     id: "2",
+    //     title: "Aviator",
+    //     image: images.aviator,
+    //     route: "/(protected)/(routes)/Home"
+    // },
     {
-        id: "1",
-        title: "Lucky Scratch",
-        image: images.luckyScratch,
-        route: "/(protected)/(routes)/Home"
+        id: "3",
+        title: "Card",
+        image: images.card,
+        route: "/(protected)/(routes)/Card"
     },
     {
-        id: "2",
+        id: "4",
+        title: "Dice",
+        image: images.dice,
+        route: "/(protected)/(routes)/Dice"
+    },
+    {
+        id: "5",
+        title: "Coin",
+        image: images.coin,
+        route: "/(protected)/(routes)/Coin"
+    },
+    {
+        id: "6",
+        title: "Hot Cold",
+        image: images.hotCold,
+        route: "/(protected)/(routes)/HotCold"
+    },
+    {
+        id: "7",
+        title: "Lucky Box",
+        image: images.box,
+        route: "/(protected)/(routes)/LuckyBox"
+    },
+    {
+        id: "8",
+        title: "Real Streak",
+        image: images.fruit,
+        route: "/(protected)/(routes)/ReelStreak"
+    },
+    {
+        id: "9",
+        title: "RPS Bet",
+        image: images.betting,
+        route: "/(protected)/(routes)/RPSBet"
+    },
+    {
+        id: "10",
         title: "Spin 2 Win",
         image: images.spinToWin,
-        route: "/(protected)/(routes)/Spin2Win"
+        route: "/(protected)/(routes)/SpinWheel"
     },
-    {
-        id: "2",
-        title: "Aviator",
-        image: images.aviator,
-        route: "/(protected)/(routes)/Home"
-    }
 ]
 
 const VirtualGamesScreen = () => {
@@ -38,35 +80,35 @@ const VirtualGamesScreen = () => {
     const { theme } = useThemeStore();
     const { top, bottom } = useSafeAreaInsets()
     const Bottom = bottom + 57
-    const [loadingGames, setLoadingGames] = useState(true)
-    const [games, setGames] = useState([])
+    const [loadingGames, setLoadingGames] = useState(false)
+    // const [games, setGames] = useState([])
     const hasFetched = useRef(false);
 
     const [loadingGame, setLoadingGame] = useState(false)
     const [currentGame, setCurrentGame] = useState<any>(null)
 
-    const virtualGames = async () => {
-        setLoadingGames(true)
-        try {
+    // const virtualGames = async () => {
+    //     setLoadingGames(true)
+    //     try {
 
-            const result = await axiosClient.get("/virtual/get-games")
+    //         const result = await axiosClient.get("/virtual/get-games")
 
-            setGames(result.data?.data || [])
-            console.log("v-games",result.data.data)
+    //         setGames(result.data?.data || [])
+    //         console.log("v-games",result.data.data)
 
-        } catch (error: any) {
+    //     } catch (error: any) {
 
-        } finally {
-           setLoadingGames(false)
-        }
-    }
+    //     } finally {
+    //        setLoadingGames(false)
+    //     }
+    // }
 
-    useEffect(() => {
-        if (!hasFetched.current) {
-            hasFetched.current = true;
-            virtualGames()
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (!hasFetched.current) {
+    //         hasFetched.current = true;
+    //         virtualGames()
+    //     }
+    // }, []);
 
    const renderGameCard = ({ item, index }: { item: any; index: number }) => (
         <TransparentGameCard

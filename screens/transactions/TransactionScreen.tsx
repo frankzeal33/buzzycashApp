@@ -166,7 +166,7 @@ const TransactionScreen = () => {
             scrollEnabled={false}
             ListEmptyComponent={!loadingTransactions ? (
               <View className="items-center justify-center py-44">
-                <Text className="text-xl text-center font-msbold" style={{ color: theme.colors.text}}>{search ? "No result found!" : "No Tickets yet!"}</Text>
+                <Text className="text-xl text-center font-msbold" style={{ color: theme.colors.text}}>{search ? "No result found!" : "No Transactions yet!"}</Text>
                 <Text className="text-sm text-center mt-1 font-mlight" style={{ color: theme.colors.text}}>
                   All your transaction history will show here.
                 </Text>

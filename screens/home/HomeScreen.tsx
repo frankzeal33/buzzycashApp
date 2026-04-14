@@ -118,7 +118,7 @@ const HomeScreen = () => {
   const { bottom } = useSafeAreaInsets()
   const Bottom = bottom + 55;
 
-  const [showSplash, setShowSplash] = useState(true);
+  // const [showSplash, setShowSplash] = useState(true);
   const [parallaxHeight, setParallaxHeight] = useState(275);
   const SNAP_START_THRESHOLD = 10;
   const headerMeasured = useRef(false);
@@ -136,25 +136,25 @@ const HomeScreen = () => {
   const [notificationCount, setNotificationCount] = useState(0);
   const [loadingLeaderBoard, setLoadingLeaderBoard] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 4000);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setShowSplash(false);
+  //   }, 4000);
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   const AllTickets = async () => {
     setLoadingTickets(true)
     try {
 
-      const result = await axiosClient.get("/ticket/gaming")
+      const result = await axiosClient.get("/tickets/all-games")
 
       setGames(result.data?.results?.games || [])
       console.log("tickets", result.data?.results?.games)
 
     } catch (error: any) {
-
+      console.log("t-error",error.response?.data || error.message)
     } finally {
       setLoadingTickets(false)
     }
@@ -337,7 +337,7 @@ const HomeScreen = () => {
           </View>
         </StickyHeaderScrollView>
 
-        <Modal
+        {/* <Modal
           transparent={true}
           visible={showSplash}
           statusBarTranslucent={true}
@@ -353,7 +353,7 @@ const HomeScreen = () => {
                 />
               </View>
             </TouchableWithoutFeedback>
-        </Modal>
+        </Modal> */}
 
         <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
       </View>

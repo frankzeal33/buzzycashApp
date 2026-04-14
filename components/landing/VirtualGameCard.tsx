@@ -32,7 +32,7 @@ const VirtualGameCard = ({
       <View className="w-full bg-brown-500 absolute bottom-0">
         <Text
           className="text-center text-lg font-mmedium px-2 py-1"
-          style={{ color: theme.colors.darkGray }}
+          style={{ color: theme.colors.textOpposite }}
           numberOfLines={3}
         >
           {item.game_type}

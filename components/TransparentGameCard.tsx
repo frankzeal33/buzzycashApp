@@ -48,14 +48,45 @@ const TransparentGameCard = ({
   const isThisCardLoading = loadingGame && item.game_type === currentGame?.game_type;
 
   return (
+    // <Pressable
+    //   onPress={() => goToGame(item)}
+    //   disabled={loadingGame}
+    //   className="w-[48%] h-44 relative rounded-lg border border-brown-500 overflow-hidden"
+    //   style={{ backgroundColor: theme.colors.transparentBg, opacity: loadingGame && !isThisCardLoading ? 0.7 : 1 }}
+    // >
+    //   <Image
+    //     source={{ uri: item.banner }}
+    //     style={{ width: "100%", height: "100%", position: "absolute" }}
+    //     contentFit="cover"
+    //     cachePolicy="disk"
+    //   />
+
+    //   {/* Overlay footer */}
+    //   <View className="w-full bg-brown-500/90 absolute bottom-0">
+    //     {isThisCardLoading ? (
+    //       <View className="my-3">
+    //         <ActivityIndicator size="small" color={theme.colors.text} />
+    //       </View>
+    //     ) : (
+    //       <Text
+    //         className="text-center text-lg font-mbold px-2 py-3"
+    //         style={{ color: theme.colors.text }}
+    //         numberOfLines={3}
+    //       >
+    //         {item.game_type}
+    //       </Text>
+    //     )}
+    //   </View>
+    // </Pressable>
     <Pressable
-      onPress={() => goToGame(item)}
+      // onPress={() => goToGame(item)}
+      onPress={() => router.push(item.route)}
       disabled={loadingGame}
       className="w-[48%] h-44 relative rounded-lg border border-brown-500 overflow-hidden"
-      style={{ backgroundColor: theme.colors.transparentBg, opacity: loadingGame && !isThisCardLoading ? 0.7 : 1 }}
+      style={{ backgroundColor: theme.colors.transparentBg }}
     >
       <Image
-        source={{ uri: item.banner }}
+        source={item.image}
         style={{ width: "100%", height: "100%", position: "absolute" }}
         contentFit="cover"
         cachePolicy="disk"
@@ -63,19 +94,13 @@ const TransparentGameCard = ({
 
       {/* Overlay footer */}
       <View className="w-full bg-brown-500/90 absolute bottom-0">
-        {isThisCardLoading ? (
-          <View className="my-3">
-            <ActivityIndicator size="small" color={theme.colors.text} />
-          </View>
-        ) : (
-          <Text
-            className="text-center text-lg font-mbold px-2 py-3"
-            style={{ color: theme.colors.text }}
-            numberOfLines={3}
-          >
-            {item.game_type}
-          </Text>
-        )}
+        <Text
+          className="text-center text-lg font-mbold px-2 py-3"
+          style={{ color: theme.colors.text }}
+          numberOfLines={3}
+        >
+          {item?.title}
+        </Text>
       </View>
     </Pressable>
   );

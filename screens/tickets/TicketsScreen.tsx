@@ -44,7 +44,7 @@ export default function TicketsScreen() {
     setLoading(true)
     try {
       
-      const result = await axiosClient.get(`/ticket/get-tickets?limit=${pageSize}&page=${page}`)   
+      const result = await axiosClient.get(`/tickets/all-games?limit=${pageSize}&page=${page}`)   
 
       setTickets(result.data?.tickets || [])
       setTotalItems(result.data?.count || 0)

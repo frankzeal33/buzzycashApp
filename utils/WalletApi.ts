@@ -11,7 +11,7 @@ const getWallet = async (runOnBackground: boolean) => {
   }
 
   try {
-    const result = await axiosClient.get("/wallet/get-wallet");
+    const result = await axiosClient.get("/wallet");
 
     console.log("balance data", result.data);
 
@@ -19,9 +19,9 @@ const getWallet = async (runOnBackground: boolean) => {
 
     const allBalances = {
       total: payload?.balance ?? 0,
-      bonus: Number(payload?.["wallet Balance"]?.bonus_balance ?? 0),
-      playing: Number(payload?.["wallet Balance"]?.playing_balance ?? 0),
-      winning: Number(payload?.["wallet Balance"]?.winning_balance ?? 0),
+      bonus: Number(payload?.bonus_balance ?? 0),
+      playing: Number(payload?.playing_balance ?? 0),
+      winning: Number(payload?.winning_balance ?? 0),
     };
 
     setWalletInfo(allBalances);
@@ -29,7 +29,7 @@ const getWallet = async (runOnBackground: boolean) => {
   } catch (error: any) {
     Toast.show({
       type: "error",
-      text1: error.response?.data?.message,
+      text1: error.response?.data?.message || "Failed to fetch wallet balance",
     });
   } finally {
     if(!runOnBackground){

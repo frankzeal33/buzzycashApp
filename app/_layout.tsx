@@ -26,7 +26,7 @@ export default function RootLayout() {
     "Montserrat-Thin": require("../assets/fonts/Montserrat-Thin.ttf"),
   });
 
- const { initializeTheme, theme, toggleTheme, preference } = useThemeStore();
+ const { initializeTheme } = useThemeStore();
 
   useEffect(() => {
     initializeTheme();

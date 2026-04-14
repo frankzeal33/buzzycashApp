@@ -30,7 +30,6 @@ import mail from "../assets/images/mail.png";
 import tip from "../assets/images/tip.png";
 import qrcode from "../assets/images/qr-code.png";
 import featuredGame from "../assets/images/featured-game.png";
-import ticketGame from "../assets/images/ticket-game.png";
 import triviaGame from "../assets/images/trivia-game.png";
 import lotteryGame from "../assets/images/lottery-game.png";
 import instantGame from "../assets/images/instant-game.png";
@@ -44,6 +43,14 @@ import spinToWin from "../assets/images/spin-to-win.png";
 import aviator from "../assets/images/aviator.png";
 import starBg from "../assets/images/star-bg.png";
 import spin from "../assets/images/spin.png";
+import card from "../assets/images/card.png";
+import coin from "../assets/images/coin.png";
+import coinTail from "../assets/images/coin-tail.png";
+import dice from "../assets/images/dice.png";
+import hotCold from "../assets/images/hotcold.png";
+import betting from "../assets/images/betting.png";
+import box from "../assets/images/box.png";
+import fruit from "../assets/images/fruit.png";
 import won from "../assets/images/won.json";
 
 export default {
@@ -79,7 +86,6 @@ export default {
   tip,
   qrcode,
   featuredGame,
-  ticketGame,
   triviaGame,
   lotteryGame,
   instantGame,
@@ -93,5 +99,13 @@ export default {
   aviator,
   starBg,
   spin,
+  card,
+  hotCold,
+  coin, 
+  coinTail,
+  dice,
+  box,
+  betting,
+  fruit,
   won
 };

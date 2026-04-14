@@ -56,7 +56,7 @@ const FundWalletScreen = () => {
             try {
                 setIsSubmitting(true)
             
-                const result = await axiosClient.post("/wallet/fund-wallet", { amount: Number(amount), payment_method: gateway })
+                const result = await axiosClient.post("/wallet/fund", { amount: Number(amount), payment_method: gateway })
                 console.log(result.data)
 
                 setAmount("")

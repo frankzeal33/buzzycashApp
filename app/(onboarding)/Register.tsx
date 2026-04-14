@@ -177,7 +177,7 @@ const Register = () => {
       }
 
       console.log("otp-data", otp)
-      
+      console.log("data", data)
       setIsSubmitting(true)
 
       const result = await axiosClient.post("/auth/verify-account", data)

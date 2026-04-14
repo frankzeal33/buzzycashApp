@@ -1,13 +1,9 @@
-import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, ImageBackground, Pressable, ScrollView, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { images } from '@/constants'
-import { AntDesign, Entypo } from '@expo/vector-icons'
 import { router } from 'expo-router'
-import CountDown from 'react-native-countdown-component'
-import { getCountdownSeconds } from '@/utils/CountdownSeconds'
-import TicketButton from '@/components/TicketButton'
 import GradientButton from '@/components/GradientButton'
 import displayCurrency from '@/utils/displayCurrency'
 import TicketModal from '@/components/TicketModal'
@@ -61,7 +57,7 @@ const Spin2WinScreen = () => {
                 </View>
             </ScrollView>
             
-            <TicketModal title={`You won ${displayCurrency(Number(400), "NGN")}`} visible={showModal} onClose={closeModal}>
+            <TicketModal title={`You won ${displayCurrency(Number(400))}`} visible={showModal} onClose={closeModal}>
                 <View className='w-full'>
                     <View className='w-full items-center justify-center'>
                         <LottieView

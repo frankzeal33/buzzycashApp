@@ -27,7 +27,7 @@ const AllTicketScreen = () => {
     setLoadingTickets(true)
     try {
 
-      const result = await axiosClient.get("/ticket/gaming")
+      const result = await axiosClient.get("/tickets/all-games")
 
       setGames(result.data?.results?.games || [])
       console.log("tickets", result.data?.results?.games)

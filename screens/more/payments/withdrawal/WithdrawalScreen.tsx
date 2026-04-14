@@ -181,10 +181,10 @@ const WithdrawalScreen = () => {
       getWallet(true)
 
     } catch (error: any) {
-        Toast.show({
-            type: 'error',
-            text1: error.response.data.message
-        });
+      Toast.show({
+        type: 'error',
+        text1: error.response.data.message
+      });
 
     } finally {
       setIsSubmitting(false)
