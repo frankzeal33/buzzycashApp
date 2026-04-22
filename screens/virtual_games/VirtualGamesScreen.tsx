@@ -57,7 +57,7 @@ const games: any = [
     },
     {
         id: "8",
-        title: "Real Streak",
+        title: "Reel Streak",
         image: images.fruit,
         route: "/(protected)/(routes)/ReelStreak"
     },

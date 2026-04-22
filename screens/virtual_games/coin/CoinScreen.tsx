@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, ActivityIndicator, TextInput } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -12,20 +12,72 @@ import Animated, {
   withRepeat,
   Easing,
   cancelAnimation,
+  withSpring,
 } from 'react-native-reanimated'
 import { axiosClient } from "@/globalApi";
+import z from "zod";
+import Toast from "react-native-toast-message";
+
+type Bet = 'heads' | 'tails' | 'edge' | null
+type Result = {
+  isWin: boolean
+  message: string
+  payout: number
+  multiplier: string
+  systemPick: Bet
+  userPick: Bet
+}
+
+const schema = z.object({
+  stake: z.coerce.number()
+    .min(50, "Minimum stake is 50")
+    .max(1000, "Maximum stake is 1000"),
+  bet: z.enum(["heads", "tails", "edge"], {
+    message: "Please select a bet, either heads, tails or edge",
+  })
+})
 
 export default function CoinScreen() {
   const { top, bottom } = useSafeAreaInsets();
-  const [bet, setBet] = useState<'heads' | 'tails' | 'edge' | null>(null)
+  const [bet, setBet] = useState<Bet>(null)
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
-  const [streak, setStreak] = useState(0)
-  const [multiplier, setMultiplier] = useState(1)
-  const [history, setHistory] = useState<string[]>([])
+  const [result, setResult] = useState<Result>({
+    isWin: false,
+    message: "",
+    payout: 0,
+    multiplier: "",
+    systemPick: null,
+    userPick: null
+  })
+  const [history, setHistory] = useState<boolean[]>([])
   const [face, setFace] = useState<'head' | 'tail' | 'edge'>('head')
+  const [stake, setStake] = useState("50")
 
   const spin = useSharedValue(0)
+
+  const headsScale = useSharedValue(1)
+  const tailsScale = useSharedValue(1)
+  const edgeScale = useSharedValue(1)
+
+  const bounce = (scale: any) => {
+    scale.value = 0.9
+    scale.value = withSpring(1.1, { damping: 5 }, () => {
+      scale.value = withSpring(1)
+    })
+  }
+
+
+  const headsStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: headsScale.value }]
+  }))
+
+  const tailsStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: tailsScale.value }]
+  }))
+
+  const edgeStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: edgeScale.value }]
+  }))
 
   const startSpin = () => {
     spin.value = 0
@@ -64,14 +116,19 @@ export default function CoinScreen() {
     }
   })
 
-  const updateMultiplier = (newStreak: number) => {
-    if (newStreak >= 5) return 3
-    if (newStreak >= 3) return 2
-    return 1
-  }
-
   const handleToss = async () => {
-    if (!bet || loading) return
+    if (loading) return
+
+    const result = schema.safeParse({ stake, bet });
+
+    if (!result.success) {
+      const firstIssue = result.error.issues[0];
+
+      return Toast.show({
+        type: 'info',
+        text1: firstIssue.message,
+      });
+    }
 
     let flipInterval: any
 
@@ -80,44 +137,68 @@ export default function CoinScreen() {
 
       flipInterval = startSpin() // store interval
 
-      const res = await axiosClient.post("/virtual/coin", {
+      const res = await axiosClient.post("/virtual/toss", {
         pick: bet,
-        stake: 100
+        stake: Number(stake)
       })
+
+      setResult(prev => ({
+        ...prev,
+        message: "loading..."
+      }))
 
       setTimeout(() => {
         stopSpin()
         clearInterval(flipInterval) // stop flipping
 
         const data = res.data
-        setResult(data)
+
+        setHistory(prev => [...prev, data.data.is_win])
+
+        setResult({
+          isWin: data.data.is_win,
+          message: data.message,
+          payout: data.data.payout || 0,
+          multiplier: data.data.multiplier,
+          systemPick: data.data.system_pick,
+          userPick: data.data.user_pick
+        })
+        console.log("API result:", data)
 
         // set final face from API
-        if (data.result === 'head') setFace('head')
-        if (data.result === 'tail') setFace('tail')
-
-        if (data.win) {
-          const newStreak = streak + 1
-          setStreak(newStreak)
-          setMultiplier(updateMultiplier(newStreak))
-          setHistory(prev => ['win', ...prev.slice(0, 5)])
-        } else {
-          setStreak(0)
-          setMultiplier(1)
-          setHistory(prev => [
-            data.result === 'edge' ? 'edge' : 'lose',
-            ...prev.slice(0, 5),
-          ])
-        }
+        if (data.data.system_pick === 'heads') setFace('head')
+        if (data.data.system_pick=== 'tails') setFace('tail')
+        if (data.data.system_pick=== 'edge') setFace('edge')
 
         setBet(null)
-      }, 800)
+        
+      }, 300)
 
-    } catch (e) {
+    } catch (error: any) {
       stopSpin()
       if (flipInterval) clearInterval(flipInterval) // safety
+      Toast.show({
+        type: 'error',
+        text1:
+          error?.response?.data?.message?.stake ||
+          error?.response?.data?.message ||
+          "Something went wrong",
+      })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const getBetColor = (bet: 'heads' | 'tails' | 'edge' | null) => {
+    switch (bet) {
+      case 'heads':
+        return '#2f8f4e'
+      case 'tails':
+        return '#c45a33'
+      case 'edge':
+        return '#b8a34a'
+      default:
+        return '#e6e1c5'
     }
   }
 
@@ -149,12 +230,12 @@ export default function CoinScreen() {
 
           <View style={styles.stats}>
             <View>
-              <Text style={styles.statLabel}>STREAK</Text>
-              <Text style={styles.statValue}>{streak}</Text>
+              <Text style={styles.statLabel}>PAYOUT</Text>
+              <Text style={styles.statValue}>{result?.payout}</Text>
             </View>
             <View>
               <Text style={styles.statLabel}>MULTIPLIER</Text>
-              <Text style={styles.statValue}>{multiplier}x</Text>
+              <Text style={styles.statValue}>{result?.multiplier}</Text>
             </View>
           </View>
         </View>
@@ -164,12 +245,12 @@ export default function CoinScreen() {
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={handleToss}
-            disabled={!bet || loading}
+            disabled={loading}
           >
             <Animated.View style={[styles.coinOuter, spinStyle]}>
               <View style={styles.coinInner}>
                 {face === 'edge' && 
-                  <Text style={{ fontSize: 200, color: "#caa85e" }}>
+                  <Text style={{ fontSize: 100, color: "#caa85e" }}>
                     ⚡
                   </Text>
                 }
@@ -189,57 +270,145 @@ export default function CoinScreen() {
             </Animated.View>
           </TouchableOpacity>
 
+          <View style={styles.controlPill}>
+            <Text style={styles.controlLabel}>Enter stake</Text>
+            <View style={styles.counterRow}>
+              <TextInput
+                value={stake}
+                onChangeText={text => setStake(text)}
+                keyboardType="numeric"
+                placeholder="Enter stake"
+                placeholderTextColor="#9fb7a9"
+                cursorColor="white"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.06)",
+                  borderRadius:16,
+                  borderWidth: 1,
+                  borderColor: "#caa85e",
+                  padding: 8,
+                  fontSize: 16,
+                  flex: 1,
+                  color: "#fff",
+                  textAlign: "center"
+                }}
+              />
+            </View>
+            
+          </View>
           <Text style={styles.tapText}>tap coin to flip</Text>
         </View>
 
         {/* ACTION BOX */}
         <View style={styles.actionBox}>
           <View style={styles.row}>
-            <TouchableOpacity 
-              style={styles.greenBtn}
-              onPress={() => setBet('heads')}
-              disabled={loading}
-            >
-              <Text style={styles.btnText}>🪙 heads</Text>
-            </TouchableOpacity>
+            <Animated.View style={[{ width: 140 }, headsStyle]}>
+              <TouchableOpacity 
+                style={styles.greenBtn}
+                onPress={() => {
+                  setBet('heads')
+                  bounce(headsScale)
+                  setResult(prev => ({
+                    ...prev,
+                    message: ""
+                  }))
+                }}
+                className={`${loading ? 'opacity-50' : ''}`}
+                disabled={loading}
+              >
+                <Text style={styles.btnText}>🪙 heads</Text>
+              </TouchableOpacity>
+            </Animated.View>
 
-            <TouchableOpacity 
-              style={styles.orangeBtn}
-              onPress={() => setBet('tails')}
-              disabled={loading}
-            >
-              <Text style={styles.btnText}>🪙 tails</Text>
-            </TouchableOpacity>
+            <Animated.View style={[{ width: 140 }, tailsStyle]}>
+              <TouchableOpacity 
+                style={styles.orangeBtn}
+                onPress={() => {
+                  setBet('tails')
+                  bounce(tailsScale)
+                  setResult(prev => ({
+                    ...prev,
+                    message: ""
+                  }))
+                }}
+                className={`${loading ? 'opacity-50' : ''}`}
+                disabled={loading}
+              >
+                <Text style={styles.btnText}>🪙 tails</Text>
+              </TouchableOpacity>
+            </Animated.View>
           </View>
 
-          <TouchableOpacity 
-            style={styles.edgeBtn}
-            onPress={() => setBet('edge')}
-            disabled={loading}
-          >
-            <Text style={styles.edgeText}>⚡ edge</Text>
-          </TouchableOpacity>
+          <Animated.View style={[{ width: 160, marginHorizontal: "auto"}, edgeStyle]}>
+            <TouchableOpacity 
+              style={styles.edgeBtn}
+              onPress={() => {
+                setBet('edge')
+                bounce(edgeScale)
+                setResult(prev => ({
+                  ...prev,
+                  message: ""
+                }))
+              }}
+              className={`${loading ? 'opacity-50' : ''}`}
+              disabled={loading}
+            >
+              <Text style={styles.edgeText}>⚡ edge</Text>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
 
         {/* BET */}
         <View style={styles.betBox}>
-          <Text style={styles.betText}>place your bet</Text>
+          {loading ? (
+            <Text style={styles.betText}>Spinning...</Text>
+          ) : !bet && !result?.message ? (
+            <Text style={styles.betText}>Place your bet</Text>
+          ) : result?.message ? (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              {result?.isWin ? (
+                <>
+                  <Text className="text-white text-3xl">✅</Text>
+                  <Text className="text-white font-msbold text-xl">
+                    CORRECT! <Text style={{ color: getBetColor(result?.systemPick), fontWeight: "700", textTransform: "uppercase" }}>{result?.systemPick}</Text>
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Text className="text-white text-3xl">❌</Text>
+                  <Text className="text-white font-msbold text-xl">
+                    Wrong. It is <Text style={{ color: getBetColor(result?.systemPick), fontWeight: "700", textTransform: "uppercase" }}>{result?.systemPick}</Text>
+                  </Text>
+                </>
+              )}
+            </View>
+          ) : (
+            <Text style={styles.betText}>
+              Bet:{" "}
+              <Text style={{ color: getBetColor(bet), fontWeight: "700", textTransform: "uppercase" }}>
+                {bet}
+              </Text>{" "}
+              - tap coin or toss
+            </Text>
+          )}
 
           <View style={styles.betBadge}>
-            <Text style={{ color: "#1c2b1f", fontWeight: "700" }}>1x</Text>
+            <Text style={{ color: "#1c2b1f", fontWeight: "700" }}>
+              {result?.multiplier}
+            </Text>
           </View>
         </View>
 
         {/* TOSS BUTTON */}
         <TouchableOpacity
+          className={`${loading || !bet ? 'opacity-50' : ''}`}
           style={styles.tossBtn}
           onPress={handleToss}
-          disabled={!bet || loading}
+          disabled={loading}
         >
           {loading ? (
             <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
               <ActivityIndicator color="#000" />
-              <Text style={{ fontSize: 18 }}>Rolling...</Text>
+              <Text style={{ fontSize: 18 }}>Spinning...</Text>
             </View>
           ) : (
             <Text style={{ fontSize: 18 }}>🎲 toss coin</Text>
@@ -248,12 +417,29 @@ export default function CoinScreen() {
 
         <View style={[styles.footer, { marginBottom: bottom }]}>
           <Text style={styles.footerText}>📋 last rolls 🔊 sound on</Text>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            {/* {lastRolls.map((r, i) => (
-              <Text key={i}>{r.win ? '✅' : '❌'}</Text>
-            ))} */}
+          <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+            {history.length <= 0 ? (
+              <Text className='text-white text-xl italic'>Place a bet & toss</Text>
+            ) : (
+              history.map((h, i) => (
+                <View
+                  key={i}
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.06)",
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 20,
+                    borderLeftWidth: 4,
+                    borderLeftColor: h ? '#5fd48c' : '#e06969'
+                  }}
+                >
+                  <Text style={{ color: '#ffeca6' }}>
+                    {h ? '✅' : '❌'}
+                  </Text>
+                </View>
+              ))
+            )}
           </View>
-          <Text className='text-white text-xl italic'>place a bet & toss</Text>
         </View>
 
       </ScrollView>
@@ -350,7 +536,8 @@ const styles = StyleSheet.create({
   greenBtn: {
     flex: 1,
     backgroundColor: "#2f8f4e",
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
     borderRadius: 30,
     marginRight: 10,
     alignItems: "center",
@@ -359,7 +546,8 @@ const styles = StyleSheet.create({
   orangeBtn: {
     flex: 1,
     backgroundColor: "#c45a33",
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
     borderRadius: 30,
     marginLeft: 10,
     alignItems: "center",
@@ -376,7 +564,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 30,
     alignItems: "center",
-    width: 180,
+    width: "100%",
     marginHorizontal: "auto"
   },
 
@@ -393,6 +581,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
   },
 
   betText: {
@@ -405,10 +595,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
+    flexShrink: 0 
   },
 
   tossBtn: {
-    backgroundColor: "#6b6a3b",
+    backgroundColor: "#b8a34a",
     padding: 18,
     borderRadius: 30,
     alignItems: "center",
@@ -430,4 +621,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
   },
+
+  controlPill: {
+    width: 150,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderRadius: 18,
+    padding: 14,
+    marginTop: 20
+  },
+
+  controlLabel: {
+    color: "#e6e1c5",
+    marginBottom: 6,
+  },
+
+  counterRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 6
+  },
+
 });

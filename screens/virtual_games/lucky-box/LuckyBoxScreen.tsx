@@ -1,13 +1,143 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, TextInput } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
 import { router } from 'expo-router'
+import Toast from 'react-native-toast-message'
+import { axiosClient } from '@/globalApi'
+import AnimatedBox from '@/components/virtuals/AnimatedBox'
+
+import { z } from "zod"
+
+const schema = z.object({
+  stake: z.coerce.number()
+    .min(50, "Minimum stake is 50")
+    .max(1000, "Maximum stake is 1000"),
+  pick: z.number()
+})
+
+type Box = {
+  revealed: boolean
+  prize: boolean
+}
+
+type Result = {
+  isWin: boolean
+  message: string
+  payout: number
+  multiplier: string
+  systemPick: number | null
+  userPick: number | null
+}
 
 const LuckyBoxScreen = () => {
   const { top, bottom } = useSafeAreaInsets()
-  const [stake, setStake] = useState(10)
+  const [stake, setStake] = useState("50")
+  const [boxCount, setBoxCount] = useState(3)
+  const [boxes, setBoxes] = useState<Box[]>([])
+  const [gameActive, setGameActive] = useState(true)
+  const [resultText, setResultText] = useState("🎁 pick a box")
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<Result>({
+    isWin: false,
+    message: "",
+    payout: 0,
+    multiplier: "",
+    systemPick: null,
+    userPick: null
+  })
+  const [history, setHistory] = useState<boolean[]>([])
+
+  // INIT EMPTY BOXES
+  const initBoxes = (count: number) => {
+    const newBoxes = Array.from({ length: count }, () => ({
+      revealed: false,
+      prize: false
+    }))
+
+    setBoxes(newBoxes)
+    setGameActive(true)
+  }
+
+  useEffect(() => {
+    initBoxes(3)
+  }, [])
+
+  // PLAY
+  const handlePick = async (index: number) => {
+    if (!gameActive || loading) return
+
+    const result = schema.safeParse({ stake, pick: index + 1 });
+      
+    if (!result.success) {
+      const firstIssue = result.error.issues[0];
+
+      return Toast.show({
+        type: 'info',
+        text1: firstIssue.message,
+      });
+    }
+
+    try {
+      setLoading(true)
+
+      const res = await axiosClient.post('/virtual/box', {
+        pick: index + 1,
+        stake: Number(stake)
+      })
+
+      const data = res.data
+      console.log("box data:", data)
+
+      const systemPickIndex = data.data.system_pick - 1 // if backend is 1-based
+      const userPickIndex = data.data.user_picked - 1
+
+      const updatedBoxes = Array.from({ length: boxCount }, (_, i) => ({
+        revealed: true,
+        prize: i === systemPickIndex
+      }))
+
+      setBoxes(updatedBoxes)
+
+      setGameActive(false)
+      setHistory(prev => [...prev, data.data.is_win])
+      setResult({
+        isWin: data.data.is_win,
+        message: data.message,
+        payout: data.data.payout || 0,
+        multiplier: data.data.multiplier,
+        systemPick: data.data.system_pick,
+        userPick: data.data.user_picked
+      })
+
+      if (data.data.is_win) {
+        setResultText(`💰 WIN! +${data.data.payout}`)
+      } else {
+        setResultText(`😞 LOSE... -${stake}`)
+      }
+
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1:
+          error?.response?.data?.message?.stake ||
+          error?.response?.data?.message ||
+          "Something went wrong",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  //  NEW ROUND
+  const newRound = () => {
+    if (loading) return
+
+    initBoxes(boxCount)
+    setResultText("🎁 pick a box")
+    setGameActive(true)
+  }
 
   return (
     <LinearGradient
@@ -32,8 +162,8 @@ const LuckyBoxScreen = () => {
           </View>
 
           <View style={styles.balanceBox}>
-            <Text style={styles.small}>BALANCE</Text>
-            <Text style={styles.gold}>1000</Text>
+            <Text style={styles.small}>PAYOUT</Text>
+            <Text style={styles.gold}>{result?.payout}</Text>
           </View>
         </View>
 
@@ -41,49 +171,117 @@ const LuckyBoxScreen = () => {
         <View style={styles.row}>
           <View style={styles.stakeBox}>
             <Text style={styles.stakeLabel}>stake</Text>
-            <View style={styles.stakeValueBox}>
-              <Text style={styles.stakeValue}>{stake}</Text>
+            <View style={styles.counterRow}>
+              <TextInput
+                value={stake}
+                onChangeText={(text) => setStake(text)}
+                keyboardType="numeric"
+                placeholder="Enter stake"
+                placeholderTextColor="#9fb7a9"
+                cursorColor="white"
+                style={{
+                  backgroundColor: "#1a1230",
+                  borderRadius:16,
+                  borderWidth: 1,
+                  borderColor: "#d2b48c",
+                  padding: 8,
+                  fontSize: 16,
+                  flex: 1,
+                  color: "#fff",
+                  textAlign: "center"
+                }}
+              />
             </View>
+            
           </View>
 
           <View style={styles.multiplierBtn}>
-            <Text style={styles.multiplierText}>2.5x</Text>
+            <Text style={styles.multiplierText}>{result?.multiplier}</Text>
           </View>
         </View>
 
         {/* BOX OPTIONS */}
-        <View style={styles.optionRow}>
-          <TouchableOpacity style={styles.optionBtn}><Text>3 boxes</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.optionBtn}><Text>5 boxes</Text></TouchableOpacity>
-        </View>
+        {/* <View style={styles.optionRow}>
+          <TouchableOpacity style={styles.optionBtn} 
+            onPress={() => {
+              setBoxCount(3)
+              initBoxes(3)   // use value directly
+              setResultText("🎁 pick a box")
+            }}
+          >
+            <Text>3 boxes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.optionBtn} 
+            onPress={() => {
+              setBoxCount(5)
+              initBoxes(5)   // use value directly
+              setResultText("🎁 pick a box")
+            }}
+          >
+            <Text>5 boxes</Text>
+          </TouchableOpacity>
+        </View> */}
 
         {/* BOXES */}
         <View style={styles.boxRow}>
-          {[1,2,3].map((i) => (
-            <TouchableOpacity key={i} style={styles.box}>
-              <Text style={styles.boxEmoji}>🎁</Text>
-              <View style={styles.boxNumber}><Text style={styles.boxNumberText}>{i}</Text></View>
-            </TouchableOpacity>
+          {boxes.map((box, i) => (
+            <AnimatedBox
+              key={i}
+              box={box}
+              index={i}
+              onPress={handlePick}
+              disabled={!gameActive}
+              loading={loading}
+            />
           ))}
         </View>
 
         {/* PICK BAR */}
         <View style={styles.pickBar}>
-          <Text style={styles.pickText}>🎁 pick a box</Text>
+          {loading ? (
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+              <ActivityIndicator size={"small"} color="#fff" />
+              <Text style={{ fontSize: 18, fontWeight: "700", color: "#fff" }}>Loading...</Text>
+            </View>
+          ) : (
+            <Text style={styles.pickText}>{resultText}</Text>
+          )}
           <View style={styles.multiplierResult}>
-            <Text style={styles.multiplierResultText}>0x</Text>
+            <Text style={styles.multiplierResultText}>{result?.multiplier}</Text>
           </View>
         </View>
 
         {/* ACTION BUTTON */}
-        <TouchableOpacity style={styles.openBtn}>
+        <TouchableOpacity style={styles.openBtn} className={`${gameActive ? 'opacity-60' : ''}`} disabled={gameActive} onPress={newRound}>
           <Text style={styles.openText}>✨ open new boxes</Text>
         </TouchableOpacity>
 
         {/* FOOTER */}
         <View style={[styles.footer, { marginBottom: bottom }]}>
           <Text style={styles.footerText}>📋 last picks   🔊 sound on</Text>
-          <Text style={styles.footerHint}>pick a box</Text>
+          <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+            {history.length === 0 ? (
+              <Text style={styles.footerHint}>pick a box</Text>
+            ) : (
+              history.map((h, i) => (
+                <View
+                  key={i}
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.06)",
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 20,
+                    borderLeftWidth: 4,
+                    borderLeftColor: h ? '#5fd48c' : '#e06969'
+                  }}
+                >
+                  <Text style={{ color: '#ffeca6' }}>
+                    {h ? '✅' : '❌'}
+                  </Text>
+                </View>
+              ))
+            )}
+          </View>
         </View>
       </ScrollView>
     </LinearGradient>
@@ -122,7 +320,7 @@ const styles = StyleSheet.create({
   balanceBox: {
     backgroundColor: '#2d214a',
     padding: 14,
-    borderRadius: 20
+    borderRadius: 14
   },
 
   small: {
@@ -143,16 +341,19 @@ const styles = StyleSheet.create({
   },
 
   stakeBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2d214a',
-    padding: 10,
-    borderRadius: 25
+    width: 150,
+    backgroundColor: "#2d214a",
+    borderRadius: 30,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
 
   stakeLabel: {
-    color: '#c7bff0',
-    marginRight: 10
+    color: "#9fb7c3",
+    marginBottom: 6,
   },
 
   stakeValueBox: {
@@ -194,7 +395,9 @@ const styles = StyleSheet.create({
 
   boxRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10
   },
 
   box: {
@@ -232,13 +435,16 @@ const styles = StyleSheet.create({
 
   pickText: {
     color: '#e5dcff',
-    fontSize: 18
+    fontSize: 18,
+    fontWeight: '700'
   },
 
   multiplierResult: {
     backgroundColor: '#f6d98a',
     paddingHorizontal: 20,
-    borderRadius: 20
+    borderRadius: 20,
+    alignItems: 'center',
+     justifyContent: 'center'
   },
 
   multiplierResultText: {
@@ -246,7 +452,7 @@ const styles = StyleSheet.create({
   },
 
   openBtn: {
-    backgroundColor: '#5a4a7d',
+    backgroundColor: '#b18cff',
     padding: 20,
     borderRadius: 30,
     alignItems: 'center'
@@ -264,12 +470,20 @@ const styles = StyleSheet.create({
   },
 
   footerText: {
-    color: '#c7bff0'
+    color: '#c7bff0',
+    marginBottom: 10,
   },
 
   footerHint: {
     marginTop: 10,
     color: '#b9a7e6',
     fontStyle: 'italic'
-  }
+  },
+
+  counterRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 6
+  },
 })

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native'
 import React, { useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -7,23 +7,117 @@ import { router } from 'expo-router'
 
 const RPSBetScreen = () => {
   const { top, bottom } = useSafeAreaInsets()
+
   const [stake, setStake] = useState(10)
+  const [balance, setBalance] = useState(1000)
+  const [streak, setStreak] = useState(0)
+  const [multiplier, setMultiplier] = useState(1.0)
+  const [userChoice, setUserChoice] = useState("✋")
+  const [aiChoice, setAiChoice] = useState("🤖")
+  const [resultText, setResultText] = useState("choose your move")
+  const [roundActive, setRoundActive] = useState(false)
+  const [history, setHistory] = useState<string[]>([])
+
+  const choices = ["rock", "paper", "scissors"]
+
+  const iconMap: any = {
+    rock: "✊",
+    paper: "📄",
+    scissors: "✂️"
+  }
+
+  const getRandomChoice = () => {
+    return choices[Math.floor(Math.random() * 3)]
+  }
+
+  const getResult = (user: string, ai: string) => {
+    if (user === ai) return "draw"
+
+    if (
+      (user === "rock" && ai === "scissors") ||
+      (user === "paper" && ai === "rock") ||
+      (user === "scissors" && ai === "paper")
+    ) return "win"
+
+    return "lose"
+  }
+
+  const updateMultiplier = (streakValue: number) => {
+    let m = 1.0
+
+    if (streakValue >= 5) m = 2.5
+    else if (streakValue >= 3) m = 1.8
+    else if (streakValue >= 2) m = 1.3
+
+    setMultiplier(m)
+  }
+
+  const handlePlay = (choice: string) => {
+    if (roundActive) return
+
+    if (stake > balance) {
+      setResultText("❌ insufficient balance")
+      return
+    }
+
+    const ai = getRandomChoice()
+
+    setUserChoice(iconMap[choice])
+    setAiChoice(iconMap[ai])
+
+    const result = getResult(choice, ai)
+
+    let newStreak = streak
+    let newBalance = balance
+
+    if (result === "win") {
+      newStreak += 1
+      const winAmount = Math.floor(stake * multiplier)
+      newBalance += winAmount
+
+      setResultText(`✅ WIN! +${winAmount}`)
+      setHistory(prev => ["win", ...prev].slice(0, 10))
+    }
+
+    else if (result === "lose") {
+      newStreak = 0
+      newBalance -= stake
+
+      setResultText(`❌ LOSS... -${stake}`)
+      setHistory(prev => ["lose", ...prev].slice(0, 10))
+    }
+
+    else {
+      setResultText(`🔄 DRAW · stake returned`)
+      setHistory(prev => ["draw", ...prev].slice(0, 10))
+    }
+
+    setStreak(newStreak)
+    updateMultiplier(newStreak)
+    setBalance(newBalance)
+    setRoundActive(true)
+  }
+
+  const resetGame = () => {
+    setUserChoice("✋")
+    setAiChoice("🤖")
+    setResultText("choose your move")
+    setRoundActive(false)
+  }
 
   return (
-    <LinearGradient
-      colors={["#0b1d2e", "#071421"]}
-      style={styles.container}
-    >
+    <LinearGradient colors={["#0b1d2e", "#071421"]} style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between", gap: 20, padding: 12 }}
       >
+
         {/* HEADER */}
         <View className='flex-row gap-2 justify-between items-center' style={{ marginTop: top }}>
           <View className='flex-row gap-1 items-center'>
             <TouchableOpacity activeOpacity={0.8} onPress={() => router.back()}>
               <Feather name="chevron-left" size={34} color="#f5d27a" />
-            </TouchableOpacity> 
+            </TouchableOpacity>
 
             <View style={styles.logo}>
               <Text style={{ fontSize: 20 }}>✊</Text>
@@ -34,11 +128,11 @@ const RPSBetScreen = () => {
           <View style={styles.headerRight}>
             <View style={styles.statBox}>
               <Text style={styles.small}>BALANCE</Text>
-              <Text style={styles.gold}>1000</Text>
+              <Text style={styles.gold}>{balance}</Text>
             </View>
             <View style={styles.statBox}>
               <Text style={styles.small}>STREAK</Text>
-              <Text style={styles.gold}>0</Text>
+              <Text style={styles.gold}>{streak}</Text>
             </View>
           </View>
         </View>
@@ -47,44 +141,92 @@ const RPSBetScreen = () => {
         <View style={styles.stakeContainer}>
           <Text style={styles.stakeLabel}>stake</Text>
           <View style={styles.stakeBox}>
-            <Text style={styles.stakeValue}>{stake}</Text>
+            <TextInput
+              value={String(stake)}
+              onChangeText={(text) => setStake(Number(text) || 1)}
+              keyboardType="numeric"
+              placeholder="Enter stake"
+              placeholderTextColor="#9fb7a9"
+              cursorColor="white"
+              style={{
+                backgroundColor: '#163447',
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: "#caa85e",
+                padding: 8,
+                fontSize: 16,
+                flex: 1,
+                color: "#fff",
+                textAlign: "center"
+              }}
+            />
           </View>
         </View>
 
-        {/* VS SECTION */}
+        {/* VS */}
         <View style={styles.vsContainer}>
           <View style={styles.playerBox}>
             <Text style={styles.playerLabel}>you</Text>
-            <Text style={styles.emoji}>✋</Text>
+            <Text style={styles.emoji}>{userChoice}</Text>
           </View>
 
           <Text style={styles.vs}>VS</Text>
 
           <View style={styles.playerBox}>
             <Text style={styles.playerLabel}>AI</Text>
-            <Text style={styles.emoji}>🤖</Text>
+            <Text style={styles.emoji}>{aiChoice}</Text>
           </View>
         </View>
 
         {/* CHOICES */}
         <View style={styles.choices}>
-          <TouchableOpacity style={styles.choiceBtn}><Text style={styles.choiceEmoji}>✊</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.choiceBtn}><Text style={styles.choiceEmoji}>📄</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.choiceBtn}><Text style={styles.choiceEmoji}>✂️</Text></TouchableOpacity>
+          <TouchableOpacity disabled={roundActive} style={styles.choiceBtn} onPress={() => handlePlay("rock")}>
+            <Text style={styles.choiceEmoji}>✊</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity disabled={roundActive} style={styles.choiceBtn} onPress={() => handlePlay("paper")}>
+            <Text style={styles.choiceEmoji}>📄</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity disabled={roundActive} style={styles.choiceBtn} onPress={() => handlePlay("scissors")}>
+            <Text style={styles.choiceEmoji}>✂️</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* MULTIPLIER BAR */}
+        {/* MULTIPLIER */}
         <View style={styles.multiplierBar}>
-          <Text style={styles.multiplierText}>choose your move</Text>
+          <Text style={styles.multiplierText}>{resultText}</Text>
           <View style={styles.multiplierBox}>
-            <Text style={styles.multiplierValue}>1.0x</Text>
+            <Text style={styles.multiplierValue}>{multiplier.toFixed(1)}x</Text>
           </View>
         </View>
 
         {/* PLAY AGAIN */}
-        <TouchableOpacity style={[styles.playBtn, { marginBottom: bottom }]}>
+        <TouchableOpacity
+          disabled={!roundActive}
+          style={[styles.playBtn, { marginBottom: bottom, opacity: roundActive ? 1 : 0.5 }]}
+          onPress={resetGame}
+        >
           <Text style={styles.playText}>▶ play again</Text>
         </TouchableOpacity>
+
+        {/* FOOTER / HISTORY */}
+        <View style={[styles.footer, { marginBottom: bottom }]}>
+          <Text style={styles.footerText}>📋 last rolls 🔊 sound on</Text>
+
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {history.length === 0 ? (
+              <Text className='text-[#9fb6c9] text-xl italic'>play a rounds</Text>
+            ) : (
+              history.map((h, i) => (
+                <Text key={i}>
+                  {h === "win" ? "✅" : h === "lose" ? "❌" : "🔄"}
+                </Text>
+              ))
+            )}
+          </View>
+        </View>
+
       </ScrollView>
     </LinearGradient>
   )
@@ -155,9 +297,9 @@ const styles = StyleSheet.create({
   },
 
   stakeBox: {
+    width: 150,
     backgroundColor: '#163447',
-    paddingHorizontal: 25,
-    paddingVertical: 10,
+    padding: 15,
     borderRadius: 20
   },
 
@@ -178,7 +320,9 @@ const styles = StyleSheet.create({
     padding: 30,
     borderRadius: 30,
     alignItems: 'center',
-    width: 130
+    width: 120,
+    borderWidth: 1,
+    borderColor: "#9fb6c9",
   },
 
   playerLabel: {
@@ -220,7 +364,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#163447',
     padding: 20,
-    borderRadius: 30
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#9fb6c9",
   },
 
   multiplierText: {
@@ -231,7 +377,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5d27a',
     paddingHorizontal: 20,
     paddingVertical: 8,
-    borderRadius: 20
+    borderRadius: 20,
   },
 
   multiplierValue: {
@@ -240,7 +386,7 @@ const styles = StyleSheet.create({
   },
 
   playBtn: {
-    backgroundColor: '#254a63',
+    backgroundColor: '#358FCC',
     padding: 20,
     borderRadius: 30,
     alignItems: 'center'
@@ -250,5 +396,20 @@ const styles = StyleSheet.create({
     color: '#0b1d2e',
     fontSize: 20,
     fontWeight: 'bold'
+  },
+
+  footer: {
+    gap: 4,
+    backgroundColor: '#163447',
+    padding: 12,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: "#9fb6c9",
+  },
+
+  footerText: {
+    color: "#e6e1c5",
+    fontSize: 16,
+    marginBottom: 10,
   }
 })

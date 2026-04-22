@@ -17,6 +17,18 @@ import Animated, {
   cancelAnimation,
 } from 'react-native-reanimated'
 import { sounds } from '@/constants'
+import z from 'zod'
+
+const schema = z.object({
+  stake: z.coerce.number()
+    .min(50, "Minimum stake is 50")
+    .max(1000, "Maximum stake is 1000"),
+  bet_type: z.enum(['even', 'odd', 'highest', 'lowest', 'specific'], {
+    message: "Please select a valid bet type",
+  }),
+  guess: z.number().min(2).max(12, "Choose a number between 2 and 12")
+
+});
 
 const Dice = ({ value }: { value: number }) => {
   const dots: Record<number, number[][]> = {
@@ -53,18 +65,36 @@ const Dice = ({ value }: { value: number }) => {
   )
 }
 
+type Result = {
+  isWin: boolean
+  message: string
+  payout: number
+  multiplier: string
+  diceOne: number,
+  diceTwo: number,
+  totalDice: number
+}
+
 const DiceScreen = () => {
   const { top, bottom } = useSafeAreaInsets()
 
-  const [stake, setStake] = useState(10)
+  const [stake, setStake] = useState("50")
   const [diceCount, setDiceCount] = useState(2)
 
-  const [mode, setMode] = useState<'even' | 'high' | 'specific'>('even')
-  const [choice, setChoice] = useState<any>('even')
+  const [mode, setMode] = useState<'even' | 'odd' | 'highest' | 'lowest' | 'specific'>('even')
+  const [specificNumber, setSpecificNumber] = useState(2)
 
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
-  const [lastRolls, setLastRolls] = useState<any[]>([])
+  const [result, setResult] = useState<Result>({
+    isWin: false,
+    message: "",
+    payout: 0,
+    multiplier: "",
+    diceOne: 1,
+    diceTwo: 1,
+    totalDice: 2
+  })
+  const [history, setHistory] = useState<boolean[]>([])
 
   const [rolling, setRolling] = useState(false)
   const [animDice, setAnimDice] = useState<number[]>(
@@ -98,6 +128,7 @@ const DiceScreen = () => {
     rollPlayer.pause()
     rollPlayer.seekTo(0)
     stopShake()
+    // rollPlayer.loop = false
   }
 
   const startShake = () => {
@@ -149,26 +180,13 @@ const DiceScreen = () => {
     setAnimDice(Array.from({ length: diceCount }, () => 1));
   }, [diceCount]);
 
-  // 🎯 MULTIPLIER LOGIC
+  // MULTIPLIER LOGIC
   const getMultiplier = () => {
     if (mode === 'even') return 1.5
-    if (mode === 'high') return 1.5
+    if (mode === 'highest') return 1.5
     if (mode === 'specific') return 5
     return 1
   }
-
-  // const getMultiplier = () => {
-  //   if (mode === 'even') return 1.8
-  //   if (mode === 'high') return 1.8
-
-  //   if (mode === 'specific') {
-  //     // harder to hit → higher multiplier
-  //     const range = diceCount * 6 - diceCount + 1
-  //     return Number((range / 6).toFixed(2))
-  //   }
-
-  //   return 1
-  // }
 
   const getSpecificNumbers = () => {
     const min = diceCount
@@ -177,19 +195,33 @@ const DiceScreen = () => {
     return Array.from({ length: max - min + 1 }, (_, i) => i + min)
   }
 
-  useEffect(() => {
-    if (mode === 'specific') {
-      setChoice(diceCount) // minimum value
-    }
-  }, [diceCount])
-
   // ROLL FUNCTION
   const handleRoll = async () => {
-    if (!stake || stake <= 0) return alert("Enter valid stake")
+    if (loading) return
+    
+    const validation = schema.safeParse({
+      stake,
+      bet_type: mode,
+      guess: specificNumber
+    });
+          
+    if (!validation.success) {
+      const firstIssue = validation.error.issues[0];
 
+      return Toast.show({
+        type: 'info',
+        text1: firstIssue.message,
+      });
+    }
+
+    console.log("VALIDATION PASSED, ROLLING WITH:", {
+      stake,
+      mode,
+      specificNumber: specificNumber
+    })
     try {
       setLoading(true)
-      setRolling(true) // ADD THIS
+      setRolling(true)
 
       const interval = startRollingAnimation() // start switching
       startShake()
@@ -197,36 +229,39 @@ const DiceScreen = () => {
       triggerHaptic('roll')
 
       const res = await axiosClient.post("/virtual/dice", {
-        bet_type:
-          mode === 'even'
-            ? choice
-            : mode === 'high'
-            ? choice
-            : 'specific',
-        guess: mode === 'specific' ? choice : 0,
-        stake,
-        dice: diceCount
+        bet_type: mode,
+        stake: Number(stake),
+        ...(mode === "specific" && { guess: specificNumber }),
       })
 
-      setTimeout(() => {
-        // STOP the rolling sound
-        stopRollSound()
-      }, 400)
+      console.log("ROLL RESULT", res.data)
 
-      setTimeout(() => {
-        clearInterval(interval) // STOP switching
+      clearInterval(interval) // STOP switching
+        
+      const data = res.data
 
-        setResult(res.data)
-        setRolling(false)
+      setHistory(prev => [...prev, data.data.win])
 
-        if (res.data.win) { // FIX (use res, not result)
-          triggerHaptic('win')
-          playSound('win')
-        } else {
-          triggerHaptic('lose')
-          playSound('lose')
-        }
-      }, 500)
+      setResult({
+        isWin: data.data.win,
+        message: data.message,
+        payout: data.data.payout || 0,
+        multiplier: data.data.multiplier,
+        diceOne: data.data.Dice_one,
+        diceTwo: data.data.Dice_two,
+        totalDice: data.data.Total_dice
+      })
+
+      if (data.data.win) {
+        triggerHaptic('win')
+        playSound('win')
+      } else {
+        triggerHaptic('lose')
+        playSound('lose')
+      }
+
+      stopRollSound()
+      setRolling(false)
 
     } catch (error: any) {
       setRolling(false)
@@ -266,12 +301,12 @@ const DiceScreen = () => {
 
           <View style={styles.balanceBox}> 
             <View> 
-              <Text style={styles.smallLabel}>BALANCE</Text> 
-              <Text style={styles.goldText}>1000</Text> 
+              <Text style={styles.smallLabel}>PAYOUT</Text> 
+              <Text style={styles.goldText}>{result?.payout}</Text> 
             </View> 
             <View> 
-              <Text style={styles.smallLabel}>STREAK</Text> 
-              <Text style={styles.goldText}>0</Text> 
+              <Text style={styles.smallLabel}>MULTIPLIER</Text> 
+              <Text style={styles.goldText}>{result?.multiplier}</Text> 
             </View> 
           </View>
         </View>
@@ -282,8 +317,8 @@ const DiceScreen = () => {
             <Text style={styles.controlLabel}>stake</Text>
             <View style={styles.counterRow}>
               <TextInput
-                value={String(stake)}
-                onChangeText={(text) => setStake(Number(text) || 1)}
+                value={stake}
+                onChangeText={(text) => setStake(text)}
                 keyboardType="numeric"
                 placeholder="Enter stake"
                 placeholderTextColor="#9fb7a9"
@@ -307,11 +342,11 @@ const DiceScreen = () => {
           <View style={styles.controlPill}>
             <Text style={styles.controlLabel}>dice</Text>
             <View style={styles.counterRow}>
-              <TouchableOpacity onPress={() => setDiceCount(Math.max(1, diceCount - 1))}>
+              <TouchableOpacity disabled onPress={() => setDiceCount(Math.max(1, diceCount - 1))}>
                 <Text style={styles.counterBtn}>−</Text>
               </TouchableOpacity>
               <Text style={styles.counterValue}>{diceCount}</Text>
-              <TouchableOpacity onPress={() => setDiceCount(Math.min(6, diceCount + 1))}>
+              <TouchableOpacity disabled onPress={() => setDiceCount(Math.min(6, diceCount + 1))}>
                 <Text style={styles.counterBtn}>＋</Text>
               </TouchableOpacity>
             </View>
@@ -320,55 +355,61 @@ const DiceScreen = () => {
 
         {/* MODES */}
         <View style={styles.modeRow}>
-          {['even', 'high', 'specific'].map((m) => (
+          {['even', 'highest', 'specific'].map((m) => {
+
+            const isModeActive = (m: string) => {
+              if (m === "even") return ["even", "odd"].includes(mode)
+              if (m === "highest") return ["highest", "lowest"].includes(mode)
+              return mode === "specific"
+            }
+            return (
             <TouchableOpacity
               key={m}
-              style={[styles.modeBtn, mode === m && styles.activeMode]}
+              style={[styles.modeBtn, isModeActive(m) && styles.activeMode]}
               onPress={() => {
                 setMode(m as any)
-                setChoice(m === 'even' ? 'even' : m === 'high' ? 'high' : 2)
               }}
             >
-              <Text style={mode === m ? styles.activeModeText : styles.modeText}>
-                {m === 'even' ? 'even/odd' : m === 'high' ? 'high/low' : 'specific'}
+              <Text style={isModeActive(m) ? styles.activeModeText : styles.modeText}>
+                {m === 'even' ? 'even/odd' : m === 'highest' ? 'high/low' : 'specific'}
               </Text>
             </TouchableOpacity>
-          ))}
+          )})}
         </View>
 
         {/* DYNAMIC OPTIONS */}
-        {mode === 'even' && (
+        {(mode === 'even' || mode === 'odd') && (
           <View style={styles.choiceRow}>
             <TouchableOpacity
-              style={[styles.choiceBtn, choice === 'even' && styles.activeChoice]}
-              onPress={() => setChoice('even')}
+              style={[styles.choiceBtn, mode === 'even' && styles.activeChoice]}
+              onPress={() => setMode('even')}
             >
-              <Text style={[styles.choiceText, choice === 'even' && styles.choiceActiveText]}>✅ EVEN</Text>
+              <Text style={[styles.choiceText, mode === 'even' && styles.choiceActiveText]}>✅ EVEN</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.choiceBtn, choice === 'odd' && styles.activeChoice]}
-              onPress={() => setChoice('odd')}
+              style={[styles.choiceBtn, mode === 'odd' && styles.activeChoice]}
+              onPress={() => setMode('odd')}
             >
-              <Text style={[styles.choiceText, choice === 'odd' && styles.choiceActiveText]}>🔴 ODD</Text>
+              <Text style={[styles.choiceText, mode === 'odd' && styles.choiceActiveText]}>🔴 ODD</Text>
             </TouchableOpacity>
           </View>
         )}
 
-        {mode === 'high' && (
+        {(mode === 'highest' || mode === 'lowest') && (
           <View style={styles.choiceRow}>
             <TouchableOpacity
-              style={[styles.choiceBtn, choice === 'high' && styles.activeChoice]}
-              onPress={() => setChoice('high')}
+              style={[styles.choiceBtn, mode === 'highest' && styles.activeChoice]}
+              onPress={() => setMode('highest')}
             >
-              <Text style={[styles.choiceText, choice === 'high' && styles.choiceActiveText]}>⬆️ HIGH (&gt;6)</Text>
+              <Text style={[styles.choiceText, mode === 'highest' && styles.choiceActiveText]}>⬆️ HIGH (&gt;6)</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.choiceBtn, choice === 'low' && styles.activeChoice]}
-              onPress={() => setChoice('low')}
+              style={[styles.choiceBtn, mode === 'lowest' && styles.activeChoice]}
+              onPress={() => setMode('lowest')}
             >
-              <Text style={[styles.choiceText, choice === 'low' && styles.choiceActiveText]}>⬇️ LOW (≤6)</Text>
+              <Text style={[styles.choiceText, mode === 'lowest' && styles.choiceActiveText]}>⬇️ LOW (≤6)</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -380,9 +421,9 @@ const DiceScreen = () => {
                 key={num}
                 style={[
                   styles.circle,
-                  choice === num && styles.activeCircle
+                  specificNumber === num && styles.activeCircle
                 ]}
-                onPress={() => setChoice(num)}
+                onPress={() => setSpecificNumber(num)}
               >
                 <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
                   {num}
@@ -393,29 +434,50 @@ const DiceScreen = () => {
         )}
 
         <View style={{ flexDirection: "row", justifyContent: "center", flexWrap: "wrap", marginTop: 20, width:"100%" }}>
-          {Array.from({ length: diceCount }).map((_, i) => (
+          {Array.from({ length: diceCount }).map((_, i) => {
+            const finalDice = [result.diceOne, result.diceTwo]
+            return (
             <Animated.View key={i} style={rolling ? shakeStyle : undefined}>
               <Dice
                 value={
                   rolling
                     ? animDice[i] || 1   // LIVE changing values
-                    : (result?.rolled?.[i] || 1) // final result
+                    : finalDice[i] || 1 //final result
                 }
               />
             </Animated.View>
-          ))}
+          )})}
         </View>
 
         {/* RESULT */}
         {result && (
           <View style={styles.resultBox}>
-            <Text style={{ color: result.win ? "#4ade80" : "#ef4444", fontWeight: "bold" }}>
-              {result.win ? "✅ WIN 🎉" : "❌ LOSE 🤕"}{" "}
-              {result.win ? `+${Math.floor(stake * getMultiplier())}` : `-${stake}`}
-            </Text>
+            {loading ? (
+              <Text style={styles.betText}>Rolling...</Text>
+            ) : !result?.message ? (
+              <Text style={styles.betText}>🎲 Place your bet</Text>
+            ) : (
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                {result?.isWin ? (
+                  <>
+                    <Text className="text-white text-3xl">✅</Text>
+                    <Text className="text-white font-msbold text-xl">
+                      WIN! 🎉 <Text style={{ fontWeight: "700", textTransform: "uppercase" }}>+{result?.payout}</Text>
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Text className="text-white text-3xl">❌</Text>
+                    <Text className="text-white font-msbold text-xl">
+                      LOSE 🤕 <Text style={{ fontWeight: "700", textTransform: "uppercase" }}>-{stake}</Text>
+                    </Text>
+                  </>
+                )}
+              </View>
+            )}
 
             <Text style={{ color: "#c7d6df" }}>
-              {getMultiplier()}x
+              {result?.multiplier}
             </Text>
           </View>
         )}
@@ -435,12 +497,29 @@ const DiceScreen = () => {
         {/* LAST ROLLS */}
         <View style={[styles.footer, { marginBottom: bottom }]}>
           <Text style={styles.footerText}>📋 last rolls 🔊 sound on</Text>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            {lastRolls.map((r, i) => (
-              <Text key={i}>{r.win ? '✅' : '❌'}</Text>
-            ))}
+          <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+            {history.length <= 0 ? (
+              <Text className='text-white text-xl italic'>roll the dice</Text>
+            ) : (
+              history.map((h, i) => (
+                <View
+                  key={i}
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.06)",
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 20,
+                    borderLeftWidth: 4,
+                    borderLeftColor: h ? '#5fd48c' : '#e06969'
+                  }}
+                >
+                  <Text style={{ color: '#ffeca6' }}>
+                    {h ? '✅' : '❌'}
+                  </Text>
+                </View>
+              ))
+            )}
           </View>
-          <Text className='text-white text-xl italic'>roll the dice</Text>
         </View>
 
       </ScrollView>
@@ -643,6 +722,11 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.03)",
   },
 
+  betText: {
+    color: "#e6e1c5",
+    fontSize: 18,
+  },
+
   /* ROLL BUTTON */
   rollBtn: {
     marginTop: 10,
@@ -658,7 +742,7 @@ const styles = StyleSheet.create({
 
   rollText: {
     color: "#0b1d26",
-    fontWeight: "bold",
+    fontWeight: "800",
     fontSize: 18,
   },
 

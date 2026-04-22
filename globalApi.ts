@@ -27,7 +27,7 @@ axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const isUnauthorized = error.response?.status === 401;
+    const isUnauthorized = error.response?.status === 401 && error.response?.data?.message === "session expired";
     console.log("run refresh error=", error.response)
     
     const isFirstRetry = !originalRequest._retry;
@@ -38,7 +38,7 @@ axiosClient.interceptors.response.use(
       try {
         const refreshToken = await SecureStore.getItemAsync('refreshToken');
         const refreshResponse = await axios.post(
-          `${process.env.EXPO_PUBLIC_SERVER_URI}/auth/refresh-token`,
+          `${process.env.EXPO_PUBLIC_SERVER_URI}/refresh-token`,
           { refresh_token: refreshToken }
         );
 
