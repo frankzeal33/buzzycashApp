@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, StyleSheet, Image, FlatList, SectionList, Modal, TouchableWithoutFeedback } from 'react-native'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, SectionList, Modal, TouchableWithoutFeedback } from 'react-native'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import { Octicons } from '@expo/vector-icons'
 import displayCurrency from '@/utils/displayCurrency';
 import moment from 'moment';
@@ -12,10 +12,10 @@ type NotificationItem = {
   id: string;
   title: string;
   created_at: string;
-  endsIn?: string;
   amount?: string;
   status?: string;
-  unread?: boolean;
+  is_read?: boolean;
+  message: string;
 };
 
 type NotificationSection = {
@@ -23,105 +23,94 @@ type NotificationSection = {
   data: NotificationItem[];
 };
 
-// const sections: NotificationSection[] = [
-//   {
-//     title: 'Ongoing',
-//     data: [
-//       { id: '1', title: 'Hotpicks', endsIn: '1day 3hrs 30mins', time: 'Today @1:48pm' },
-//       { id: '2', title: 'Daily ChopChop', endsIn: '7hrs 20mins', time: 'Today @1:40pm' },
-//       { id: '3', title: 'Buzzy Balls', endsIn: '', time: 'Today @1:40pm' },
-//     ],
-//   },
-//   {
-//     title: 'Recent',
-//     data: [
-//       { id: '4', title: 'Hotpicks', amount: '2,500.00', status: 'You Won', time: 'Today @1:48pm', unread: true },
-//       { id: '5', title: 'Weekend Allowee', amount: '3,500.00', status: 'You Lost', time: 'Today @11:20am' },
-//       { id: '6', title: 'Buzzy Balls', amount: '2,000.00', status: 'You Won', time: 'Today @12:00pm', unread: true },
-//       { id: '7', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
-//       { id: '8', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
-//       { id: '9', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm',unread: true  },
-//       { id: '10', title: 'Daily ChopChop', amount: '5,000.00', status: 'You Won', time: 'Today @1:40pm' },
-//     ],
-//   },
-// ];
+const PAGE_SIZE = 20;
 
 const Games = () => {
     
     const { theme } = useThemeStore();
     const [loading, setLoading] = useState(true)
+    const [loadingMore, setLoadingMore] = useState(false)
     const [showModal, setShowModal] = useState(false)
-    const [games, setGames] = useState<NotificationSection[]>([])
+    const [games, setGames] = useState<NotificationItem[]>([])
     const [totalItems, setTotalItems] = useState(0)
+    const [hasMore, setHasMore] = useState(false)
     const [readStatus, setReadStatus] = useState(true)
     const [notificationInfo, setNotificationInfo] = useState<NotificationItem | null>(null)
-
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
 
     useEffect(() => {
-        getGames()
+        getGames(1, true)
     }, [])
 
-    const getGames = async () => {
-        setLoading(true)
+    const getGames = async (pageNum: number, isInitial = false) => {
+        if (isInitial) {
+            setLoading(true)
+        } else {
+            setLoadingMore(true)
+        }
+
         try {
-           const result = await axiosClient.get(`/notification?type=games&limit=${pageSize}&page=${page}`)
-            setGames(result.data.notifications || [])
+            const result = await axiosClient.get(`/notification/?type=games&limit=${PAGE_SIZE}&page=${pageNum}`)
+            const newItems: NotificationItem[] = result.data.notifications || []
+            
+            setGames(prev => isInitial ? newItems : [...prev, ...newItems])
             setTotalItems(result.data.total_count || 0)
-            console.log("gamesT=",result.data)
+            setHasMore(result.data.hasMore ?? false)
         } catch (error: any) {
-            console.log("no=",error.response?.data || error.message)
-            console.log(error.response)
+            console.log("error=", error.response?.data || error.message)
         } finally {
-         setLoading(false)
+            setLoading(false)
+            setLoadingMore(false)
         }
     }
 
-    // transform API data into sections
+    const handleLoadMore = useCallback(() => {
+        if (loadingMore || !hasMore) return;
+        const nextPage = page + 1;
+        setPage(nextPage);
+        getGames(nextPage);
+    }, [loadingMore, hasMore, page]);
+
     const sections: NotificationSection[] = useMemo(() => {
-        if (!Array.isArray(games) || games.length === 0) {
-            return [];
-        }
+        if (!Array.isArray(games) || games.length === 0) return [];
 
         const ongoing = games
             .filter((n: any) => n?.status === "pending")
-            .map((n: any, index) => ({
+            .map((n: any) => ({
                 id: n?.id,
                 title: n?.title?.trim() || "Untitled",
-                subtitle: n?.subtitle?.trim() || "Untitled",
+                message: n?.message?.trim() || "Untitled",
                 amount: n?.amount,
                 status: n?.status || "",
-                created_at: moment(n.created_at).format("MMM D YYYY, hh:mma")
+                is_read: n?.is_read,
+                created_at: moment(n.created_at).format("MMM D YYYY @hh:mma")
             }));
 
         const recent = games
             .filter((n: any) => n?.status !== "pending")
-            .map((n: any, index) => ({
+            .map((n: any) => ({
                 id: n?.id,
                 title: n?.title?.trim() || "Untitled",
-                subtitle: n?.subtitle?.trim() || "Untitled",
+                message: n?.message?.trim() || "Untitled",
                 amount: n?.amount,
                 status: n?.status || "",
-                created_at: moment(n.created_at).format("MMM D YYYY, hh:mma")
+                is_read: n?.is_read,
+                created_at: moment(n.created_at).format("MMM D YYYY @hh:mma")
             }));
 
         return [
-            ...(ongoing.length > 0
-            ? [{ title: "Ongoing", data: ongoing }]
-            : []), // hide if empty
-            ...(recent.length > 0
-            ? [{ title: "Recent", data: recent }]
-            : []),
+            ...(ongoing.length > 0 ? [{ title: "Ongoing", data: ongoing }] : []),
+            ...(recent.length > 0 ? [{ title: "Recent", data: recent }] : []),
         ];
     }, [games]);
 
-     const markAsRead = async () => {
+    const markAsRead = async () => {
         try {
-            const result = await axiosClient.patch(`/notification/read-all?type=games`)
+            setGames((prev) =>
+                prev.map((notification: any) => ({ ...notification, is_read: true }))
+            );
+            await axiosClient.patch(`/notification/read-all?type=games`)
             setReadStatus(false)
-
-            console.log("trnoti=", result.data)
         } catch (error: any) {
             console.log(error.response?.data || error.message)
         }
@@ -131,54 +120,69 @@ const Games = () => {
         setNotificationInfo(item)
         setShowModal(true)
 
-        axiosClient.patch(`/notification/${item?.id}/read`)
+        setGames((prev) =>
+          prev.map((notification: any) =>
+            notification.id === item.id
+              ? { ...notification, is_read: true }
+              : notification
+          )
+        );
 
+        axiosClient.patch(`/notification/${item?.id}/read`)
     }
     
-    const renderNotification = ({ item, section }: any) => {
-        return (
-            <NotificationCard item={item} section={section} handlePress={() => displayModal(item)}/>
-        );
-    };
+    const renderNotification = ({ item, section }: any) => (
+        <NotificationCard item={item} section={section} handlePress={() => displayModal(item)}/>
+    );
 
     const renderSectionHeader = ({ section: { title } }: any) => (
         <Text className="font-msbold text-lg py-2" style={{ backgroundColor: theme.colors.background, color: theme.colors.text}}>{title}</Text>
     );
 
+    const renderFooter = () => {
+        if (!loadingMore) return null;
+        return (
+            <View className="py-4 items-center">
+                <Loading />
+            </View>
+        );
+    };
+
   return (
     <View className='flex-1 mt-2 px-4'>
         <View className='flex-1'>
-            {
-                loading ? (
-                    <Loading/>
-                ) : (
-                    <View className='flex-1'>
-                        <SectionList
-                            sections={sections}
-                            keyExtractor={(item) => item.id}
-                            renderItem={renderNotification}
-                            renderSectionHeader={renderSectionHeader}
-                            stickySectionHeadersEnabled
-                            showsVerticalScrollIndicator={false}
-                            ListEmptyComponent={() => (
-                                <View className='flex-1'>
-                                    <View className="w-full items-center mx-auto justify-center my-6 mt-16 max-w-64 flex-1">
-                                        <View className='flex items-center justify-center size-16 rounded-full bg-green-lighter'>
-                                            <Octicons name="bell-fill" size={32} color={theme.colors.text} />
-                                        </View>
-                                        <Text className="text-2xl text-center mt-4 font-rbold" style={{ color: theme.colors.text}}>No notifications yet</Text>
-                                        <Text className="text-sm text-center mt-1 font-rlight" style={{ color: theme.colors.text}}>You don't have any games notification for now</Text>
+            {loading ? (
+                <Loading/>
+            ) : (
+                <View className='flex-1'>
+                    <SectionList
+                        sections={sections}
+                        keyExtractor={(item) => item.id}
+                        renderItem={renderNotification}
+                        renderSectionHeader={renderSectionHeader}
+                        stickySectionHeadersEnabled
+                        showsVerticalScrollIndicator={false}
+                        onEndReached={handleLoadMore}
+                        onEndReachedThreshold={0.3}
+                        ListFooterComponent={renderFooter}
+                        ListEmptyComponent={() => (
+                            <View className='flex-1'>
+                                <View className="w-full items-center mx-auto justify-center my-6 mt-16 max-w-64 flex-1">
+                                    <View className='flex items-center justify-center size-16 rounded-full bg-green-lighter'>
+                                        <Octicons name="bell-fill" size={32} color={theme.colors.text} />
                                     </View>
+                                    <Text className="text-2xl text-center mt-4 font-rbold" style={{ color: theme.colors.text}}>No notifications yet</Text>
+                                    <Text className="text-sm text-center mt-1 font-rlight" style={{ color: theme.colors.text}}>You don't have any games notification for now</Text>
                                 </View>
-                            )}
-                            contentContainerStyle={{ paddingBottom: 50, flexGrow: 1 }}
-                        />
-                    </View>
-                    
-                )
-            }
+                            </View>
+                        )}
+                        contentContainerStyle={{ paddingBottom: 50, flexGrow: 1 }}
+                    />
+                </View>
+            )}
         </View>  
-        {sections.length > 0 && !loading &&(
+
+        {sections.length > 0 && !loading && (
             <View className="flex-row justify-between px-4 pb-2 pt-4">
                 {readStatus ? (
                     <TouchableOpacity onPress={markAsRead}>
@@ -187,9 +191,6 @@ const Games = () => {
                 ) : (
                     <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>MARKED AS READ</Text>
                 )}
-                {/* <TouchableOpacity>
-                    <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>CLEAR ALL</Text>
-                </TouchableOpacity> */}
             </View>
         )}
 
@@ -199,62 +200,42 @@ const Games = () => {
           statusBarTranslucent={true}
           onRequestClose={() => setShowModal(false)}>
             <View className="flex-1 justify-center items-center px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              {/* TouchableWithoutFeedback only around the background */}
               <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
                 <View className="absolute top-0 left-0 right-0 bottom-0" />
               </TouchableWithoutFeedback>
 
-              {/* Actual modal content */}
               <View className="rounded-2xl max-h-[60%] px-6 w-full" style={{backgroundColor: theme.colors.darkGray}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View className={`w-full py-6`}>
-                    <Text className="font-mbold text-lg text-center mb-3" style={{ color: theme.colors.text}}>Won</Text>
-                    <View className='w-full mt-2'>
+                    <Text className="font-mbold text-lg text-center mb-3 capitalize" style={{ color: theme.colors.text}}>{notificationInfo?.status}</Text>
+                    <View className='w-full mt-4'>
+                        <Text className="font-msbold text-base capitalize" style={{ color: theme.colors.text}}>{notificationInfo?.title}</Text>
+                    </View>
+                    <View className='w-full mt-4'>
+                        <Text className="font-mmedium text-base capitalize" style={{ color: theme.colors.text}}>{notificationInfo?.message}</Text>
+                    </View>
+                    <View className='w-full mt-4'>
                         <View className="flex-1 justify-between w-full flex-row items-start gap-2">
                             <View className='w-32'>
-                                <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Lottery</Text>
+                                <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Payout</Text>
                             </View>
                             <View className='items-end justify-end gap-2 flex-1'>
-                                <Text className="font-msbold text-base" style={{ color: theme.colors.text}}>Weekend Allawee</Text>
+                                <Text className="font-semibold text-base" style={{ color: theme.colors.text}}>{displayCurrency(Number(notificationInfo?.amount))}</Text>
                             </View>
                         </View>
                     </View>
-                    {/* {item?.winningBalls && ( */}
-                    <View className='w-full mt-2'>
-                        <View className="flex-1 justify-between w-full flex-row items-center gap-2">
+                    <View className='w-full mt-4'>
+                        <View className="flex-1 justify-between w-full flex-row items-start gap-2">
                             <View className='w-32'>
-                            <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Winning Balls</Text>
+                                <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Status</Text>
                             </View>
                             <View className='items-end justify-end gap-2 flex-1'>
-                            <View className={`rounded-full min-w-[30px] h-[30px] items-center justify-center px-[6px]`} style={{ backgroundColor: theme.colors.inputBg}}>
-                                <Text className="text-base font-msbold" style={{ color: theme.colors.text}}>2</Text>
-                            </View>
+                                <Text className={`font-msbold text-base capitalize ${notificationInfo?.status === "failed" ? "text-red-600" : notificationInfo?.status === "successful" ? "text-green-600" : "text-amber-600"}`}>{notificationInfo?.status}</Text>
                             </View>
                         </View>
                     </View>
-                    {/* )} */}
-                    <View className='w-full mt-2'>
-                        <View className="flex-1 justify-between w-full flex-row items-start gap-2">
-                        <View className='w-32'>
-                            <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Price</Text>
-                        </View>
-                        <View className='items-end justify-end gap-2 flex-1'>
-                            <Text className="font-semibold text-base" style={{ color: theme.colors.text}}>{displayCurrency(Number(0))}</Text>
-                        </View>
-                        </View>
-                    </View>
-                    <View className='w-full mt-2'>
-                        <View className="flex-1 justify-between w-full flex-row items-start gap-2">
-                        <View className='w-32'>
-                            <Text className="font-msbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>Status</Text>
-                        </View>
-                        <View className='items-end justify-end gap-2 flex-1'>
-                            <Text className={`font-msbold text-base capitalize text-green-600`}>Won</Text>
-                        </View>
-                        </View>
-                    </View>
-                    <Text className='text-right font-mregular text-sm mt-3' style={{ color: theme.colors.text}}>{moment(0).format('llll')}</Text>
-                    </View>
+                    <Text className='text-right font-mregular text-sm mt-4' style={{ color: theme.colors.text}}>{notificationInfo?.created_at}</Text>
+                  </View>
                 </ScrollView>
               </View>
             </View>

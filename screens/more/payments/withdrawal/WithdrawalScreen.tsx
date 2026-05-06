@@ -59,9 +59,9 @@ const WithdrawalScreen = () => {
     
     const [amount, setAmount] = useState("")
     const [form, setForm] = useState({
-        recipientBankName: "",
-        recipientAccountNumber: "",
-        recipientBankCode: ""
+      recipientBankName: "",
+      recipientAccountNumber: "",
+      recipientBankCode: ""
     })
 
     const handleShowModal = () => {
@@ -103,8 +103,8 @@ const WithdrawalScreen = () => {
         })
 
         setAccountName({
-          name: result.data?.data?.accountName || "",
-          number: result.data?.data?.accountNumber || "",
+          name: result.data?.accountName || "",
+          number: result.data?.accountNumber || "",
           status: true
         })
 
@@ -128,6 +128,8 @@ const WithdrawalScreen = () => {
     }
 
     const withdraw = async () => {
+      
+        if (isSubmitting) return
 
         const newForm= {
             amount: amount,
@@ -160,7 +162,7 @@ const WithdrawalScreen = () => {
         }
 
     try{
-        const result = await axiosClient.post("/withdrawal/initiate-withdrawal", data)
+        const result = await axiosClient.post("/withdrawal/initiate", data)
 
         // Toast.show({
         //     type: "success",
@@ -241,16 +243,16 @@ const WithdrawalScreen = () => {
             </ScrollView>
         </KeyboardAvoidingView>
 
-        <PopupModal visible={showSuccessModal} title='Your withdrawal is successful' onClose={closeSuccessModal}>
+        <PopupModal visible={showSuccessModal} title='Your withdrawal was successful' onClose={closeSuccessModal}>
             <View className='flex-start w-full my-3'>
-                <Text className="font-abold text-center" style={{color: theme.colors.text}}>You will recieve an alert within 2 Minutes</Text>
+                <Text className="font-abold text-center" style={{color: theme.colors.text}}>Your money have been sent to your bank account</Text>
             </View>
             <View className='mt-4 flex-row gap-4 items-center'>
                 <GradientButton
-                    title="OK"
-                    handlePress={closeSuccessModal}
-                    containerStyles="w-24 mx-auto mt-2"
-                    textStyles="text-white"
+                  title="OK"
+                  handlePress={closeSuccessModal}
+                  containerStyles="w-24 mx-auto mt-2"
+                  textStyles="text-white"
                 />
             </View>
         </PopupModal>

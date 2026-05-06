@@ -1,4 +1,4 @@
-import { Modal, SafeAreaView, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image, Pressable } from 'react-native'
+import { Modal, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image, Pressable } from 'react-native'
 import React, { useEffect, useMemo, useState } from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -9,6 +9,7 @@ import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import SearchInput from './SearchInput';
 import Toast from 'react-native-toast-message';
 import { useThemeStore } from '@/store/ThemeStore';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type bankType = {
     code: string; 
@@ -19,6 +20,7 @@ type bankType = {
 const NgnBankModal = ({placeholder, header, showModal, close, selectedValue, title, handlePress, handleShowModal}: {placeholder: string; header: string; showModal: boolean; close: () => void; selectedValue: string; title: string; handlePress: (bank: any) => void, handleShowModal: () => void}) => {
 
     const { theme } = useThemeStore();
+    const { top, bottom } = useSafeAreaInsets()
     const [loading, setLoading] = useState(false)
     const [items, setItems] = useState<bankType>([])
     const [allBanks, setAllBanks] = useState<bankType>([])
@@ -32,9 +34,9 @@ const NgnBankModal = ({placeholder, header, showModal, close, selectedValue, tit
             
             const result = await axiosClient.get("/withdrawal/list-banks")
     
-            console.log("d", result.data?.data)
-            setItems(result.data?.data)
-            setAllBanks(result.data?.data)
+            console.log("d", result.data)
+            setItems(result.data || [])
+            setAllBanks(result.data || [])
     
     
         } catch (error: any) {
@@ -65,10 +67,10 @@ const NgnBankModal = ({placeholder, header, showModal, close, selectedValue, tit
     }, [filteredBanks]);
 
   return (
-    <SafeAreaView className='flex-1' style={{backgroundColor: theme.colors.background}}>
+    <View className='flex-1' style={{backgroundColor: theme.colors.background}}>
         <View className='flex-1 items-center justify-center' style={{backgroundColor: theme.colors.background}}>
-            <Modal animationType='slide' transparent={false} visible={showModal} onRequestClose={handleShowModal}>
-                <SafeAreaView className='flex-1' style={{backgroundColor: theme.colors.background}}>
+            <Modal animationType='slide' statusBarTranslucent transparent={false} visible={showModal} onRequestClose={handleShowModal}>
+                <View className='flex-1' style={{backgroundColor: theme.colors.background, paddingTop: top, paddingBottom: bottom }}>
                     <View className='px-4 flex-1'>
                         <View className='flex-row items-center justify-between gap-2 py-2'>
                             <Text className='font-bold text-lg' style={{color: theme.colors.text}}>{header}</Text>
@@ -122,7 +124,7 @@ const NgnBankModal = ({placeholder, header, showModal, close, selectedValue, tit
                             )
                         }        
                     </View>
-                </SafeAreaView>
+                </View>
             </Modal>
             <View style={{backgroundColor: theme.colors.darkGray}}>
                 <Text className='text-lg font-msbold' style={{color: theme.colors.text }}>{title}</Text>
@@ -135,7 +137,7 @@ const NgnBankModal = ({placeholder, header, showModal, close, selectedValue, tit
             </View> 
         </View>
         <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
-    </SafeAreaView>
+    </View>
   )
 }
 

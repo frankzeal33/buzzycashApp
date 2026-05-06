@@ -4,69 +4,117 @@ import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { useProfileStore } from './store/ProfileStore';
 import { useAuthStore } from './store/AuthStore';
+import uuid from 'react-native-uuid';
 
 const axiosClient = axios.create({
   baseURL: `${process.env.EXPO_PUBLIC_SERVER_URI}`,
   withCredentials: true,
 });
 
-// Attach access token to every request
+// Refresh lock to prevent concurrent refresh calls
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+const subscribeTokenRefresh = (cb: (token: string) => void) => {
+  refreshSubscribers.push(cb);
+};
+
+const onRefreshed = (token: string) => {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+};
+
+// Request interceptor — always reads from SecureStore (iOS-safe)
 axiosClient.interceptors.request.use(async (config) => {
-  //  const accessToken = await SecureStore.getItemAsync("accessToken")
-  const accessToken = useAuthStore.getState().token;
+  const accessToken = await SecureStore.getItemAsync('accessToken'); // ← Key fix
 
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
 
+  if (config.method === 'post') {
+    config.headers['Idempotency-Key'] = uuid.v4();
+  }
+
   return config;
 });
 
-// Handle 401 errors and try refreshing the token
+const UNAUTHORIZED_MESSAGES = new Set([
+  'session expired',
+  'Invalid or expired token',
+  'Please provide a valid authorization token.',
+  'Your session is not valid for this resource.',
+]);
+
+const isUnauthorizedError = (error: any): boolean => {
+  if (error.response?.status !== 401) return false;
+  const { message, error: errField } = error.response?.data || {};
+  return UNAUTHORIZED_MESSAGES.has(message) || UNAUTHORIZED_MESSAGES.has(errField);
+};
+
+const clearSessionAndRedirect = async () => {
+  await SecureStore.deleteItemAsync('accessToken');
+  await SecureStore.deleteItemAsync('refreshToken');
+  await AsyncStorage.removeItem('userProfile');
+  useAuthStore.getState().logout();
+  useProfileStore.getState().clearProfile();
+  router.replace('/(onboarding)/LogIn');
+};
+
+// Response interceptor with refresh lock
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const isUnauthorized = error.response?.status === 401 && error.response?.data?.message === "session expired";
-    console.log("run refresh error=", error.response)
-    
-    const isFirstRetry = !originalRequest._retry;
 
-    if (isUnauthorized && isFirstRetry) {
-      originalRequest._retry = true;
-
-      try {
-        const refreshToken = await SecureStore.getItemAsync('refreshToken');
-        const refreshResponse = await axios.post(
-          `${process.env.EXPO_PUBLIC_SERVER_URI}/refresh-token`,
-          { refresh_token: refreshToken }
-        );
-
-        console.log("ref=", refreshResponse.data)
-
-        const newAccessToken = refreshResponse.data.accessToken;
-
-        await SecureStore.setItemAsync('accessToken', newAccessToken);
-        useAuthStore.getState().login(newAccessToken);
-
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return axiosClient(originalRequest);
-      } catch (refreshError) {
-        console.error('Failed to refresh token:', refreshError);
-
-        await SecureStore.deleteItemAsync('accessToken');
-        await SecureStore.deleteItemAsync('refreshToken');
-        await AsyncStorage.removeItem('userProfile');
-        useAuthStore.getState().logout();
-
-        useProfileStore.getState().clearProfile();
-
-        router.replace('/(onboarding)/LogIn');
-        return Promise.reject(refreshError);
-      }
+    if (!isUnauthorizedError(error) || originalRequest._retry) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    originalRequest._retry = true;
+
+    // If already refreshing, queue this request
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        subscribeTokenRefresh((newToken: string) => {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          resolve(axiosClient(originalRequest));
+        });
+      });
+    }
+
+    isRefreshing = true;
+
+    try {
+      const refreshToken = await SecureStore.getItemAsync('refreshToken');
+
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const refreshResponse = await axios.post(
+        `${process.env.EXPO_PUBLIC_SERVER_URI}/refresh-token`,
+        { refresh_token: refreshToken }
+      );
+
+      const newAccessToken = refreshResponse.data.accessToken;
+
+      // Persist first, then update memory
+      await SecureStore.setItemAsync('accessToken', newAccessToken);
+      useAuthStore.getState().login(newAccessToken);
+
+      onRefreshed(newAccessToken); // ← Unblock queued requests
+
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      return axiosClient(originalRequest);
+    } catch (refreshError) {
+      console.error('Failed to refresh token:', refreshError);
+      refreshSubscribers = []; // ← Clear queue on failure
+      await clearSessionAndRedirect();
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false; // ← Always reset lock
+    }
   }
 );
 

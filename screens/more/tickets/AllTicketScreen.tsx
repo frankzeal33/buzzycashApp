@@ -29,8 +29,8 @@ const AllTicketScreen = () => {
 
       const result = await axiosClient.get("/tickets/all-games")
 
-      setGames(result.data?.results?.games || [])
-      console.log("tickets", result.data?.results?.games)
+      setGames(result.data?.games || [])
+      console.log("tickets", result.data?.games)
 
     } catch (error: any) {
 

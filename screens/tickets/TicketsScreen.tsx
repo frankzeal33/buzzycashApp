@@ -4,7 +4,6 @@ import { StatusBar } from 'expo-status-bar'
 import { useEffect, useState } from 'react'
 import { FlatList, Modal, ScrollView, Text, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Pagination from '@cherry-soft/react-native-basic-pagination';
 import Loading from '@/components/Loading'
 import { router } from 'expo-router'
 import { useThemeStore } from '@/store/ThemeStore'
@@ -46,8 +45,8 @@ export default function TicketsScreen() {
       
       const result = await axiosClient.get(`/tickets/all-games?limit=${pageSize}&page=${page}`)   
 
-      setTickets(result.data?.tickets || [])
-      setTotalItems(result.data?.count || 0)
+      setTickets(result.data?.games || [])
+      // setTotalItems(result.data?.count || 0)
       console.log(result.data)
     } catch (error: any) {
       console.log(error.response?.data || error.message)
@@ -89,22 +88,6 @@ export default function TicketsScreen() {
                   </Text>
                 </View>
               )}
-            />
-          </View>
-        )}
-
-        {tickets.length > 0 && totalItems > pageSize && !loading && (
-          <View className="mb-6">
-            <Pagination
-              totalItems={totalItems}
-              pageSize={pageSize}
-              currentPage={page}
-              onPageChange={setPage}
-              showLastPagesButtons
-              btnStyle={{ backgroundColor: theme.colors.lightDarkGray, borderWidth: 0, borderRadius: 5 }}
-              textStyle={{ color: "#DF7844" }}
-              activeBtnStyle={{ backgroundColor: '#DF7844' }}
-              activeTextStyle={{ color: theme.colors.background }}
             />
           </View>
         )}

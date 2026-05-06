@@ -103,7 +103,7 @@ const EditProfileScreen = () => {
 
       console.log(data)
 
-      const result = await axiosClient.patch("/profile/update-profile", data)
+      const result = await axiosClient.patch("/profile/update", data)
 
       const updateUser = {
         fullName: result.data.user.fullName || "",
@@ -177,19 +177,19 @@ const EditProfileScreen = () => {
         </KeyboardAvoidingView>
 
         <DatePicker
-            modal
-            open={open}
-            mode="date"
-            date={date}
-            onConfirm={(date) => {
-              setOpen(false)
-              setHasPickedDate(true)
-              setDate(date)
-            }}
-            onCancel={() => {
-              setOpen(false)
-            }}
-            theme={theme.dark ? 'dark' : 'light'}
+          modal
+          open={open}
+          mode="date"
+          date={date}
+          onConfirm={(date) => {
+            setOpen(false)
+            setHasPickedDate(true)
+            setDate(date)
+          }}
+          onCancel={() => {
+            setOpen(false)
+          }}
+          theme={theme.dark ? 'dark' : 'light'}
         />
 
         <Modal

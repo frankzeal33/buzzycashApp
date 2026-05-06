@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image, TouchableOpacity, Pressable, Dimensions } from 'react-native'
+import { View, Text, ScrollView, Image, TouchableOpacity, Pressable, Dimensions, Share } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { images } from '@/constants'
 import { AntDesign, FontAwesome5, FontAwesome6 } from '@expo/vector-icons'
@@ -31,7 +31,7 @@ const ReferEarn = ({ isFocused }: { isFocused: boolean }) => {
     
           try {
     
-            const result = await axiosClient.get("/referrals/referral-details")
+            const result = await axiosClient.get("/referral/")
 
             setCode(result?.data?.referralCode)
             console.log(result.data)
@@ -72,6 +72,25 @@ const ReferEarn = ({ isFocused }: { isFocused: boolean }) => {
             });
         } 
     }
+
+    const shareLink = async () => {
+
+        if(!code) return
+
+        const url = "https://buzzycash.online"
+
+        const result = await Share.share(
+            {
+                message: `Join me on Buzzycash app 🚀\nUse my referral code: ${code}\n${url}`,
+                title: 'Invite a friend to Buzzycash',
+                // url: url,
+            },
+            {
+                dialogTitle: 'Share your referral code',
+            }
+        );
+
+    };
 
   return (
     <View className='flex-1 px-4'>
@@ -120,17 +139,17 @@ const ReferEarn = ({ isFocused }: { isFocused: boolean }) => {
                                     </View>
                                 </Pressable>
                                 <View className='mt-6'>
-                                    <Text className="text-xl font-mbold mb-4 text-center" style={{color: theme.colors.text}}>Share via:</Text>
-                                    <View className='w-full flex-row items-center justify-between'>
-                                        <TouchableOpacity className='rounded-md px-2 py-4 items-center justify-center w-[31%]' style={{backgroundColor: theme.colors.darkGray}}>
+                                    <Text className="text-xl font-mbold mb-4 text-center" style={{color: theme.colors.text}}>Share</Text>
+                                    <View className='w-full flex-row items-center justify-center'>
+                                        {/* <TouchableOpacity className='rounded-md px-2 py-4 items-center justify-center w-[31%]' style={{backgroundColor: theme.colors.darkGray}}>
                                             <FontAwesome5 name="whatsapp" size={24} color="#25D366" />
                                             <Text className="text-xs text-center font-msbold mt-1" style={{color: theme.colors.text}}>Whatsapp</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity className='rounded-md px-2 py-4 items-center justify-center w-[31%]' style={{backgroundColor: theme.colors.darkGray}}>
                                             <FontAwesome5 name="facebook" size={24} color="#1877F2" />
                                             <Text className="text-xs text-center font-msbold mt-1" style={{color: theme.colors.text}}>Facebook</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity className='rounded-md px-2 py-4 items-center justify-center w-[31%]' style={{backgroundColor: theme.colors.darkGray}}>
+                                        </TouchableOpacity> */}
+                                        <TouchableOpacity className='rounded-md px-2 py-4 items-center justify-center w-28' style={{backgroundColor: theme.colors.darkGray}} onPress={shareLink}>
                                             <AntDesign name="sharealt" size={24} color={theme.colors.text} />
                                             <Text className="text-xs text-center font-msbold mt-1" style={{color: theme.colors.text}}>Share</Text>
                                         </TouchableOpacity>

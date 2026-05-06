@@ -22,7 +22,7 @@ const Referrals = ({ isFocused }: { isFocused: boolean }) => {
 
         try {
 
-            const result = await axiosClient.get("/referrals/referral-details")
+            const result = await axiosClient.get("/referral/")
             setReferralInfo(result?.data)
             
             console.log(result.data)

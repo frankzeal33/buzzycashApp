@@ -1,21 +1,23 @@
 const transactionType = [
-  {title: 'Top Up', value: 'TOPUP'},
-  {title: 'Bonus', value: 'BONUS'},
-  {title: 'Profit', value: 'PROFIT'},
-  {title: 'Payout', value: 'PAYOUT'}
+  {title: 'Top Up', value: 'topup'},
+  {title: 'Bonus', value: 'bonus'},
+  {title: 'Profit', value: 'profit'},
+  {title: 'Payout', value: 'payout'}
 ];
 
 const transactionRemark = [
-  { title: 'Pending', value: 'PENDING' },
-  { title: 'Successful', value: 'SUCCESSFUL' },
-  { title: 'Failed', value: 'FAILED' },    
-  { title: 'Reversed', value: 'REVERSED' },
-  { title: 'Rejected', value: 'REJECTED' }
+  { title: 'Pending', value: 'pending' },
+  { title: 'Successful', value: 'successful' },
+  { title: 'Failed', value: 'failed' },    
+  { title: 'Reversed', value: 'reversed' },
+  { title: 'Rejected', value: 'rejected' }
 ];
 
 const GameTime = [
-  { title: 'Ongoing', value: 'ONGOING' },
-  { title: 'Elapsed', value: 'ELAPSED' }
+  { title: 'Ongoing', value: 'ongoing' },
+  { title: 'Elapsed', value: 'elapsed' },
+  { title: 'Won', value: 'won' },
+  { title: 'Lost', value: 'lost' },
 ];
 
 const Theme = [
@@ -25,9 +27,9 @@ const Theme = [
 ];
 
 const gender = [
-  { label: 'Male', value: 'MALE' },
-  { label: 'Female', value: 'FEMALE' },
-  { label: 'Others', value: 'OTHERS' }
+  { label: 'Male', value: 'male' },
+  { label: 'Female', value: 'female' },
+  { label: 'Others', value: 'others' }
 ];
 
 const IDType = [

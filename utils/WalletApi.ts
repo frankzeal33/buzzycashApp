@@ -11,11 +11,11 @@ const getWallet = async (runOnBackground: boolean) => {
   }
 
   try {
-    const result = await axiosClient.get("/wallet");
+    const result = await axiosClient.get("/wallet/");
 
     console.log("balance data", result.data);
 
-    const payload = result.data?.result;
+    const payload = result.data;
 
     const allBalances = {
       total: payload?.balance ?? 0,

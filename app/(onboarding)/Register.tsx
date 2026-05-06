@@ -188,11 +188,9 @@ const Register = () => {
         countryOfResidence: result.data.user.countryOfResidence || "",
         email: result.data.user.email || "",
         fullName: result.data.user.fullName || "",
-        userName: "",
         profilePicture: "",
         kycVerified: false,
         gender: "",
-        isProfileCreated: false,
         dateOfBirth: "",
         isEmailVerified: false
       }

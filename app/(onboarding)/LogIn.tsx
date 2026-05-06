@@ -148,17 +148,16 @@ const LogIn = () => {
         fullName:  result.data.user.fullName || "",
         profilePicture: result.data.user.profilePicture || "",
         kycVerified: false,
-        userName: result.data.user.username || "",
         gender: result.data.user.gender || "",
-        isProfileCreated: result.data.user.isProfileCreated,
         dateOfBirth: result.data.user.dateOfBirth || "",
         isEmailVerified: result.data.user.isEmailVerified ?? false
       }
       const userData = JSON.stringify(user);
       await SecureStore.setItemAsync("accessToken", result.data.user.accessToken);
-      login(result.data.user.accessToken);
       await SecureStore.setItemAsync("refreshToken", result.data.user.refreshToken);
       await AsyncStorage.setItem("userProfile", userData);
+
+      login(result.data.user.accessToken);
       setProfile(user)
 
       router.replace("/(protected)/(routes)/Home")
@@ -264,11 +263,9 @@ const LogIn = () => {
             countryOfResidence: result.data.user.countryOfResidence || "",
             email: "",
             fullName: "",
-            userName: "",
             profilePicture: "",
             kycVerified: false,
             gender: "",
-            isProfileCreated: false,
             dateOfBirth: "",
             isEmailVerified: false
           }
@@ -300,7 +297,7 @@ const LogIn = () => {
                 <View className='flex-1 py-6'>
                     <View className="flex-1 w-full justify-center items-center my-6">
                         <Text className="text-2xl mt-4 font-mbold" style={{ color: theme.colors.text}}>Log In</Text>
-                        <Text className="mt-1 font-mmedium text-center px-6" style={{ color: theme.colors.text}}>Enter Your Username/Email and Password</Text>
+                        <Text className="mt-1 font-mmedium text-center px-6" style={{ color: theme.colors.text}}>Enter Your Email and Password</Text>
                         {switchToEmail ? (
                           <FormField value={form.email} placeholder="Email" handleChangeText={(e: any) => setForm({ ...form, email: e, phoneNumber: "" })} otherStyles="mt-7" keyboardType="email-address" labelStyle='text-white'/>
                           ) : (

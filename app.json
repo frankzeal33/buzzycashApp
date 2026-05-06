@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "buzzycash",
+    "name": "Buzzycash",
     "slug": "buzzycash",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -64,7 +64,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "f83d3144-0a7f-4052-9c64-79ee67be8157"
+        "projectId": "7e5837af-cf47-45ef-874f-26118c027a54"
       }
     }
   }

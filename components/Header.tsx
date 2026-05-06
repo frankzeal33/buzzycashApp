@@ -14,10 +14,11 @@ type headerProps = {
   home?: boolean;
   profile?: boolean;
   notificationCount?: number;
-  onpress?: () => void
+  onpress?: () => void;
+  onRefreshWallet?: () => void;
 }
 
-export default function Header({title, titleColor, home, profile, action, notificationCount = 0, icon = false, onpress}: headerProps) {
+export default function Header({title, titleColor, home, profile, action, notificationCount = 0, icon = false, onpress, onRefreshWallet }: headerProps) {
 
   const { theme } = useThemeStore();
   const userProfile = useProfileStore(state => state.userProfile)
