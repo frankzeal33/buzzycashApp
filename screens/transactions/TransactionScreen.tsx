@@ -27,7 +27,8 @@ const TransactionScreen = () => {
   const [loadingMore, setLoadingMore] = useState(false)
   const [transactionInfo, setTransactionInfo] = useState<transactionsType | null>(null)
   const [showModal, setShowModal] = useState(false)
-  const [hasMore, setHasMore] = useState(false)  // 👈 from API
+  const [hasMore, setHasMore] = useState(false) 
+  const [refreshing, setRefreshing] = useState(false)
   const [remark, setRemark] = useState<string | null>(null)
   const [type, setType] = useState<string | null>(null)
   const [search, setSearch] = useState("")
@@ -91,12 +92,37 @@ const TransactionScreen = () => {
       const newTransactions: transactionsType[] = result.data.transactions || []
 
       setTransactions(prev => isLoadMore ? [...prev, ...newTransactions] : newTransactions)
-      setHasMore(result.data.hasMore ?? false)  // 👈 use API's hasMore
+      setHasMore(result.data.has_more ?? false) 
+      console.log("tdata=", result.data)
     } catch (error: any) {
       console.log(error.response?.data || error.message)
     } finally {
       setLoadingTransactions(false)
       setLoadingMore(false)
+    }
+  }
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    try {
+      let result
+      if (search) {
+        result = await axiosClient.get(`/transactions/search?search=${encodeURIComponent(search)}&limit=${PAGE_SIZE}&page=1`)
+      } else {
+        let query = `/transactions/?limit=${PAGE_SIZE}&page=1`
+        if (remark) query += `&payment_status=${remark}`
+        if (type) query += `&payment_type=${type}`
+        result = await axiosClient.get(query)
+      }
+
+      const newTransactions: transactionsType[] = result.data.transactions || []
+      setTransactions(newTransactions) 
+      setHasMore(result.data.has_more ?? false)
+      setPage(1)
+    } catch (error: any) {
+      console.log(error.response?.data || error.message)
+    } finally {
+      setRefreshing(false)
     }
   }
 
@@ -107,171 +133,172 @@ const TransactionScreen = () => {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 px-4' style={{ backgroundColor: theme.colors.background}}>
       <Header title='Transaction History' icon onpress={() => router.back()}/>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
      
-        <View className="mt-4 mb-2" style={{ backgroundColor: theme.colors.darkGray}}>
-          <FlatList
-            ListHeaderComponent={() => (
-              <View style={{ backgroundColor: theme.colors.background}}>
-                <View className='flex flex-row w-full'>
-                  <SearchInput
-                    placeholder="Search Transactions..."
-                    value={search}
-                    handleChangeText={handleSearchChange}
-                    otherStyles='w-full'
-                  />
-                </View>
-                <View className='my-3 flex-row items-center justify-between gap-1'>
-                  
-                  <SelectDropdown
-                    data={data.transactionType}
-                    defaultValue={data.transactionType.find(item => item.value === type) || null}
-                    onSelect={(selectedItem) => {
-                      setSearch("")
-                      setType(selectedItem.value)
-                    }}
-                    renderButton={(selectedItem, isOpened) => (
-                      <View style={[styles.dropdownButtonStyle2, { backgroundColor: theme.colors.darkGray }]}>
-                        <Text style={styles.dropdownButtonTxtStyle}>
-                          {(selectedItem && selectedItem.title) || 'Type'}
-                        </Text>
-                        <Entypo name={isOpened ? 'chevron-small-up' : 'chevron-small-down'} style={styles.dropdownButtonArrowStyle} size={30} color="#979797" />
-                      </View>
-                    )}
-                    renderItem={(item, index, isSelected) => (
-                      <View key={index} style={{ ...styles.dropdownItemStyle, backgroundColor: theme.colors.darkGray, ...(isSelected && { backgroundColor: '#EF9439' }) }}>
-                        <Text style={[styles.dropdownItemTxtStyle, { color: theme.colors.text }]}>{item.title}</Text>
-                      </View>
-                    )}
-                    showsVerticalScrollIndicator={false}
-                    dropdownStyle={{ backgroundColor: theme.colors.darkGray, borderRadius: 8 }}
-                  />
-
-                  <SelectDropdown
-                    data={data.transactionRemark}
-                    defaultValue={data.transactionRemark.find(item => item.value === remark) || null}
-                    onSelect={(selectedItem) => {
-                      setSearch("")
-                      setRemark(selectedItem.value)
-                    }}
-                    renderButton={(selectedItem, isOpened) => (
-                      <View style={[styles.dropdownButtonStyle1, { backgroundColor: theme.colors.darkGray }]}>
-                        <Text style={styles.dropdownButtonTxtStyle} numberOfLines={1}>
-                          {(selectedItem && selectedItem.title) || 'Remark'}
-                        </Text>
-                        <Entypo name={isOpened ? 'chevron-small-up' : 'chevron-small-down'} style={styles.dropdownButtonArrowStyle} size={30} color="#979797" />
-                      </View>
-                    )}
-                    renderItem={(item, index, isSelected) => (
-                      <View key={index} style={{ ...styles.dropdownItemStyle, backgroundColor: theme.colors.darkGray, ...(isSelected && { backgroundColor: '#EF9439' }) }}>
-                        <Text style={[styles.dropdownItemTxtStyle, { color: theme.colors.text }]}>{item.title}</Text>
-                      </View>
-                    )}
-                    showsVerticalScrollIndicator={false}
-                    dropdownStyle={{ backgroundColor: theme.colors.darkGray, borderRadius: 8 }}
-                  />
-                </View>
+      <View className="mt-4 flex-1">
+        <FlatList
+          ListHeaderComponent={() => (
+            <View style={{ backgroundColor: theme.colors.background}}>
+              <View className='flex flex-row w-full'>
+                <SearchInput
+                  placeholder="Search Transactions..."
+                  value={search}
+                  handleChangeText={handleSearchChange}
+                  otherStyles='w-full'
+                />
               </View>
-            )}
-            data={loadingTransactions ? [] : transactions}
-            keyExtractor={(item) => item.id}
-            renderItem={renderTickets}
-            scrollEnabled={false}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.3}
-            contentContainerStyle={{ 
-              paddingBottom: bottom + 40,
-              backgroundColor: theme.colors.background
-            }}
-            ListEmptyComponent={!loadingTransactions ? (
-              <View className="items-center justify-center py-44">
-                <Text className="text-xl text-center font-msbold" style={{ color: theme.colors.text }}>
-                  {search ? "No result found!" : "No Transactions yet!"}
-                </Text>
-                <Text className="text-sm text-center mt-1 font-mlight" style={{ color: theme.colors.text }}>
-                  All your transaction history will show here.
-                </Text>
+              <View className='my-3 flex-row items-center justify-between gap-1'>
+                <SelectDropdown
+                  data={data.transactionType}
+                  defaultValue={data.transactionType.find(item => item.value === type) || null}
+                  onSelect={(selectedItem) => {
+                    setSearch("")
+                    setType(selectedItem.value)
+                  }}
+                  renderButton={(selectedItem, isOpened) => (
+                    <View style={[styles.dropdownButtonStyle2, { backgroundColor: theme.colors.darkGray }]}>
+                      <Text style={styles.dropdownButtonTxtStyle}>
+                        {(selectedItem && selectedItem.title) || 'Type'}
+                      </Text>
+                      <Entypo name={isOpened ? 'chevron-small-up' : 'chevron-small-down'} style={styles.dropdownButtonArrowStyle} size={30} color="#979797" />
+                    </View>
+                  )}
+                  renderItem={(item, index, isSelected) => (
+                    <View key={index} style={{ ...styles.dropdownItemStyle, backgroundColor: theme.colors.darkGray, ...(isSelected && { backgroundColor: '#EF9439' }) }}>
+                      <Text style={[styles.dropdownItemTxtStyle, { color: theme.colors.text }]}>{item.title}</Text>
+                    </View>
+                  )}
+                  showsVerticalScrollIndicator={false}
+                  dropdownStyle={{ backgroundColor: theme.colors.darkGray, borderRadius: 8 }}
+                />
+
+                <SelectDropdown
+                  data={data.transactionRemark}
+                  defaultValue={data.transactionRemark.find(item => item.value === remark) || null}
+                  onSelect={(selectedItem) => {
+                    setSearch("")
+                    setRemark(selectedItem.value)
+                  }}
+                  renderButton={(selectedItem, isOpened) => (
+                    <View style={[styles.dropdownButtonStyle1, { backgroundColor: theme.colors.darkGray }]}>
+                      <Text style={styles.dropdownButtonTxtStyle} numberOfLines={1}>
+                        {(selectedItem && selectedItem.title) || 'Remark'}
+                      </Text>
+                      <Entypo name={isOpened ? 'chevron-small-up' : 'chevron-small-down'} style={styles.dropdownButtonArrowStyle} size={30} color="#979797" />
+                    </View>
+                  )}
+                  renderItem={(item, index, isSelected) => (
+                    <View key={index} style={{ ...styles.dropdownItemStyle, backgroundColor: theme.colors.darkGray, ...(isSelected && { backgroundColor: '#EF9439' }) }}>
+                      <Text style={[styles.dropdownItemTxtStyle, { color: theme.colors.text }]}>{item.title}</Text>
+                    </View>
+                  )}
+                  showsVerticalScrollIndicator={false}
+                  dropdownStyle={{ backgroundColor: theme.colors.darkGray, borderRadius: 8 }}
+                />
               </View>
-            ) : null}
-            ListFooterComponent={
-              loadingTransactions ? (
-                <View className="items-center justify-center py-44">
-                  <Loading />
-                </View>
-              ) : loadingMore ? (
-                <View className="items-center justify-center py-6">
-                  <Loading />
-                </View>
-              ) : null
-            }
-          />
-        </View>
-
-        <Modal
-          transparent={true}
-          visible={showModal}
-          statusBarTranslucent={true}
-          onRequestClose={() => setShowModal(false)}>
-          <View className="flex-1 justify-center items-center px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-            <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
-              <View className="absolute top-0 left-0 right-0 bottom-0" />
-            </TouchableWithoutFeedback>
-
-            <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{ backgroundColor: theme.colors.darkGray }}>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                <View className='my-7 gap-5'>
-                  <View className='flex-row items-center justify-between gap-3'>
-                    <View className='flex-row gap-2 items-center justify-between w-36'>
-                      <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>Amount</Text>
-                      <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
-                    </View>
-                    <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text }}>{displayCurrency(Number(transactionInfo?.amount))}</Text>
-                  </View>
-                  <View className='flex-row items-center justify-between gap-3'>
-                    <View className='flex-row gap-2 items-center justify-between w-36'>
-                      <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>P-Type</Text>
-                      <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
-                    </View>
-                    <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text }}>{transactionInfo?.payment_type}</Text>
-                  </View>
-                  <View className='flex-row items-center justify-between gap-3'>
-                    <View className='flex-row gap-2 items-center justify-between w-36'>
-                      <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>Status</Text>
-                      <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
-                    </View>
-                    <Text className={`text-base font-mmedium flex-1 ${transactionInfo?.payment_status === "SUCCESSFUL" ? "text-green-500" : transactionInfo?.payment_status === "FAILED" ? "text-red-500" : "text-yellow-500"}`}>
-                      {transactionInfo?.payment_status}
-                    </Text>
-                  </View>
-                  <View className='flex-row items-center justify-between gap-3'>
-                    <View className='flex-row gap-2 items-center justify-between w-36'>
-                      <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>Category</Text>
-                      <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
-                    </View>
-                    <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text }}>{transactionInfo?.category}</Text>
-                  </View>
-                  <View className='flex-row items-center justify-between gap-3'>
-                    <View className='flex-row gap-2 items-center justify-between w-36'>
-                      <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>Type</Text>
-                      <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
-                    </View>
-                    <Text className={`text-base font-mmedium flex-1 ${transactionInfo?.transaction_type === "CREDIT" ? "text-green-500" : transactionInfo?.transaction_type === "DEBIT" ? "text-red-500" : "text-orange-500"}`}>
-                      {transactionInfo?.transaction_type}
-                    </Text>
-                  </View>
-                  <View className='flex-row items-center justify-between gap-3'>
-                    <View className='flex-row gap-2 items-center justify-between w-36'>
-                      <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>Txn No</Text>
-                      <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
-                    </View>
-                    <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text }}>{transactionInfo?.transaction_reference}</Text>
-                  </View>
-                </View>
-              </ScrollView>
             </View>
+          )}
+          data={loadingTransactions ? [] : transactions}
+          keyExtractor={(item) => item.id}
+          renderItem={renderTickets}
+          showsVerticalScrollIndicator={false}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.3}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          contentContainerStyle={{ 
+            paddingBottom: bottom + 40,
+            backgroundColor: theme.colors.background
+          }}
+          ListEmptyComponent={!loadingTransactions ? (
+            <View className="items-center justify-center py-44">
+              <Text className="text-xl text-center font-msbold" style={{ color: theme.colors.text }}>
+                {search ? "No result found!" : "No Transactions yet!"}
+              </Text>
+              <Text className="text-sm text-center mt-1 font-mlight" style={{ color: theme.colors.text }}>
+                All your transaction history will show here.
+              </Text>
+            </View>
+          ) : null}
+          ListFooterComponent={
+            loadingTransactions ? (
+              <View className="items-center justify-center py-44">
+                <Loading />
+              </View>
+            ) : loadingMore ? (
+              <View className="items-center justify-center py-6">
+                <Loading />
+              </View>
+            ) : null
+          }
+        />
+      </View>
+
+      {/* Modal moved outside ScrollView */}
+      <Modal
+        transparent={true}
+        visible={showModal}
+        statusBarTranslucent={true}
+        onRequestClose={() => setShowModal(false)}>
+        <View className="flex-1 justify-center items-center px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+            <View className="absolute top-0 left-0 right-0 bottom-0" />
+          </TouchableWithoutFeedback>
+
+          <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{ backgroundColor: theme.colors.darkGray }}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View className='my-7 gap-5'>
+                <View className='flex-row items-center justify-between gap-3'>
+                  <View className='flex-row gap-2 items-center justify-between w-36'>
+                    <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>Amount</Text>
+                    <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
+                  </View>
+                  <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text }}>{displayCurrency(Number(transactionInfo?.amount))}</Text>
+                </View>
+                <View className='flex-row items-center justify-between gap-3'>
+                  <View className='flex-row gap-2 items-center justify-between w-36'>
+                    <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>P-Type</Text>
+                    <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
+                  </View>
+                  <Text className="text-base font-mmedium flex-1 capitalize" style={{ color: theme.colors.text }}>{transactionInfo?.payment_type}</Text>
+                </View>
+                <View className='flex-row items-center justify-between gap-3'>
+                  <View className='flex-row gap-2 items-center justify-between w-36'>
+                    <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>Status</Text>
+                    <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
+                  </View>
+                  <Text className={`text-base font-mmedium flex-1 capitalize ${transactionInfo?.payment_status === "successful" ? "text-green-600" : transactionInfo?.payment_status === "failed" ? "text-red-600" : "text-amber-600"}`}>
+                    {transactionInfo?.payment_status}
+                  </Text>
+                </View>
+                <View className='flex-row items-center justify-between gap-3'>
+                  <View className='flex-row gap-2 items-center justify-between w-36'>
+                    <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>Category</Text>
+                    <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
+                  </View>
+                  <Text className="text-base font-mmedium flex-1 capitalize" style={{ color: theme.colors.text }}>{transactionInfo?.category}</Text>
+                </View>
+                <View className='flex-row items-center justify-between gap-3'>
+                  <View className='flex-row gap-2 items-center justify-between w-36'>
+                    <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>Type</Text>
+                    <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
+                  </View>
+                  <Text className={`text-base font-mmedium flex-1 capitalize ${transactionInfo?.transaction_type === "credit" ? "text-green-600" : transactionInfo?.transaction_type === "debit" ? "text-red-600" : "text-orange-600"}`}>
+                    {transactionInfo?.transaction_type}
+                  </Text>
+                </View>
+                <View className='flex-row items-start justify-between gap-3'>
+                  <View className='flex-row gap-2 items-center justify-between w-36'>
+                    <Text className='font-msbold text-lg' style={{ color: theme.colors.text }}>Txn No</Text>
+                    <Text className='font-msbold text-xl' style={{ color: theme.colors.text }}>:</Text>
+                  </View>
+                  <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text }}>{transactionInfo?.transaction_reference}</Text>
+                </View>
+              </View>
+            </ScrollView>
           </View>
-        </Modal>
-      </ScrollView>
+        </View>
+      </Modal>
+
       <StatusBar style={theme.dark ? "light" : "dark"} backgroundColor={theme.colors.background}/>
     </SafeAreaView>
   )

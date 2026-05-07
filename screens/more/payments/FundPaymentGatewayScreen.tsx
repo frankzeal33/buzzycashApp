@@ -1,18 +1,14 @@
-import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Dimensions, Text, TouchableOpacity, View } from 'react-native'
 import React, { useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Header from '@/components/Header'
 import { router, useLocalSearchParams } from 'expo-router'
-import { useThemeStore } from '@/store/ThemeStore'
 import { WebView } from "react-native-webview"
-import getWallet from '@/utils/WalletApi'
 import { AntDesign } from '@expo/vector-icons'
 
 const { height, width} = Dimensions.get("window")
 
 const FundPaymentGatewayScreen = () => {
 
-  const { theme } = useThemeStore();
   const { paylink } = useLocalSearchParams() as any;
 
   const [visible, setVisible] = useState(false)
@@ -32,15 +28,10 @@ const FundPaymentGatewayScreen = () => {
     console.log("url",url)
     if (!url) return;
 
-    // if(!url.includes('https://checkout.nomba.com')) {
+    // if(url.includes('?orderId')) {
     //   getWallet(true)
     //   router.dismissAll()
     // }
-
-    if(url.includes('?orderId')) {
-      getWallet(true)
-      router.dismissAll()
-    }
 
   };
 
@@ -75,5 +66,3 @@ const FundPaymentGatewayScreen = () => {
 }
 
 export default FundPaymentGatewayScreen
-
-const styles = StyleSheet.create({})

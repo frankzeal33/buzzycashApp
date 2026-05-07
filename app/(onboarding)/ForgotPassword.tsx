@@ -247,7 +247,7 @@ const ForgotPassword = () => {
           setOpenModal(false)
           router.replace({
             pathname: "/(onboarding)/NewForgotPassword",
-            params: { userId: result.data.userId },
+            params: { token: result.data.reset_token }
           })
   
         } catch (error: any) {

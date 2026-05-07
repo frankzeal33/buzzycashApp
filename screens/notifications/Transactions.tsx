@@ -105,8 +105,8 @@ const Transactions = () => {
             setTransactions((prev) =>
                 prev.map((notification: any) => ({ ...notification, is_read: true }))
             );
-            await axiosClient.patch(`/notification/read-all?type=transactions`)
             setReadStatus(false)
+            await axiosClient.patch(`/notification/read-all?type=transactions`)
         } catch (error: any) {
             console.log(error.response?.data || error.message)
         }
@@ -182,7 +182,7 @@ const Transactions = () => {
             <View className="flex-row justify-between px-4 pb-2 pt-4">
                 {readStatus ? (
                     <TouchableOpacity onPress={markAsRead}>
-                        <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>MARK AS READ</Text>
+                        <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>MARK ALL AS READ</Text>
                     </TouchableOpacity>
                 ) : (
                     <Text className="text-sm font-msbold" style={{ color: theme.colors.text}}>MARKED AS READ</Text>

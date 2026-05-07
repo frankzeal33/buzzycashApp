@@ -67,51 +67,7 @@ const HotColdScreen = () => {
 
     sfx.flip()
 
-    try {
-      setLoading(true)
-
-      const res = await axiosClient.post("/virtual/guess", {
-        game_type: selectedRange.label === "1-10" ? "pot1" : selectedRange.label === "1-20" ? "pot2" : "pot3",
-        pick: selectedNumber,
-        stake: Number(stake)
-      })
-      console.log("RESULT", res.data)
-
-      const data = res.data
-
-      const correct: boolean = data.game.is_win
- 
-      //outcome sound
-      if (correct) {
-        sfx.win()
-      } else {
-        sfx.lose()
-      }
-
-      setHistory(prev => [...prev, correct])
-
-      setResult({
-        isWin: correct,
-        message: data.message,
-        payout: data.game.payout || 0,
-        multiplier: data.game.multiplier,
-        systemPick: data.game.system_number,
-        userPick: data.game.user_picked_number
-      })
-      setSelectedNumber(0)
-
-    } catch (error: any) {
-      sfx.error()
-      Toast.show({
-        type: 'error',
-        text1:
-          error?.response?.data?.message?.stake ||
-          error?.response?.data?.message ||
-          "Something went wrong",
-      })
-    } finally {
-      setLoading(false)
-    }
+    router.push("/(onboarding)/Register")
   }
 
   return (
@@ -266,7 +222,7 @@ const HotColdScreen = () => {
         </View>
 
         {/* ACTION BUTTON */}
-        <TouchableOpacity className={`${loading || !selectedNumber ? 'opacity-60' : ''}`} style={styles.playBtn} onPress={handleGuess} disabled={loading}>
+        <TouchableOpacity style={styles.playBtn} onPress={handleGuess}>
           {loading ? (
             <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
               <ActivityIndicator color="#000" />

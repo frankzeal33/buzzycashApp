@@ -18,7 +18,7 @@ const FundWalletScreen = () => {
     const { bottom } = useSafeAreaInsets()
     const [showModal, setShowModal] = useState(false)
     const [amount, setAmount] = useState("")
-    const [gateway, setGateway] = useState("")
+    const [gateway, setGateway] = useState("nomba")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleGateway = (gateway: string) => {
@@ -64,7 +64,7 @@ const FundWalletScreen = () => {
 
                 router.push({
                     pathname: "/(protected)/(routes)/FundPaymentGateway",
-                    params: { paylink: result.data.checkoutLink }
+                    params: { paylink: result.data.checkout_link }
                 })
 
             } catch (error: any) {
@@ -88,7 +88,7 @@ const FundWalletScreen = () => {
 
                 router.push({
                     pathname: "/(protected)/(routes)/FundPaymentGateway",
-                    params: { paylink: result.data.checkoutLink }
+                    params: { paylink: result.data.checkout_link }
                 })
 
             } catch (error: any) {
@@ -148,12 +148,13 @@ const FundWalletScreen = () => {
                 {/* Actual modal content */}
                 <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
                     <View className='my-7 gap-2'>
-                        <TouchableOpacity onPress={() => handleGateway("nomba")} className='flex-row gap-2 w-full items-center py-4 border-b-2 border-gray-100'>
+                        {/* border-b-2 border-gray-100 */}
+                        <TouchableOpacity onPress={() => handleGateway("nomba")} className='flex-row gap-2 w-full items-center py-4'>
                             <Text className='font-msbold text-xl' style={{color: theme.colors.text}}>Nomba</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => handleGateway("flutterwave")} className='flex-row gap-2 w-full items-center py-4'>
+                        {/* <TouchableOpacity onPress={() => handleGateway("flutterwave")} className='flex-row gap-2 w-full items-center py-4'>
                             <Text className='font-msbold text-xl' style={{color: theme.colors.text}}>FlutterWave</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
                 </View>
             </View>

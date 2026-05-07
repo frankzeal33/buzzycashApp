@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { useThemeStore } from '@/store/ThemeStore';
 import { useProfileStore } from '@/store/ProfileStore';
 import { formatCount } from '@/utils/formatCount';
+import useNotificationStore from '@/store/NotificationStore';
 
 type headerProps = {
   title?: string;
@@ -13,14 +14,13 @@ type headerProps = {
   action?: string;
   home?: boolean;
   profile?: boolean;
-  notificationCount?: number;
   onpress?: () => void;
-  onRefreshWallet?: () => void;
 }
 
-export default function Header({title, titleColor, home, profile, action, notificationCount = 0, icon = false, onpress, onRefreshWallet }: headerProps) {
+export default function Header({title, titleColor, home, profile, action, icon = false, onpress }: headerProps) {
 
   const { theme } = useThemeStore();
+  const { unreadCount } = useNotificationStore();
   const userProfile = useProfileStore(state => state.userProfile)
 
   const initials = userProfile.fullName.trim()
@@ -59,9 +59,9 @@ export default function Header({title, titleColor, home, profile, action, notifi
           ) : (
             <Pressable onPress={goToNotification} className="relative rounded-full border border-brown-500 size-9 items-center justify-center">
               <EvilIcons name="bell" size={20} color="#EF9439"/>
-              {!!notificationCount && (
+              {!!unreadCount && (
                 <View className="absolute -top-1 -right-1 bg-brown-500 rounded-full min-w-[14px] h-[14px] items-center justify-center px-[4px]">
-                  <Text className="text-white text-[8px] font-mbold">{formatCount(notificationCount)}</Text>
+                  <Text className="text-white text-[8px] font-mbold">{formatCount(unreadCount)}</Text>
                 </View>
               )}
             </Pressable>

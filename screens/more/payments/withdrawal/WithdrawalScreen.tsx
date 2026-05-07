@@ -17,6 +17,7 @@ import { useProfileStore } from '@/store/ProfileStore'
 import PopupModal from '@/components/PopupModal'
 import FullScreenLoader from '@/components/FullScreenLoader'
 import getWallet from '@/utils/WalletApi'
+import getUnreadNotifications from '@/utils/getUnreadNotifications'
 
 type nameType = {
   name: string;
@@ -181,6 +182,7 @@ const WithdrawalScreen = () => {
       setAmount("")
 
       getWallet(true)
+      getUnreadNotifications()
 
     } catch (error: any) {
       Toast.show({

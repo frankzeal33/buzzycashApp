@@ -50,6 +50,7 @@ export default function GameHistoryScreen() {
 
       setGames(prev => isInitial ? newItems : [...prev, ...newItems])
       setHasMore(result.data.hasMore ?? false)
+      console.log(result.data)
     } catch (error: any) {
       Toast.show({
         type: 'error',

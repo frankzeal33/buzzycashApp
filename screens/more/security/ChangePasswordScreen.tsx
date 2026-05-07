@@ -65,7 +65,7 @@ const ChangePasswordScreen = () => {
 
       setIsSubmitting(true)
   
-      const result = await axiosClient.put("/auth/change-password", {
+      const result = await axiosClient.patch("/auth/change-password", {
         current_password: form.currentPassword,
         new_password: form.newPassword,
         confirm_new_password: form.confirmNewPassword
@@ -77,12 +77,18 @@ const ChangePasswordScreen = () => {
         text2: "Password Updated",
       });
 
+      setForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmNewPassword: ''
+      })
+
     } catch (error: any) {
       Toast.show({
         type: 'error',
         text1: error.response.data.message || "Please try again later"
       });
-      console.log(error.response.data)
+      console.log(error.response?.data)
 
     } finally {
       setIsSubmitting(false)

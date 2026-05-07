@@ -21,7 +21,7 @@ export default function LandingBalanceCard() {
         </View>
         <View className='flex-row items-center justify-between gap-2 w-full'>
           <IconButton title='LOG IN' handlePress={() => router.push("/(onboarding)/LogIn")} textStyles='text-white' icon={<Entypo name="login" size={12} color="white" />} containerStyles='bg-brown-500 w-[38%] px-2'/>
-          <IconButton title='PLAY GAMES' handlePress={() => router.push("/(onboarding)/Register")} textStyles='text-white' icon={<MaterialCommunityIcons name="ticket-outline" size={16} color="white" />} containerStyles='bg-blue w-[58%] px-2' border/>
+          <IconButton title='PLAY GAMES' handlePress={() => router.push("/(landing)/LandingGame")} textStyles='text-white' icon={<MaterialCommunityIcons name="ticket-outline" size={16} color="white" />} containerStyles='bg-blue w-[58%] px-2' border/>
         </View>
       </View>
     </>

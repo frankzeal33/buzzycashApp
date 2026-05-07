@@ -37,8 +37,8 @@ const newPasswpordSchema = z
 const NewForgotPassword = () => {
 
    const { theme } = useThemeStore();
-   const { userId } = useLocalSearchParams() as any
-   console.log(userId)
+   const { token } = useLocalSearchParams() as any
+   console.log(token)
    const [form, setForm] = useState({
         password: '',
         confirmPassword: ''
@@ -64,7 +64,7 @@ const NewForgotPassword = () => {
             setIsSubmitting(true)
             
             const data = {
-                user_id: userId,
+                reset_token: token,
                 new_password: form.password,
                 confirm_new_password: form.confirmPassword
             }
@@ -87,9 +87,9 @@ const NewForgotPassword = () => {
         } catch (error: any) {
             Toast.show({
                 type: 'error',
-                text1: error.response.data.message
+                text1: error.response.data.message || "Please try again later"
             });  
-            console.log(error.response.data.message)
+            console.log(error.response.data)
 
         } finally {
             setIsSubmitting(false)

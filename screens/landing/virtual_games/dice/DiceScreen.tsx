@@ -211,8 +211,6 @@ const DiceScreen = () => {
       specificNumber: specificNumber
     })
 
-    try {
-      setLoading(true)
       setRolling(true)
 
       const interval = startRollingAnimation() // start switching
@@ -220,56 +218,12 @@ const DiceScreen = () => {
       playSound('roll')
       triggerHaptic('roll')
 
-      const res = await axiosClient.post("/virtual/dice", {
-        bet_type: mode === "specific" ? "exact" : mode,
-        stake: Number(stake),
-        ...(mode === "specific" && { guess: specificNumber }),
-      })
-
-      console.log("ROLL RESULT", res.data)
-
       clearInterval(interval) // STOP switching
-        
-      const data = res.data
-
-      const correct: boolean = data.game.win
-
-      setHistory(prev => [...prev, correct])
-
-      setResult({
-        isWin: correct,
-        message: data.message,
-        payout: data.game.payout || 0,
-        multiplier: data.game.multiplier,
-        diceOne: data.game.Dice_one,
-        diceTwo: data.game.Dice_two,
-        totalDice: data.game.Total_dice
-      })
-
-      if (correct) {
-        sfx.win()
-        triggerHaptic('win')
-        playSound('win')
-      } else {
-        sfx.lose()
-        triggerHaptic('lose')
-        playSound('lose')
-      }
 
       stopRollSound()
       setRolling(false)
 
-    } catch (error: any) {
-      sfx.error()
-      setRolling(false)
-      stopRollSound()
-      Toast.show({
-        type: 'error',
-        text1: error?.response?.data?.message || "Something went wrong"
-      })
-    } finally {
-      setLoading(false)
-    }
+      router.push("/(onboarding)/Register")
   }
 
   return (

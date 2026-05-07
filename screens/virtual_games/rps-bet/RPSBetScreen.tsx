@@ -8,6 +8,8 @@ import z from 'zod'
 import Toast from 'react-native-toast-message'
 import { axiosClient } from '@/globalApi'
 import { useSfx } from '@/hooks/useSfx'
+import getWallet from '@/utils/WalletApi'
+import getUnreadNotifications from '@/utils/getUnreadNotifications'
 
 const schema = z.object({
   stake: z.coerce.number()
@@ -31,6 +33,7 @@ const RPSBetScreen = () => {
   const [history, setHistory] = useState<boolean[]>([])
   const [loading, setLoading] = useState(false)
   const [choicePicked, setChoicePicked] = useState("")
+  const [fetchWallet, setFetchWallet] = useState(false)
 
   const iconMap: any = {
     rock: "✊",
@@ -73,7 +76,7 @@ const RPSBetScreen = () => {
       setUserChoice(iconMap[choice])
       setAiChoice(iconMap[ai_choice])
 
-      setHistory(prev => [...prev, is_win])
+      setHistory(prev => [is_win, ...prev].slice(0, 20))
 
       if (is_win) {
         sfx.win()
@@ -88,6 +91,8 @@ const RPSBetScreen = () => {
         sfx.error()
         setResultText(`something went wrong`)
       }
+
+      setFetchWallet(true)
 
     } catch (error: any) {
       sfx.error()
@@ -114,6 +119,14 @@ const RPSBetScreen = () => {
     setResultText("choose your move")
   }
 
+  const goBack = () => {
+    if(fetchWallet){
+      getWallet(false)
+      getUnreadNotifications();
+    }
+    router.back()
+  }
+
   return (
     <LinearGradient colors={["#0b1d2e", "#071421"]} style={styles.container}>
       <ScrollView
@@ -124,7 +137,7 @@ const RPSBetScreen = () => {
         {/* HEADER */}
         <View className='flex-row gap-2 justify-between items-center flex-wrap' style={{ marginTop: top }}>
           <View className='flex-row gap-1 items-center'>
-            <TouchableOpacity activeOpacity={0.8} onPress={() => router.back()}>
+            <TouchableOpacity activeOpacity={0.8} onPress={goBack}>
               <Feather name="chevron-left" size={34} color="#f5d27a" />
             </TouchableOpacity>
 

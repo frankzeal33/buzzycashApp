@@ -13,14 +13,14 @@ const TicketCard = ({item, handlePress, index}: {item: any; handlePress: () => v
         <View className="flex-1 justify-between w-full flex-row items-start gap-3 rounded-lg px-4 py-2 my-1">
           <View className="items-start flex-row gap-2 flex-1">
             <View>
-              <Text className="font-mbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>{item?.game_id__name}</Text>
+              <Text className="font-mbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>{item?.name}</Text>
               <Text className="font-mregular text-sm my-1" numberOfLines={1} style={{ color: theme.colors.text}}>{moment(item?.purchased_at).format('llll')}</Text>
-              <Text className="font-mregular text-sm" numberOfLines={1} style={{ color: theme.colors.text}}>Game Status: <Text className={`capitalize ${item?.game_id__status === "active" ? "text-green-500" : "text-red-500"}`}>{item?.game_id__status}</Text></Text>
+              <Text className="font-mregular text-sm" numberOfLines={1} style={{ color: theme.colors.text}}>Game Status: <Text className={`capitalize ${item?.status === "active" ? "text-green-600" : "text-red-600"}`}>{item?.status}</Text></Text>
             </View>
           </View>
 
           <View className='items-end justify-end gap-2 max-w-[70%]'>
-            <Text className="font-bold text-base" style={{ color: theme.colors.text}}>{displayCurrency(Number(item?.game_id__amount))}</Text>
+            <Text className="font-bold text-base" style={{ color: theme.colors.text}}>{displayCurrency(Number(item?.amount))}</Text>
           </View>
         </View>
     </Pressable >

@@ -1,10 +1,7 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import LotteryScreen from '@/screens/landing/lottery/LotteryScreen'
 
 export default function LandingLottery() {
   return (
-    <View>
-      <Text>LandingLottery</Text>
-    </View>
+    <LotteryScreen/>
   )
 }

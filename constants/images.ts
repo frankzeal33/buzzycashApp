@@ -52,6 +52,7 @@ import betting from "../assets/images/betting.png";
 import box from "../assets/images/box.png";
 import fruit from "../assets/images/fruit.png";
 import won from "../assets/images/won.json";
+import ticketGame from "../assets/images/ticketGame.png";
 
 export default {
   splash,
@@ -107,5 +108,6 @@ export default {
   box,
   betting,
   fruit,
-  won
+  won,
+  ticketGame
 };

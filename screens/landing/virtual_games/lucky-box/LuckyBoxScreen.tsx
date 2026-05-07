@@ -68,7 +68,7 @@ const LuckyBoxScreen = () => {
 
   // PLAY
   const handlePick = async (index: number) => {
-    if (!gameActive || loading) return
+    if (loading) return
 
     const result = schema.safeParse({ stake, pick: index + 1 });
       
@@ -83,65 +83,7 @@ const LuckyBoxScreen = () => {
 
     sfx.flip()
 
-    try {
-      setLoading(true)
-
-      const res = await axiosClient.post('/virtual/box', {
-        pick: index + 1,
-        stake: Number(stake)
-      })
-
-      const data = res.data
-      console.log("box data:", data)
-
-      const correct: boolean = data.game.is_win
- 
-      //outcome sound
-      if (correct) {
-        sfx.win()
-      } else {
-        sfx.lose()
-      }
-
-      const systemPickIndex = data.game.system_pick - 1 // if backend is 1-based
-      const userPickIndex = data.game.user_picked - 1
-
-      const updatedBoxes = Array.from({ length: boxCount }, (_, i) => ({
-        revealed: true,
-        prize: i === systemPickIndex
-      }))
-
-      setBoxes(updatedBoxes)
-
-      setGameActive(false)
-      setHistory(prev => [...prev, correct])
-      setResult({
-        isWin: correct,
-        message: data.message,
-        payout: data.game.payout || 0,
-        multiplier: data.game.multiplier,
-        systemPick: data.game.system_pick,
-        userPick: data.game.user_picked
-      })
-
-      if (data.game.is_win) {
-        setResultText(`💰 WIN! +${data.game.payout}`)
-      } else {
-        setResultText(`😞 LOSE... -${stake}`)
-      }
-
-    } catch (error: any) {
-      sfx.error()
-      Toast.show({
-        type: 'error',
-        text1:
-          error?.response?.data?.message?.stake ||
-          error?.response?.data?.message ||
-          "Something went wrong",
-      })
-    } finally {
-      setLoading(false)
-    }
+    router.push("/(onboarding)/Register")
   }
 
   //  NEW ROUND
@@ -152,6 +94,7 @@ const LuckyBoxScreen = () => {
     initBoxes(boxCount)
     setResultText("🎁 pick a box")
     setGameActive(true)
+    router.push("/(onboarding)/Register")
   }
 
   return (
@@ -267,7 +210,7 @@ const LuckyBoxScreen = () => {
         </View>
 
         {/* ACTION BUTTON */}
-        <TouchableOpacity style={styles.openBtn} className={`${gameActive ? 'opacity-60' : ''}`} disabled={gameActive} onPress={newRound}>
+        <TouchableOpacity style={styles.openBtn} onPress={newRound}>
           <Text style={styles.openText}>✨ open new boxes</Text>
         </TouchableOpacity>
 

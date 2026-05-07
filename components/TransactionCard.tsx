@@ -14,8 +14,8 @@ const TransactionCard = ({item, handlePress, index}: {item: transactionsType; ha
     <Pressable onPress={handlePress} className='border-b-2 w-full h-28' style={{ backgroundColor: theme.colors.darkGray, borderColor: theme.colors.background}}>
         <View className="flex-1 justify-between w-full flex-row items-start gap-2 rounded-lg px-4 py-2 my-1">
           <View className="items-start flex-row gap-2 flex-1">
-            <View className={`flex items-center justify-center size-10 rounded-full ${item?.payment_status === "SUCCESSFUL" ? "bg-green-100" : item?.payment_status === "FAILED" ? "bg-red-100" : "bg-yellow-100"} `}>
-                <Feather name={item?.payment_status === "SUCCESSFUL" ? "arrow-down-right" : item?.payment_status === "FAILED" ? "arrow-up-right" : "minus"} color={item?.payment_status === "SUCCESSFUL" ? "#22c55e" : item?.payment_status === "FAILED" ? "#ef4444" : "#ca8a04"} size={20}/>
+            <View className={`flex items-center justify-center size-10 rounded-full ${item?.payment_status === "successful" ? "bg-green-100" : item?.payment_status === "failed" ? "bg-red-100" : "bg-amber-100"} `}>
+                <Feather name={item?.payment_status === "successful" ? "arrow-down-right" : item?.payment_status === "failed" ? "arrow-up-right" : "minus"} color={item?.payment_status === "successful" ? "#22c55e" : item?.payment_status === "failed" ? "#ef4444" : "#f59e0b"} size={20}/>
             </View>
             <View className='flex-1'>
               <Text className="font-mbold text-base capitalize" numberOfLines={1} style={{ color: theme.colors.text}}>{item?.category} -</Text>

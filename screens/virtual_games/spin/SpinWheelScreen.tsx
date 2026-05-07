@@ -18,6 +18,8 @@ import { axiosClient } from '@/globalApi'
 import z from 'zod'
 import Toast from 'react-native-toast-message'
 import { useSfx } from '@/hooks/useSfx'
+import getWallet from '@/utils/WalletApi'
+import getUnreadNotifications from '@/utils/getUnreadNotifications'
 
 const schema = z.object({
   stake: z.coerce.number()
@@ -34,6 +36,7 @@ const SpinWheelScreen = () => {
   const [history, setHistory] = useState<boolean[]>([])
   const [payout, setPayout] = useState(0)
   const sfx = useSfx()
+  const [fetchWallet, setFetchWallet] = useState(false)
 
   const rotation = useSharedValue(0)
   // Track whether the component is still mounted to avoid setState after unmount
@@ -146,6 +149,8 @@ const SpinWheelScreen = () => {
         }
       )
 
+      setFetchWallet(true)
+
     } catch (error: any) {
       sfx.error()
       cancelAnimation(rotation)
@@ -166,7 +171,7 @@ const SpinWheelScreen = () => {
   const handleResult = (result: { multiplier: string; payout: number; is_win: boolean }) => {
     if (!isMounted.current) return
 
-    setHistory(prev => [...prev, result.is_win])
+    setHistory(prev => [result.is_win, ...prev].slice(0, 20))
     setMultiplier(result.multiplier)
     if (result.is_win) {
       sfx.win()
@@ -177,6 +182,14 @@ const SpinWheelScreen = () => {
       setResultText(`❌ LOSE... -${stake}`)
     }
     setSpinning(false)
+  }
+
+  const goBack = () => {
+    if(fetchWallet){
+      getWallet(false)
+      getUnreadNotifications();
+    }
+    router.back()
   }
 
   return (
@@ -192,7 +205,7 @@ const SpinWheelScreen = () => {
         {/* HEADER */}
         <View className='flex-row gap-2 justify-between items-center flex-wrap' style={{ marginTop: top }}>
           <View className='flex-row gap-1 items-center'>
-            <TouchableOpacity activeOpacity={0.8} onPress={() => router.back()}>
+            <TouchableOpacity activeOpacity={0.8} onPress={goBack}>
               <Feather name="chevron-left" size={34} color="#fff" />
             </TouchableOpacity>
             <View style={styles.logo}>

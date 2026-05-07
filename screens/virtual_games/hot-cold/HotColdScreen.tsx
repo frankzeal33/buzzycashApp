@@ -8,6 +8,8 @@ import { z } from "zod"
 import Toast from 'react-native-toast-message'
 import { axiosClient } from '@/globalApi'
 import { useSfx } from '@/hooks/useSfx'
+import getWallet from '@/utils/WalletApi'
+import getUnreadNotifications from '@/utils/getUnreadNotifications'
 
 const ranges = [
   { label: "1-10", max: 10 },
@@ -36,6 +38,7 @@ const HotColdScreen = () => {
   const { top, bottom } = useSafeAreaInsets()
   const [stake, setStake] = useState("50")
   const [loading, setLoading] = useState(false)
+  const [fetchWallet, setFetchWallet] = useState(false)
   const [result, setResult] = useState<Result>({
     isWin: false,
     message: "",
@@ -88,7 +91,7 @@ const HotColdScreen = () => {
         sfx.lose()
       }
 
-      setHistory(prev => [...prev, correct])
+      setHistory(prev => [correct, ...prev].slice(0, 20))
 
       setResult({
         isWin: correct,
@@ -99,6 +102,8 @@ const HotColdScreen = () => {
         userPick: data.game.user_picked_number
       })
       setSelectedNumber(0)
+
+      setFetchWallet(true)
 
     } catch (error: any) {
       sfx.error()
@@ -114,6 +119,14 @@ const HotColdScreen = () => {
     }
   }
 
+  const goBack = () => {
+    if(fetchWallet){
+      getWallet(false)
+      getUnreadNotifications();
+    }
+    router.back()
+  }
+
   return (
     <LinearGradient
       colors={["#0b2a3a", "#061c26"]}
@@ -125,7 +138,7 @@ const HotColdScreen = () => {
       >
         {/* HEADER */}
         <View className='flex-row items-center gap-1' style={{ marginTop: top }}>
-          <TouchableOpacity activeOpacity={0.8} onPress={() => router.back()}>
+          <TouchableOpacity activeOpacity={0.8} onPress={goBack}>
             <Feather name="chevron-left" size={34} color="#e6e1c5" />
           </TouchableOpacity>
           <View style={styles.header}>

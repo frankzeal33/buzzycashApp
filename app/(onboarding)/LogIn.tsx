@@ -23,7 +23,7 @@ import { data } from '@/constants'
 import OnboardModal from '@/components/OnboardModal'
 import ErrorText from '@/components/ErrorText'
 import SuccessText from '@/components/SuccessText'
-import { FontAwesome5 } from '@expo/vector-icons'
+import { AntDesign, FontAwesome5 } from '@expo/vector-icons'
 import { OtpInput } from 'react-native-otp-entry'
 
 type countryType =  {
@@ -295,8 +295,9 @@ const LogIn = () => {
         <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} className='w-full px-8'>
                 <View className='flex-1 py-6'>
-                    <View className="flex-1 w-full justify-center items-center my-6">
-                        <Text className="text-2xl mt-4 font-mbold" style={{ color: theme.colors.text}}>Log In</Text>
+                   <TouchableOpacity onPress={() => router.back()}><AntDesign name="arrowleft" size={28} color="#000"/></TouchableOpacity>
+                    <View className="flex-1 w-full justify-center items-center my-2">
+                        <Text className="text-2xl font-mbold" style={{ color: theme.colors.text}}>Log In</Text>
                         <Text className="mt-1 font-mmedium text-center px-6" style={{ color: theme.colors.text}}>Enter Your Email and Password</Text>
                         {switchToEmail ? (
                           <FormField value={form.email} placeholder="Email" handleChangeText={(e: any) => setForm({ ...form, email: e, phoneNumber: "" })} otherStyles="mt-7" keyboardType="email-address" labelStyle='text-white'/>

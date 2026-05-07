@@ -19,6 +19,8 @@ import Animated, {
 import { sounds } from '@/constants'
 import z from 'zod'
 import { useSfx } from '@/hooks/useSfx'
+import getWallet from '@/utils/WalletApi'
+import getUnreadNotifications from '@/utils/getUnreadNotifications'
 
 const schema = z.object({
   stake: z.coerce.number()
@@ -84,6 +86,7 @@ const DiceScreen = () => {
 
   const [mode, setMode] = useState<'even' | 'odd' | 'highest' | 'lowest' | 'specific'>('even')
   const [specificNumber, setSpecificNumber] = useState(2)
+  const [fetchWallet, setFetchWallet] = useState(false)
 
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<Result>({
@@ -234,7 +237,7 @@ const DiceScreen = () => {
 
       const correct: boolean = data.game.win
 
-      setHistory(prev => [...prev, correct])
+      setHistory(prev => [correct, ...prev].slice(0, 20))
 
       setResult({
         isWin: correct,
@@ -259,6 +262,8 @@ const DiceScreen = () => {
       stopRollSound()
       setRolling(false)
 
+      setFetchWallet(true)
+
     } catch (error: any) {
       sfx.error()
       setRolling(false)
@@ -270,6 +275,14 @@ const DiceScreen = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const goBack = () => {
+    if(fetchWallet){
+      getWallet(false)
+      getUnreadNotifications();
+    }
+    router.back()
   }
 
   return (
@@ -285,7 +298,7 @@ const DiceScreen = () => {
         {/* HEADER */}
         <View style={[styles.header, { marginTop: top }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <TouchableOpacity onPress={() => router.back()}>
+            <TouchableOpacity onPress={goBack}>
               <Feather name="chevron-left" size={30} color="#fff" />
             </TouchableOpacity>
 

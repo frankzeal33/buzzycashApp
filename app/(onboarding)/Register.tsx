@@ -11,7 +11,7 @@ import { Link, router } from 'expo-router'
 import Checkbox from 'expo-checkbox';
 import OnboardModal from '@/components/OnboardModal'
 import { OtpInput } from "react-native-otp-entry";
-import { Entypo, FontAwesome5 } from '@expo/vector-icons'
+import { AntDesign, Entypo, FontAwesome5 } from '@expo/vector-icons'
 import DisablePartInput from '@/components/DisablePartInput'
 import { useThemeStore } from '@/store/ThemeStore'
 import { data } from '@/constants'
@@ -315,8 +315,9 @@ const Register = () => {
         <KeyboardAvoidingView className='flex-1' behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} className='w-full px-8'>
               <View className='flex-1 py-6'>
-                <View className="flex-1 w-full justify-center items-center my-6">
-                  <Text className="text-2xl mt-4 font-mbold" style={{ color: theme.colors.text}}>Sign Up</Text>
+                <TouchableOpacity onPress={() => router.back()}><AntDesign name="arrowleft" size={28} color="#000"/></TouchableOpacity>
+                <View className="flex-1 w-full justify-center items-center my-2">
+                  <Text className="text-2xl font-mbold" style={{ color: theme.colors.text}}>Sign Up</Text>
                   <Text className="mt-1 font-mmedium text-center px-6" style={{ color: theme.colors.text}}>Turn your dreams into reality, your path to wealth Begins Here</Text>
                   
                   <TouchableOpacity onPress={() => setShowModal(true)} activeOpacity={0.8} style={{ backgroundColor: theme.colors.inputBg}} className={`w-full h-16 px-4 mt-7 rounded-md items-center justify-between flex-row gap-1`}>

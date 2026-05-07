@@ -1,13 +1,12 @@
 export type ticketGameType = {
-  amount: string; 
-  created_at: string;
-  draw_interval: number;
-  draw_time: string;
-  game_id: string; 
+  amount: number;
+  draw_interval_minutes: number;
+  id: string;
   max_winners: number;
   name: string;
-  status: "active" | 'inactive', 
-  weighted_distribution: boolean;
+  next_draw_at: string; // ISO date string
+  potential_winning_amount: number;
+  status: "active" | 'inactive',
   winning_percentage: number;
 }
 

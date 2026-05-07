@@ -42,13 +42,25 @@ export default function RootLayout() {
     const handleDeepLink = ({ url }: {url: any}) => {
       const data = Linking.parse(url);
       console.log('Received payment callback:', data);
+
+      const hostname = data.hostname
+      const query = data.queryParams
       
-      if (data.hostname === "Home") {
-        if(data.queryParams?.status === "completed"){
-          getWallet(true)
+      if(hostname === "goto"){
+
+        switch (query?.screen) {
+  
+          case 'home':
+            
+            router.replace("/(protected)/(routes)/Home");
+            break;
+  
+          default:
+            router.replace("/(protected)/(routes)/Home");
+            break;
         }
       }
-
+      
     };
 
     const sub = Linking.addEventListener('url', handleDeepLink);

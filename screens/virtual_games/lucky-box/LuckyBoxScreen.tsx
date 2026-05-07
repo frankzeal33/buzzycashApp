@@ -10,6 +10,8 @@ import AnimatedBox from '@/components/virtuals/AnimatedBox'
 
 import { z } from "zod"
 import { useSfx } from '@/hooks/useSfx'
+import getWallet from '@/utils/WalletApi'
+import getUnreadNotifications from '@/utils/getUnreadNotifications'
 
 const schema = z.object({
   stake: z.coerce.number()
@@ -49,6 +51,7 @@ const LuckyBoxScreen = () => {
     userPick: null
   })
   const [history, setHistory] = useState<boolean[]>([])
+  const [fetchWallet, setFetchWallet] = useState(false)
   const sfx = useSfx()
 
   // INIT EMPTY BOXES
@@ -114,7 +117,7 @@ const LuckyBoxScreen = () => {
       setBoxes(updatedBoxes)
 
       setGameActive(false)
-      setHistory(prev => [...prev, correct])
+      setHistory(prev => [correct, ...prev].slice(0, 20))
       setResult({
         isWin: correct,
         message: data.message,
@@ -129,6 +132,8 @@ const LuckyBoxScreen = () => {
       } else {
         setResultText(`😞 LOSE... -${stake}`)
       }
+
+      setFetchWallet(true)
 
     } catch (error: any) {
       sfx.error()
@@ -154,6 +159,14 @@ const LuckyBoxScreen = () => {
     setGameActive(true)
   }
 
+  const goBack = () => {
+    if(fetchWallet){
+      getWallet(false)
+      getUnreadNotifications();
+    }
+    router.back()
+  }
+
   return (
     <LinearGradient
       colors={["#1a0f2b", "#0d061a"]}
@@ -166,7 +179,7 @@ const LuckyBoxScreen = () => {
         {/* HEADER */}
         <View className='flex-row gap-2 justify-between items-center flex-wrap' style={{ marginTop: top }}>
           <View className='flex-row gap-1 items-center'>
-            <TouchableOpacity activeOpacity={0.8} onPress={() => router.back()}>
+            <TouchableOpacity activeOpacity={0.8} onPress={goBack}>
               <Feather name="chevron-left" size={34} color="#d2b48c" />
             </TouchableOpacity> 
 

@@ -26,6 +26,8 @@ import { set, z } from "zod";
 import { useAudioPlayer } from 'expo-audio'
 import { sounds } from '@/constants'
 import { useSfx } from '@/hooks/useSfx'
+import getWallet from '@/utils/WalletApi'
+import getUnreadNotifications from '@/utils/getUnreadNotifications'
 
 type GameInfo = {
   nextCard: string | number;
@@ -60,6 +62,7 @@ const CardScreen = () => {
   })
   const [history, setHistory] = useState<boolean[]>([])
   const [next, setNext] = useState(false)
+  const [fetchWallet, setFetchWallet] = useState(false)
 
   const scale = useSharedValue(1)
   const translateY = useSharedValue(0)
@@ -215,8 +218,10 @@ const CardScreen = () => {
         payout: res.data.game.payout,
         message: res.data.message
       })
-      setHistory(prev => [...prev, correct])
+      setHistory(prev => [correct, ...prev].slice(0, 20))
       setNext(true)
+
+      setFetchWallet(true)
 
     } catch (error: any) {
       sfx.error() 
@@ -253,6 +258,14 @@ const CardScreen = () => {
 
   const suitColor = getSuitData(cardSuit).color;
 
+  const goBack = () => {
+    if(fetchWallet){
+      getWallet(false)
+      getUnreadNotifications();
+    }
+    router.back()
+  }
+
   return (
     <LinearGradient
       colors={["#0f3b2e", "#06281f"]}
@@ -270,7 +283,7 @@ const CardScreen = () => {
 
         {/* HEADER */}
         <View style={{ marginTop: top, flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={goBack}>
             <Feather name="chevron-left" size={34} color="#e6e1c5" />
           </TouchableOpacity>
 

@@ -134,72 +134,20 @@ export default function CoinScreen() {
 
     let flipInterval: any
 
-    try {
-      setLoading(true)
+    sfx.flip()
+    flipInterval = startSpin() // store interval
 
-      sfx.flip()
-      flipInterval = startSpin() // store interval
 
-      const res = await axiosClient.post("/virtual/toss", {
-        pick: bet,
-        stake: Number(stake)
-      })
-
-      setResult(prev => ({
-        ...prev,
-        message: "loading..."
-      }))
-
-      setTimeout(() => {
-        stopSpin()
-        clearInterval(flipInterval) // stop flipping
-
-        const data = res.data
-
-        const correct: boolean = data.game.is_win
- 
-        //outcome sound
-        if (correct) {
-          sfx.win()
-        } else {
-          sfx.lose()
-        }
-
-        setHistory(prev => [...prev, correct])
-
-        setResult({
-          isWin: correct,
-          message: data.message,
-          payout: data.game.payout || 0,
-          multiplier: data.game.multiplier,
-          systemPick: data.game.system_pick,
-          userPick: data.game.user_pick
-        })
-        console.log("API result:", data)
-
-        // set final face from API
-        if (data.game.system_pick === 'heads') setFace('head')
-        if (data.game.system_pick=== 'tails') setFace('tail')
-        if (data.game.system_pick=== 'edge') setFace('edge')
-
-        setBet(null)
-        
-      }, 300)
-
-    } catch (error: any) {
-      sfx.error()
+    setTimeout(() => {
       stopSpin()
-      if (flipInterval) clearInterval(flipInterval) // safety
-      Toast.show({
-        type: 'error',
-        text1:
-          error?.response?.data?.message?.stake ||
-          error?.response?.data?.message ||
-          "Something went wrong",
-      })
-    } finally {
-      setLoading(false)
-    }
+      clearInterval(flipInterval) // stop flipping
+
+      setBet(null)
+      
+    }, 300)
+
+    router.push("/(onboarding)/Register")
+    
   }
 
   const getBetColor = (bet: 'heads' | 'tails' | 'edge' | null) => {

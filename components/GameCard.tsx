@@ -1,16 +1,16 @@
 import { images } from '@/constants';
-import { LinearGradient } from 'expo-linear-gradient';
-import { View, Text, Pressable, ImageBackground, TouchableOpacity } from 'react-native'
+import { View, Text, ImageBackground, TouchableOpacity } from 'react-native'
 import CountDown from 'react-native-countdown-component';
 import StrokedText from './StrokedText';
 import displayCurrency from '@/utils/displayCurrency';
 import { getCountdownSeconds } from '@/utils/CountdownSeconds';
 import { ticketGameType } from '@/types/types';
-import { useState } from 'react';
 
 const GameCard = ({ item, handlePress, index }: { item: ticketGameType; handlePress: () => void; index: number }) => {
   
-  const [gameExpired, setGameExpired] = useState(false)
+  const countdown = getCountdownSeconds(item?.next_draw_at);
+  const gameExpired = countdown <= 0;
+  
   
   return (
     <View
@@ -52,9 +52,13 @@ const GameCard = ({ item, handlePress, index }: { item: ticketGameType; handlePr
 
               {/* Countdown Digits */}
               <CountDown
-                until={getCountdownSeconds(item?.draw_time)}
+                until={Math.max(0, countdown)}
                 size={20}
-                onFinish={() => setGameExpired(true)}
+                // onFinish={() => {
+                //   if (!gameExpired) {
+                //     setGameExpired(true);
+                //   }
+                // }}
                 digitStyle={{
                   backgroundColor: '#fff',
                   width: 30,
@@ -72,7 +76,7 @@ const GameCard = ({ item, handlePress, index }: { item: ticketGameType; handlePr
                 showSeparator
               />
             </View>
-            <TouchableOpacity onPress={handlePress} activeOpacity={0.7} className='bg-white rounded-md min-h-11 justify-center items-center' disabled={gameExpired}>
+            <TouchableOpacity onPress={handlePress} activeOpacity={0.7} className='bg-white rounded-md min-h-11 justify-center items-center'>
               <Text className={`font-mbold text-blue text-base px-3`}>{gameExpired ? "Time Elapsed" : `Play with ${displayCurrency(Number(item?.amount))}`}</Text>
             </TouchableOpacity>
           </View>

@@ -47,41 +47,7 @@ const TicketDetailsScreen = () => {
 
     const purchase = async () => {
 
-        try {
-            setConfirmModal(false)
-            setIsSubmitting(true)
-
-            const result = await axiosClient.post("/ticket/purchase-ticket", {
-                game_id: parsedTicketData?.game_id,
-                quantity: tickets,
-                amount_paid: totalPrice
-            })
-    
-            console.log("tick", result.data)
-            setSuccessResult(result.data?.message || "Ticket purchased successfully")
-    
-            setShowSuccess(true)
-            setShowModal(true)
-
-            setTickets(1)
-            setTotalPrice(Number(parsedTicketData?.amount))
-
-            getWallet(true)
-    
-        } catch (error: any) {
-            setShowSuccess(false)
-            if(error.response.status === 402 && error.response.data.message === "Insufficient wallet balance"){
-                setShowModal(true)
-            }else{
-                Toast.show({
-                    type: 'error',
-                    text1: error.response.data.message
-                });
-            }
-            console.log(error.response.data)
-        } finally {
-            setIsSubmitting(false)
-        }
+        router.push("/(onboarding)/Register")
        
     }
 
@@ -112,7 +78,7 @@ const TicketDetailsScreen = () => {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{flexGrow: 1}}>
                 <View className='flex-1'>
                     <View className='pt-2 py-4'>
-                        <Header icon home onpress={() => router.back()}/>
+                        <Header icon onpress={() => router.back()}/>
                         <Text className="text-2xl text-brown-500 font-mbold mt-1 text-center">Play {parsedTicketData?.name}</Text>
                     </View>
                     <View className='w-full rounded-xl bg-white' style={{backgroundColor: theme.colors.darkGray}}>

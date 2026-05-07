@@ -1,10 +1,7 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import TicketDetailsScreen from '@/screens/landing/ticket_games/TicketDetailsScreen'
 
 export default function LandingTicketDetails() {
   return (
-    <View>
-      <Text>LandingTicketDetails</Text>
-    </View>
+    <TicketDetailsScreen/>
   )
 }

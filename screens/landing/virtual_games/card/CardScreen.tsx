@@ -4,27 +4,22 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
   TextInput
 } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Image } from 'expo-image'
 import { Entypo, Feather } from '@expo/vector-icons'
 import { router } from 'expo-router'
-import { axiosClient } from '@/globalApi'
 import Toast from 'react-native-toast-message'
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
-  runOnJS,
+  withSpring
 } from 'react-native-reanimated'
-import { set, z } from "zod";
-import { useAudioPlayer } from 'expo-audio'
-import { sounds } from '@/constants'
+import { z } from "zod";
 import { useSfx } from '@/hooks/useSfx'
 
 type GameInfo = {
@@ -46,11 +41,9 @@ const CardScreen = () => {
   const { top, bottom } = useSafeAreaInsets()
   const sfx = useSfx()
   const [stake, setStake] = useState("50")
-  const [card, setCard] = useState<string | number>(0)
+  const [card, setCard] = useState<string | number>(7)
   const [cardSuit, setCardSuit] = useState("♠")
   const [loading, setLoading] = useState(false)
-  const [loadingDefaultCard, setLoadingDefaultCard] = useState(true)
-  const [sessionId, setSessionId] = useState<string | null>(null)
   const [gameInfo, setGameInfo] = useState<GameInfo>({
     nextCard: "",
     correct: false,
@@ -113,7 +106,8 @@ const CardScreen = () => {
 
     setNext(false)
     setGameInfo(prev => ({ ...prev, message: "" }))
-    getDefaultCard() // fetches new session + new card
+
+    router.push("/(onboarding)/Register")
   }
 
   const getSuitData = (input: string) => {
@@ -141,37 +135,8 @@ const CardScreen = () => {
     }
   }
 
-  const getRandomSuit = () => {
-    const suits = ["♠", "♥", "♦", "♣"]
-    return suits[Math.floor(Math.random() * suits.length)]
-  }
-
-  useEffect(() => {
-    getDefaultCard()
-  }, [])
-
-  const getDefaultCard = async () => {
-    try {
-      setLoadingDefaultCard(true)
-      const startRes = await axiosClient.get("/virtual/start-card")
-      console.log("c=", startRes.data)
-      sfx.next()
-      const section_id = startRes.data.game.session_id
-      const current_card = startRes.data.game.current_card
-      const randomSuit = getRandomSuit() // randomize suit on each new round
-
-      setSessionId(section_id)
-      setCard(current_card || 0)
-      setCardSuit(randomSuit)
-    } catch (error: any) {
-      Toast.show({ type: 'error', text1: error?.response?.data?.message || "Something went wrong" })
-    } finally {
-      setLoadingDefaultCard(false)
-    }
-  }
 
   const handleGuess = async (guess: string) => {
-    if (loading || !sessionId) return
 
     const result = schema.safeParse({ stake });
 
@@ -187,68 +152,9 @@ const CardScreen = () => {
 
     sfx.flip()
     animateCard()
+    setNext(true)
+    router.push("/(onboarding)/Register")
 
-    try {
-      setLoading(true)
-
-      const res = await axiosClient.post("/virtual/pick-card", {
-        guess, // "higher" or "lower"
-        stake: Number(stake),
-        session_id: sessionId,
-      })
-
-      const correct: boolean = res.data.game.correct
- 
-      //outcome sound
-      if (correct) {
-        sfx.win()
-      } else {
-        sfx.lose()
-      }
-
-      console.log("res=", res.data)
-
-      setGameInfo({
-        nextCard: res.data.game.next_card,
-        correct: correct,
-        multiplier: res.data.game.multiplier,
-        payout: res.data.game.payout,
-        message: res.data.message
-      })
-      setHistory(prev => [...prev, correct])
-      setNext(true)
-
-    } catch (error: any) {
-      sfx.error() 
-      if(error.response?.status === 400 && error.response?.data?.message === "Session expired or invalid"){
-        getDefaultCard() // reset game on error (like session expired)
-        setHistory([])
-        setGameInfo({
-          nextCard: "",
-          correct: false,
-          multiplier: "",
-          payout: 0,
-          message: ""
-        })
-        setNext(false)
-        Toast.show({
-          type: 'error',
-          text1: "Session expired. Starting a new game.",
-        })
-      } else{
-        Toast.show({
-          type: 'error',
-          text1:
-            error?.response?.data?.message?.stake ||
-            error?.response?.data?.message ||
-            "Something went wrong",
-        })
-      }
-        console.log("e=",error.response?.data?.message)
-      
-    } finally {
-      setLoading(false)
-    }
   }
 
   const suitColor = getSuitData(cardSuit).color;
@@ -335,25 +241,8 @@ const CardScreen = () => {
         <View style={{ alignItems: "center" }}>
           <View style={{ width: 200, height: 240 }}>
             <Animated.View style={[styles.card, animatedStyle]}>
-              {loadingDefaultCard ? (
-                <ActivityIndicator size="large" color={suitColor} />
-              ) : ( 
-                !sessionId ? (
-                  <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 12 }}>
-                    <Text style={{ color: "#000", textAlign: "center" }}>No session. Please restart the game.</Text>
-                    <TouchableOpacity onPress={getDefaultCard} style={{ backgroundColor: "#caa85e", padding: 12, borderRadius: 12 }}>
-                      <Text style={{ color: "#000", fontSize: 14 }}>Restart Game</Text> 
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <>
-                    <Text style={[styles.cardNumber, { color: suitColor }]}>{card}</Text>
-                    <Text style={[styles.cardSuit, { color: suitColor }]}>{cardSuit}</Text>
-                    {loading && (
-                      <ActivityIndicator size="large" color={suitColor} />
-                    )}
-                  </> 
-                ))}
+              <Text style={[styles.cardNumber, { color: suitColor }]}>{card}</Text>
+              <Text style={[styles.cardSuit, { color: suitColor }]}>{cardSuit}</Text>
             </Animated.View>
           </View>
         </View>
@@ -361,18 +250,14 @@ const CardScreen = () => {
         {/* ACTIONS */}
         <View style={styles.actions}>
           <TouchableOpacity
-            className={`${loading || loadingDefaultCard || next ? 'opacity-50' : ''}`}
             style={styles.greenBtn}
-            disabled={loading || loadingDefaultCard || next}
             onPress={() => handleGuess("higher")}
           >
             <Text style={styles.btnText}><Entypo name="arrow-long-up" size={18} color="#e6e1c5" /> Higher</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            className={`${loading || loadingDefaultCard || next ? 'opacity-50' : ''}`}
             style={styles.orangeBtn}
-            disabled={loading || loadingDefaultCard || next}
             onPress={() => handleGuess("lower")}
           >
             <Text style={styles.btnText}><Entypo name="arrow-long-down" size={18} color="#e6e1c5" /> Lower</Text>
@@ -408,7 +293,7 @@ const CardScreen = () => {
           
 
           {/* RIGHT BUTTON */}
-          <TouchableOpacity style={styles.nextBtn} disabled={loading || loadingDefaultCard || !next} onPress={handleNext}  className={`${loading || loadingDefaultCard || !next} ? 'opacity-50' : ''}`}>
+          <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
             <Text style={styles.nextText}>next <Entypo name="arrow-long-right" size={16} color="#0f3b2e" /> </Text>
           </TouchableOpacity>
 

@@ -118,6 +118,8 @@ const ProfileScreen = () => {
         },
       });
 
+      console.log(response.data)
+
       const user: any = {
         profilePicture: response.data.avatarUrl,
       }
@@ -139,13 +141,13 @@ const ProfileScreen = () => {
         text2: "Picture changed."
       });
 
-      console.log(response.data)
-
     } catch (error: any) {
       Toast.show({
         type: 'error',
         text1: error.response.data.message || "Please try again later"
       });
+
+      console.log(error.response.data)
     } finally {
       setIsSubmitting(false)
     }

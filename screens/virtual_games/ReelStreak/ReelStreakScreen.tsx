@@ -16,6 +16,8 @@ import { axiosClient } from '@/globalApi'
 import Toast from 'react-native-toast-message'
 import z from 'zod'
 import { useSfx } from '@/hooks/useSfx'
+import getWallet from '@/utils/WalletApi'
+import getUnreadNotifications from '@/utils/getUnreadNotifications'
 
 const symbols = ['🍒', '🍋', '🍊', '🍇', '💎'];
 
@@ -37,6 +39,7 @@ const ReelStreakScreen = () => {
   const [payout, setPayout] = useState(0)
   const [history, setHistory] = useState<boolean[]>([])
   const sfx = useSfx()
+  const [fetchWallet, setFetchWallet] = useState(false)
 
   // animations per reel
   const r1 = useSharedValue(0)
@@ -72,7 +75,7 @@ const ReelStreakScreen = () => {
       sfx.lose()
     }
 
-    setHistory(prev => [...prev, isWin])
+    setHistory(prev => [isWin, ...prev].slice(0, 20))
 
     if (isWin) {
       setMultiplier(multiplier)
@@ -121,6 +124,8 @@ const ReelStreakScreen = () => {
       setTimeout(() => stopReel(r2), 1100)
       setTimeout(() => stopReel(r3, true, data), 1500)
 
+      setFetchWallet(true)
+
     } catch (error: any) {
       sfx.error()
       
@@ -158,6 +163,14 @@ const ReelStreakScreen = () => {
     transform: [{ translateY: r3.value }]
   }))
 
+  const goBack = () => {
+    if(fetchWallet){
+      getWallet(false)
+      getUnreadNotifications();
+    }
+    router.back()
+  }
+
   return (
     <LinearGradient colors={["#1a0f2b", "#0d061a"]} style={styles.container}>
       <ScrollView
@@ -168,7 +181,7 @@ const ReelStreakScreen = () => {
         {/* HEADER */}
         <View className='flex-row gap-2 justify-between items-center flex-wrap' style={{ marginTop: top }}>
           <View className='flex-row gap-1 items-center'>
-            <TouchableOpacity onPress={() => router.back()}>
+            <TouchableOpacity onPress={goBack}>
               <Feather name="chevron-left" size={34} color="#f6d98a" />
             </TouchableOpacity>
 

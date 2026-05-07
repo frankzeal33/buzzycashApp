@@ -101,48 +101,13 @@ const ReelStreakScreen = () => {
     }
 
     sfx.flip()
-    setPulling(true)
 
     // start animation
     r1.value = withRepeat(withTiming(-10, { duration: 150 }), -1, false)
     r2.value = withRepeat(withTiming(-10, { duration: 130 }), -1, false)
     r3.value = withRepeat(withTiming(-10, { duration: 110 }), -1, false)
 
-    try {
-      const res = await axiosClient.post("/virtual/reel", {
-        stake: Number(stake)
-      })
-
-      const data = res.data.game
-      console.log("API result:", res.data)
-
-      // stop reels one by one WITH API result
-      setTimeout(() => stopReel(r1), 700)
-      setTimeout(() => stopReel(r2), 1100)
-      setTimeout(() => stopReel(r3, true, data), 1500)
-
-    } catch (error: any) {
-      sfx.error()
-      
-      cancelAnimation(r1)
-      cancelAnimation(r2)
-      cancelAnimation(r3)
-
-      r1.value = withTiming(0)
-      r2.value = withTiming(0)
-      r3.value = withTiming(0)
-
-      setPulling(false)
-      setResultText("❌ error pulling")
-
-      Toast.show({
-        type: 'error',
-        text1:
-          error?.response?.data?.message?.stake ||
-          error?.response?.data?.message ||
-          "Something went wrong",
-      })
-    }
+    router.push("/(onboarding)/Register")
   }
 
   // animated styles

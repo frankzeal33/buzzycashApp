@@ -8,6 +8,7 @@ import { TabView, SceneMap } from 'react-native-tab-view';
 import Games from './Games'
 import Transactions from './Transactions'
 import { useThemeStore } from '@/store/ThemeStore'
+import useNotificationStore from '@/store/NotificationStore'
 
 
 const NotificationScreen = () => {
@@ -15,6 +16,7 @@ const NotificationScreen = () => {
     const { theme } = useThemeStore();
     const layout = useWindowDimensions();
     const [index, setIndex] = useState(0);
+    const { setUnreadCount } = useNotificationStore();
 
   
     const renderScene = SceneMap({
@@ -55,10 +57,15 @@ const NotificationScreen = () => {
     );
   };
 
+  const goBack = () => {
+    setUnreadCount(0)
+    router.back()
+  }
+
   return (
     <SafeAreaView className="h-full flex-1" style={{ backgroundColor: theme.colors.background}}>
         <View className='px-4'>
-          <Header title='Notifications' icon onpress={() => router.back()}/>
+          <Header title='Notifications' icon onpress={goBack}/>
         </View>
         <TabView
           navigationState={{ index, routes }}

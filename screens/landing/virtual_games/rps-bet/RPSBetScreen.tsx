@@ -55,54 +55,7 @@ const RPSBetScreen = () => {
     sfx.flip()
     setChoicePicked(choice)
 
-    try {
-      setLoading(true)
-
-      const res = await axiosClient.post("/virtual/rsp", {
-        pick: choice,
-        stake: Number(stake)
-      })
-      console.log("ans=",res.data)
-
-      const { ai_choice, winner, user_choice, payout, multiplier } = res.data.game.Game;
-
-      const is_win = winner === "user";
-      setMultiplier(multiplier || 0)
-      setPayout(payout || 0)
-
-      setUserChoice(iconMap[choice])
-      setAiChoice(iconMap[ai_choice])
-
-      setHistory(prev => [...prev, is_win])
-
-      if (is_win) {
-        sfx.win()
-        setResultText(`✅ WIN! +${payout}`)
-      } else if (winner === "ai") {
-        sfx.lose()
-        setResultText(`❌ LOSS... -${stake} (AI choose ${ai_choice})`)
-      } else if (winner === "draw") {
-        sfx.next()
-        setResultText(`🔄 DRAW (${ai_choice}) · stake returned`)
-      } else {
-        sfx.error()
-        setResultText(`something went wrong`)
-      }
-
-    } catch (error: any) {
-      sfx.error()
-      Toast.show({
-        type: 'error',
-        text1:
-          error?.response?.data?.message?.stake ||
-          error?.response?.data?.message ||
-          "Something went wrong",
-      })
-    } finally {
-      setRoundActive(false)
-      setLoading(false)
-      setChoicePicked("")
-    }
+    router.push("/(onboarding)/Register")
 
   }
 

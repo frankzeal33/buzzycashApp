@@ -11,6 +11,8 @@ import { fi } from 'zod/v4/locales'
 import GradientButton from '@/components/GradientButton'
 import { useThemeStore } from '@/store/ThemeStore'
 import { useSfx } from '@/hooks/useSfx'
+import getWallet from '@/utils/WalletApi'
+import getUnreadNotifications from '@/utils/getUnreadNotifications'
 
 type Result = {
   isWin: boolean
@@ -54,6 +56,7 @@ const LotteryGamesScreen = () => {
   const [history, setHistory] = useState<boolean[]>([])
   const [showModal, setShowModal] = useState(false)
   const sfx = useSfx()
+  const [fetchWallet, setFetchWallet] = useState(false)
 
   const numbers = Array.from({ length: 40 }, (_, i) => i + 1);
   const [numbersSelected, setNumbersSelected] = useState<number[]>([]);
@@ -135,7 +138,7 @@ const LotteryGamesScreen = () => {
           sfx.lose()
         }
 
-        setHistory(prev => [...prev, correct])
+        setHistory(prev => [correct, ...prev].slice(0, 20))
 
         setResult({
           isWin: correct,
@@ -151,6 +154,8 @@ const LotteryGamesScreen = () => {
 
         setShowModal(true)
         setNumbersSelected([]);
+
+        setFetchWallet(true)
 
       } catch (error: any) {
         sfx.error()
@@ -183,6 +188,14 @@ const LotteryGamesScreen = () => {
       setShowModal(false)
     }
 
+    const goBack = () => {
+      if(fetchWallet){
+        getWallet(false)
+        getUnreadNotifications();
+      }
+      router.back()
+    }
+
   return (
     <LinearGradient
       colors={["#0b2a3a", "#061c26"]}
@@ -194,7 +207,7 @@ const LotteryGamesScreen = () => {
       >
         {/* HEADER */}
         <View className='flex-row items-center gap-1 flex-wrap' style={{ marginTop: top }}>
-          <TouchableOpacity activeOpacity={0.8} onPress={() => router.back()}>
+          <TouchableOpacity activeOpacity={0.8} onPress={goBack}>
             <Feather name="chevron-left" size={34} color="#e6e1c5" />
           </TouchableOpacity>
           <View style={styles.header}>

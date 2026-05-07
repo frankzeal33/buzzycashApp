@@ -1,7 +1,7 @@
 import Header from '@/components/Header'
 import TicketCard from '@/components/TicketCard'
 import { StatusBar } from 'expo-status-bar'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FlatList, Modal, ScrollView, Text, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Loading from '@/components/Loading'
@@ -13,56 +13,79 @@ import moment from 'moment'
 
 type ticketsType = {
   game_id: string;
-  game_id__amount: string; 
-  game_id__draw_time: string; 
-  game_id__game_id: string;
-  game_id__max_winners: number, 
-  game_id__name: string; 
-  game_id__status: string; 
+  amount: string; 
+  next_draw_time: string;
+  max_winners: number, 
+  name: string;
   id: string;
   purchased_at: string; 
   status: string;
+  payment_status: string;
 }
+
+const PAGE_SIZE = 5;
 
 export default function TicketsScreen() {
 
   const { theme } = useThemeStore();
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [tickets, setTickets] = useState<ticketsType[]>([])
-  const [totalItems, setTotalItems] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
   const [ticketInfo, setTicketInfo] = useState<ticketsType | null>(null)
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
-    getTickets()
+    getTickets(1, true)
   }, [])
 
-  const getTickets = async () => {
-    setLoading(true)
-    try {
-      
-      const result = await axiosClient.get(`/tickets/all-games?limit=${pageSize}&page=${page}`)   
+  const getTickets = async (pageNum: number, isInitial = false) => {
+    if (isInitial) {
+      setLoading(true)
+    } else {
+      setLoadingMore(true)
+    }
 
-      setTickets(result.data?.games || [])
-      // setTotalItems(result.data?.count || 0)
-      console.log(result.data)
+    try {
+      const result = await axiosClient.get(`/tickets/my-tickets?limit=${PAGE_SIZE}&page=${pageNum}`)
+      const newItems: ticketsType[] = result.data?.games || []
+
+      setTickets(prev => isInitial ? newItems : [...prev, ...newItems])
+      setHasMore(result.data?.has_more ?? false)
+      console.log("Ti=", result.data)
     } catch (error: any) {
       console.log(error.response?.data || error.message)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }
+
+  const handleLoadMore = useCallback(() => {
+    if (loadingMore || !hasMore) return
+    const nextPage = page + 1
+    setPage(nextPage)
+    getTickets(nextPage)
+  }, [loadingMore, hasMore, page])
 
   const handleModal = (item: ticketsType) => {
     setTicketInfo(item)
     setShowModal(true)
   }
 
-  const renderTickets = ({item, index}: {item: any, index: number}) => (
+  const renderTickets = ({ item, index }: { item: ticketsType, index: number }) => (
     <TicketCard item={item} index={index} handlePress={() => handleModal(item)}/>
   )
+
+  const renderFooter = () => {
+    if (!loadingMore) return null
+    return (
+      <View className="py-4 items-center">
+        <Loading />
+      </View>
+    )
+  }
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='h-full flex-1 px-4' style={{ backgroundColor: theme.colors.background}}>
@@ -77,9 +100,12 @@ export default function TicketsScreen() {
           <View className="my-4" style={{ backgroundColor: theme.colors.darkGray}}>
             <FlatList
               data={tickets}
-              keyExtractor={(item, index) => item?.id}
+              keyExtractor={(item) => item?.id}
               renderItem={renderTickets}
               scrollEnabled={false}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.3}
+              ListFooterComponent={renderFooter}
               ListEmptyComponent={() => (  
                 <View className="items-center justify-center py-52">
                   <Text className="text-xl text-center font-msbold" style={{ color: theme.colors.text}}>No Tickets yet!</Text>
@@ -94,17 +120,14 @@ export default function TicketsScreen() {
 
         <Modal
           transparent={true}
-          // animationType='slide'
           visible={showModal}
           statusBarTranslucent={true}
           onRequestClose={() => setShowModal(false)}>
             <View className="flex-1 justify-center items-center px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              {/* TouchableWithoutFeedback only around the background */}
               <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
                 <View className="absolute top-0 left-0 right-0 bottom-0" />
               </TouchableWithoutFeedback>
 
-              {/* Actual modal content */}
               <View className="rounded-2xl max-h-[60%] px-4 w-full" style={{backgroundColor: theme.colors.darkGray}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View className='my-7 gap-5'>
@@ -113,28 +136,28 @@ export default function TicketsScreen() {
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Name</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{ticketInfo?.game_id__name}</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{ticketInfo?.name}</Text>
                     </View>
                     <View className='flex-row items-center justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Amount</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(ticketInfo?.game_id__amount))}</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{displayCurrency(Number(ticketInfo?.amount))}</Text>
                     </View>
                     <View className='flex-row items-center justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>G-Status</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className={`capitalize text-base font-mmedium flex-1 ${ticketInfo?.game_id__status === "active" ? "text-green-500" : "text-red-500"}`}>{ticketInfo?.game_id__status}</Text>
+                      <Text className={`capitalize text-base font-mmedium flex-1 ${ticketInfo?.status === "active" ? "text-green-600" : "text-red-600"}`}>{ticketInfo?.status}</Text>
                     </View>
                     <View className='flex-row items-center justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Draw Time</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{moment(ticketInfo?.game_id__draw_time).format('llll')}</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{moment(ticketInfo?.next_draw_time).format('llll')}</Text>
                     </View>
                     <View className='flex-row items-center justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
@@ -148,14 +171,14 @@ export default function TicketsScreen() {
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>P-Status</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className={`capitalize text-base font-mmedium flex-1 ${ticketInfo?.status === "SUCCESSFUL" ? "text-green-500" : ticketInfo?.status === "FAILED" ? "text-red-500" : "text-yellow-500"}`}>{ticketInfo?.status}</Text>
+                      <Text className={`capitalize text-base font-mmedium flex-1 ${ticketInfo?.payment_status === "successful" ? "text-green-600" : ticketInfo?.payment_status === "failed" ? "text-red-600" : "text-amber-600"}`}>{ticketInfo?.payment_status}</Text>
                     </View>
                     <View className='flex-row items-center justify-between gap-3'>
                       <View className='flex-row gap-2 items-center justify-between w-36'>
                         <Text className='font-msbold text-lg' style={{ color: theme.colors.text}}>Game Id</Text>
                         <Text className='font-msbold text-xl' style={{ color: theme.colors.text}}>:</Text>
                       </View>
-                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{ticketInfo?.game_id__game_id}</Text>
+                      <Text className="text-base font-mmedium flex-1" style={{ color: theme.colors.text}}>{ticketInfo?.game_id}</Text>
                     </View>
                   </View>
                 </ScrollView>

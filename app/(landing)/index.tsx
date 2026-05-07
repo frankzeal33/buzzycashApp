@@ -29,7 +29,7 @@ import { useThemeStore } from '@/store/ThemeStore';
 import { axiosClient } from '@/globalApi';
 import { Skeleton } from 'moti/skeleton';
 import { useSkeletonCommonProps } from '@/utils/SkeletonProps';
-import { Ionicons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { ticketGameType } from '@/types/types';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingBalanceCard from '@/components/landing/LandingBalanceCard';
@@ -210,6 +210,7 @@ const index = () => {
   const [notificationCount, setNotificationCount] = useState(0);
   const [loadingLeaderBoard, setLoadingLeaderBoard] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [hasMore, setHasMore] = useState(false)
 
   // --- FIX: track whether overlay is active in JS state ---
   const [overlayActive, setOverlayActive] = useState(false);
@@ -247,21 +248,15 @@ const index = () => {
   const AllTickets = async () => {
     setLoadingTickets(true);
     try {
-      // const result = await axiosClient.get('/tickets/all-games');
-      // setGames(result.data?.games || []);
-      // console.log("ticket=",result.data)
+      const result = await axiosClient.get(`/tickets/?limit=10&page=1`)
+      setGames(result.data?.games || []);
+      setHasMore(result.data?.has_more ?? false)
+      console.log("ticket=",result.data)
     } catch (error: any) {
       console.log('t-error', error.response?.data || error.message);
     } finally {
       setLoadingTickets(false);
     }
-  };
-
-  const getUnReadNotificationCount = async () => {
-    try {
-      // const result = await axiosClient.get('/notification/unread');
-      // setNotificationCount(result.data?.unreadCount || 0);
-    } catch (_) {}
   };
 
   const leaderBoard = async () => {
@@ -277,7 +272,6 @@ const index = () => {
   useEffect(() => {
     AllTickets();
     leaderBoard();
-    getUnReadNotificationCount();
   }, []);
 
   const handleStickySectionLayout = useCallback((y: number) => {
@@ -345,21 +339,37 @@ const index = () => {
       edges={['top', 'left', 'right']}
       style={{ flex: 1, backgroundColor: theme.colors.background }}
     >
-      <View style={{ flex: 1, paddingHorizontal: 16, paddingBottom: Bottom }}>
+      <View style={{ flex: 1, paddingHorizontal: 16 }}>
 
         <LandingHeader profile notificationCount={notificationCount}/>
 
         <Animated.FlatList
           data={games}
-          keyExtractor={(item) => item.game_id}
+          keyExtractor={(item) => item?.id}
           renderItem={renderItem}
           ListHeaderComponent={renderListHeader}
           ListEmptyComponent={ListEmpty}
           showsVerticalScrollIndicator={false}
           onScroll={onScroll}
           scrollEventThrottle={16}
+          ListFooterComponent={() => {
+            if (!hasMore) return null;
+            return (
+              <Pressable
+                onPress={() => router.push("/(protected)/(routes)/AllTickets")}
+                className="items-center py-4 active:opacity-60"
+              >
+                <View className="flex-row items-center gap-2 px-6 py-2 border border-brown-500 rounded-full">
+                  <Text className="text-sm font-msbold text-brown-500">
+                    View All Games
+                  </Text>
+                  <AntDesign name="arrowright" size={14} color="#EF9439" />
+                </View>
+              </Pressable>
+            )
+          }}
           style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: 32 }}
+          contentContainerStyle={{ paddingBottom: Bottom + 16 }}
         />
 
         <Animated.View
@@ -375,10 +385,7 @@ const index = () => {
           ]}
           pointerEvents={overlayActive ? 'box-none' : 'none'}
         >
-          <Header
-            profile
-            notificationCount={notificationCount}
-          />
+          <LandingHeader profile notificationCount={notificationCount}/>
           <StickySection
             theme={theme}
             itemWidth={itemWidth}

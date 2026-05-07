@@ -1,5 +1,5 @@
 import { View, Text, FlatList, ImageBackground, ActivityIndicator } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { router } from 'expo-router'
 import Header from '@/components/Header'
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -15,40 +15,67 @@ import { useThemeStore } from '@/store/ThemeStore'
 import { axiosClient } from '@/globalApi'
 import { ticketGameType } from '@/types/types'
 
+const PAGE_SIZE = 20;
+
 const AllTicketScreen = () => {
 
-  const { theme } = useThemeStore();
+   const { theme } = useThemeStore();
   const { top, bottom } = useSafeAreaInsets()
   const Bottom = bottom + 57;
-  const [loadingTickets, setLoadingTickets] = useState(false)
+
+  const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [games, setGames] = useState<ticketGameType[]>([])
+  const [hasMore, setHasMore] = useState(false)
+  const [page, setPage] = useState(1)
 
-  const AllTickets = async () => {
-    setLoadingTickets(true)
+  useEffect(() => {
+    getAllTickets(1, true)
+  }, [])
+
+  const getAllTickets = async (pageNum: number, isInitial = false) => {
+    if (isInitial) {
+      setLoading(true)
+    } else {
+      setLoadingMore(true)
+    }
+
     try {
+      const result = await axiosClient.get(`/tickets/all-games?limit=${PAGE_SIZE}&page=${pageNum}`)
+      const newItems: ticketGameType[] = result.data?.games || []
 
-      const result = await axiosClient.get("/tickets/all-games")
-
-      setGames(result.data?.games || [])
-      console.log("tickets", result.data?.games)
-
+      setGames(prev => isInitial ? newItems : [...prev, ...newItems])
+      setHasMore(result.data?.has_more ?? false)
     } catch (error: any) {
-
+      console.log(error.response?.data || error.message)
     } finally {
-      setLoadingTickets(false)
+      setLoading(false)
+      setLoadingMore(false)
     }
   }
 
-  useEffect(() => {
-    AllTickets()
-  }, [])
+  const handleLoadMore = useCallback(() => {
+    if (loadingMore || !hasMore) return
+    const nextPage = page + 1
+    setPage(nextPage)
+    getAllTickets(nextPage)
+  }, [loadingMore, hasMore, page])
 
-  const renderGames = ({item, index}: {item: ticketGameType, index: number}) => (
-      <GameCard item={item} index={index} handlePress={() => router.push({
-        pathname: "/(protected)/(routes)/TicketDetails",
-        params: { ticketData: JSON.stringify(item) },
-      })}/>
+  const renderGames = ({ item, index }: { item: ticketGameType, index: number }) => (
+    <GameCard item={item} index={index} handlePress={() => router.push({
+      pathname: "/(protected)/(routes)/TicketDetails",
+      params: { ticketData: JSON.stringify(item) },
+    })}/>
   )
+
+  const renderFooter = () => {
+    if (!loadingMore) return null
+    return (
+      <View className="py-4 items-center">
+        <ActivityIndicator size="large" color="#EF9439" />
+      </View>
+    )
+  }
 
   return (
     <SafeAreaProvider>
@@ -56,7 +83,7 @@ const AllTicketScreen = () => {
           <ImageBackground source={images.ticketBg} resizeMode="cover" className='flex-1' style={{paddingTop: top, paddingBottom: Bottom}}>
             <View className='flex-1 px-4'>
                 <Header titleColor="#EF9439" title='Ticket Games' icon onpress={() => router.back()}/>
-                  <View className='mt-2 mb-5 flex-row items-center justify-between gap-1'>
+                {/* <View className='mt-2 mb-5 flex-row items-center justify-between gap-1'>
                     <View className='flex-row w-[60%]'>
                       <SearchInput placeholder="Search Games..." otherStyles='w-full'/>
                     </View>
@@ -89,13 +116,15 @@ const AllTicketScreen = () => {
                         borderRadius: 8,
                       }}
                     />
-                </View>
-                {loadingTickets ? (
-                  <ActivityIndicator size="large" color="#EF9439" />
+                </View> */}
+                {loading ? (
+                  <View className='mt-10'>
+                    <ActivityIndicator size="large" color="#EF9439" />
+                  </View>
                 ) : (
                   <FlatList
                     data={games}
-                    keyExtractor={(item, index) => item.game_id}
+                    keyExtractor={(item, index) => item?.id}
                     renderItem={renderGames}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={
@@ -103,6 +132,8 @@ const AllTicketScreen = () => {
                         ? { flexGrow: 1, justifyContent: 'center', alignItems: 'center' }
                         : {paddingBottom: 100}
                     }
+                    onEndReached={handleLoadMore}
+                    ListFooterComponent={renderFooter}
                     ListEmptyComponent={() => (
                       <View className='flex-1'>
                           <View className="w-full items-center mx-auto justify-center my-6 max-w-64 flex-1">

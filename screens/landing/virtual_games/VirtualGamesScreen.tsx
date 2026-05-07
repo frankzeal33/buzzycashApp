@@ -17,61 +17,61 @@ const games: any = [
     //     id: "1",
     //     title: "Lucky Scratch",
     //     image: images.luckyScratch,
-    //     route: "/(protected)/(routes)/Card"
+    //     route: "/(landing)"
     // },
     // {
     //     id: "2",
     //     title: "Aviator",
     //     image: images.aviator,
-    //     route: "/(protected)/(routes)/Home"
+    //     route: "/(landing)"
     // },
     {
         id: "3",
         title: "Card",
         image: images.card,
-        route: "/(protected)/(routes)/Card"
+        route: "/(landing)/LandingCard"
     },
     {
         id: "4",
         title: "Dice",
         image: images.dice,
-        route: "/(protected)/(routes)/Dice"
+         route: "/(landing)/LandingDice"
     },
     {
         id: "5",
         title: "Coin",
         image: images.coin,
-        route: "/(protected)/(routes)/Coin"
+         route: "/(landing)/LandingCoin"
     },
     {
         id: "6",
         title: "Hot Cold",
         image: images.hotCold,
-        route: "/(protected)/(routes)/HotCold"
+        route: "/(landing)/LandingHotCold"
     },
     {
         id: "7",
         title: "Lucky Box",
         image: images.box,
-        route: "/(protected)/(routes)/LuckyBox"
+        route: "/(landing)/LandingLuckyBox"
     },
     {
         id: "8",
         title: "Reel Streak",
         image: images.fruit,
-        route: "/(protected)/(routes)/ReelStreak"
+         route: "/(landing)/LandingReelStreak"
     },
     {
         id: "9",
         title: "RPS Bet",
         image: images.betting,
-        route: "/(protected)/(routes)/RPSBet"
+        route: "/(landing)/LandingRpsBet"
     },
     {
         id: "10",
         title: "Spin 2 Win",
         image: images.spinToWin,
-        route: "/(protected)/(routes)/SpinWheel"
+        route: "/(landing)/LandingSpin"
     },
 ]
 
@@ -81,34 +81,9 @@ const VirtualGamesScreen = () => {
     const { top, bottom } = useSafeAreaInsets()
     const Bottom = bottom + 57
     const [loadingGames, setLoadingGames] = useState(false)
-    // const [games, setGames] = useState([])
-    const hasFetched = useRef(false);
 
     const [loadingGame, setLoadingGame] = useState(false)
     const [currentGame, setCurrentGame] = useState<any>(null)
-
-    // const virtualGames = async () => {
-    //     setLoadingGames(true)
-    //     try {
-
-    //         const result = await axiosClient.get("/virtual/get-games")
-
-    //         setGames(result.data?.data || [])
-    //         console.log("v-games",result.data.data)
-
-    //     } catch (error: any) {
-
-    //     } finally {
-    //        setLoadingGames(false)
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     if (!hasFetched.current) {
-    //         hasFetched.current = true;
-    //         virtualGames()
-    //     }
-    // }, []);
 
    const renderGameCard = ({ item, index }: { item: any; index: number }) => (
         <TransparentGameCard
@@ -124,9 +99,9 @@ const VirtualGamesScreen = () => {
   return (
     <SafeAreaProvider>
         <SafeAreaView edges={['left', 'right']} className='bg-blue flex-1'>
-        <ImageBackground source={images.lotteryBg} resizeMode="cover" className='flex-1' style={{paddingTop: top, paddingBottom: Bottom}}>
+        <ImageBackground source={images.lotteryBg} resizeMode="cover" className='flex-1' style={{paddingTop: top}}>
             <View className='flex-1 px-4'>
-                <Header icon home onpress={() => router.back()}/>
+                <Header icon onpress={() => router.back()}/>
                 <View className='py-4'>
                     <GameTitleBox title='Virtual Games'/>
                 </View>
@@ -144,7 +119,7 @@ const VirtualGamesScreen = () => {
                         contentContainerStyle={
                             games.length === 0
                             ? { flexGrow: 1, justifyContent: 'center', alignItems: 'center' }
-                            : {gap: 15, paddingBottom: 100}
+                            : {gap: 15, paddingBottom: bottom + 16}
                         }
                         ListEmptyComponent={() => (
                             <View className='flex-1'>
@@ -158,7 +133,6 @@ const VirtualGamesScreen = () => {
                 )}
                 
             </View>
-            <Menu/>
 
         </ImageBackground>
         </SafeAreaView>

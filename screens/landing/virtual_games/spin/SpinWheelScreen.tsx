@@ -14,7 +14,6 @@ import Animated, {
   cancelAnimation
 } from 'react-native-reanimated'
 import Svg, { G, Path, Text as SvgText } from 'react-native-svg'
-import { axiosClient } from '@/globalApi'
 import z from 'zod'
 import Toast from 'react-native-toast-message'
 import { useSfx } from '@/hooks/useSfx'
@@ -80,7 +79,7 @@ const SpinWheelScreen = () => {
     sfx.flip()
     setSpinning(true)
     setResultText("spinning...")
-
+    
     // Start a smooth infinite spin
     rotation.value = withRepeat(
       withTiming(rotation.value + 360, {
@@ -89,78 +88,9 @@ const SpinWheelScreen = () => {
       }),
       -1
     )
+    setSpinning(false)
 
-    try {
-      const res = await axiosClient.post("/virtual/spin", {
-        stake: Number(stake)
-      })
-
-      const { spine_number, multiplier, payout, is_win } = res.data.game
-      console.log("Spin result:", res.data)
-
-      // Stop the infinite spin cleanly ---
-      // Capture the current angle at the exact moment we stop, then cancel.
-      cancelAnimation(rotation)
-      const frozenAngle = rotation.value
-
-      // const targetIndex: number = spine_number
-      const targetIndex = segments.findIndex(s => s.spin_value === spine_number) 
-
-      if (targetIndex < 0 || targetIndex >= segments.length) {
-        setSpinning(false)
-        setResultText("❌ error spinning")
-        return
-      }
-
-      // Correct angle math ---
-      // SVG draws segments starting from 3 o'clock (0° = rightward).
-      // Our pointer sits at 12 o'clock, which is 270° in SVG coordinates.
-      // The mid-angle of segment i (in SVG coords) is:
-      //   segmentMidAngle = i * anglePerSegment + anglePerSegment / 2
-      // We want that mid-angle to end up at 270° under the pointer, so we need
-      // to rotate the wheel by: 270 - segmentMidAngle
-      // We also add enough full spins for a satisfying animation.
-      const segmentMidAngle = targetIndex * anglePerSegment + anglePerSegment / 2
-      const landingOffset = 270 - segmentMidAngle
-
-      // Normalise frozenAngle to [0, 360) so our spin count is predictable
-      const normalisedStart = ((frozenAngle % 360) + 360) % 360
-      const fullSpins = 5 * 360
-
-      // Target absolute rotation: current normalised angle + 5 full spins + landing offset
-      // We subtract normalisedStart and add frozenAngle so the animation starts from
-      // wherever the wheel actually is right now (no jump).
-      const targetRotation =
-        frozenAngle - normalisedStart + fullSpins + ((landingOffset % 360) + 360) % 360
-
-      rotation.value = withTiming(
-        targetRotation,
-        {
-          duration: 4500,
-          easing: Easing.out(Easing.cubic),
-        },
-        (finished) => {
-          if (finished) {
-            runOnJS(handleResult)({ multiplier, payout, is_win })
-          }
-        }
-      )
-
-    } catch (error: any) {
-      sfx.error()
-      cancelAnimation(rotation)
-      if (isMounted.current) {
-        setSpinning(false)
-        setResultText("❌ error spinning")
-      }
-      Toast.show({
-        type: 'error',
-        text1:
-          error?.response?.data?.message?.stake ||
-          error?.response?.data?.message ||
-          "Something went wrong",
-      })
-    }
+    router.push("/(onboarding)/Register")
   }
 
   const handleResult = (result: { multiplier: string; payout: number; is_win: boolean }) => {
